@@ -1,0 +1,51 @@
+{
+  "changelogDate": "20250517175150",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "companyName",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "50"
+    },
+    {
+      "fieldName": "companyStartDate",
+      "fieldType": "LocalDate",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "country",
+      "fieldType": "Country",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "ALGERIA,ARGENTINA,AUSTRALIA,BRAZIL,CANADA,CHINA,EGYPT,FRANCE,GERMANY,INDIA,ITALY,JAPAN,MEXICO,MOROCCO,RUSSIA,SAUDI_ARABIA,SOUTH_AFRICA,SOUTH_KOREA,SPAIN,TUNISIA,TURKEY,UNITED_ARAB_EMIRATES,UNITED_KINGDOM,UNITED_STATES"
+    },
+    {
+      "fieldName": "languages",
+      "fieldType": "Languages",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "ENGLISH,FRENCH"
+    },
+    {
+      "fieldName": "companyDescription",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "1000"
+    },
+    {
+      "fieldName": "anticipatedProjectSize",
+      "fieldType": "Double",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "currency",
+      "fieldType": "Currency",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "USD,EUR,TND"
+    }
+  ],
+  "name": "BusinessPlan",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [],
+  "service": "serviceImpl"
+}

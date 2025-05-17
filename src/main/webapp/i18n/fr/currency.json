@@ -1,0 +1,10 @@
+{
+  "readyToPlanBeApp": {
+    "Currency": {
+      "null": "",
+      "USD": "USD",
+      "EUR": "EUR",
+      "TND": "TND"
+    }
+  }
+}

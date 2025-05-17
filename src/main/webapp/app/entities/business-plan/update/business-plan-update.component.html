@@ -1,0 +1,228 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2
+        id="jhi-business-plan-heading"
+        data-cy="BusinessPlanCreateUpdateHeading"
+        jhiTranslate="readyToPlanBeApp.businessPlan.home.createOrEditLabel"
+      >
+        Create or edit a Business Plan
+      </h2>
+
+      <div>
+        <jhi-alert-error></jhi-alert-error>
+
+        <div class="row mb-3" *ngIf="editForm.controls.id.value !== null">
+          <label class="form-label" jhiTranslate="global.field.id" for="field_id">ID</label>
+          <input type="text" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.businessPlan.companyName" for="field_companyName">Company Name</label>
+          <input
+            type="text"
+            class="form-control"
+            name="companyName"
+            id="field_companyName"
+            data-cy="companyName"
+            formControlName="companyName"
+          />
+          <div *ngIf="editForm.get('companyName')!.invalid && (editForm.get('companyName')!.dirty || editForm.get('companyName')!.touched)">
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('companyName')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('companyName')?.errors?.maxlength"
+              jhiTranslate="entity.validation.maxlength"
+              [translateValues]="{ max: 50 }"
+            >
+              This field cannot be longer than 50 characters.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.businessPlan.companyStartDate" for="field_companyStartDate"
+            >Company Start Date</label
+          >
+          <div class="input-group">
+            <input
+              id="field_companyStartDate"
+              data-cy="companyStartDate"
+              type="text"
+              class="form-control"
+              name="companyStartDate"
+              ngbDatepicker
+              #companyStartDateDp="ngbDatepicker"
+              formControlName="companyStartDate"
+            />
+            <button type="button" class="btn btn-secondary" (click)="companyStartDateDp.toggle()">
+              <fa-icon icon="calendar-alt"></fa-icon>
+            </button>
+          </div>
+          <div
+            *ngIf="
+              editForm.get('companyStartDate')!.invalid &&
+              (editForm.get('companyStartDate')!.dirty || editForm.get('companyStartDate')!.touched)
+            "
+          >
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('companyStartDate')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.businessPlan.country" for="field_country">Country</label>
+          <select class="form-control" name="country" formControlName="country" id="field_country" data-cy="country">
+            <option [ngValue]="null">{{ 'readyToPlanBeApp.Country.null' | translate }}</option>
+            <option *ngFor="let country of countryValues" [value]="country">{{ 'readyToPlanBeApp.Country.' + country | translate }}</option>
+          </select>
+          <div *ngIf="editForm.get('country')!.invalid && (editForm.get('country')!.dirty || editForm.get('country')!.touched)">
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('country')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.businessPlan.languages" for="field_languages">Languages</label>
+          <select class="form-control" name="languages" formControlName="languages" id="field_languages" data-cy="languages">
+            <option [ngValue]="null">{{ 'readyToPlanBeApp.Languages.null' | translate }}</option>
+            <option *ngFor="let languages of languagesValues" [value]="languages">
+              {{ 'readyToPlanBeApp.Languages.' + languages | translate }}
+            </option>
+          </select>
+          <div *ngIf="editForm.get('languages')!.invalid && (editForm.get('languages')!.dirty || editForm.get('languages')!.touched)">
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('languages')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.businessPlan.companyDescription" for="field_companyDescription"
+            >Company Description</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            name="companyDescription"
+            id="field_companyDescription"
+            data-cy="companyDescription"
+            formControlName="companyDescription"
+          />
+          <div
+            *ngIf="
+              editForm.get('companyDescription')!.invalid &&
+              (editForm.get('companyDescription')!.dirty || editForm.get('companyDescription')!.touched)
+            "
+          >
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('companyDescription')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('companyDescription')?.errors?.maxlength"
+              jhiTranslate="entity.validation.maxlength"
+              [translateValues]="{ max: 1000 }"
+            >
+              This field cannot be longer than 1000 characters.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.businessPlan.anticipatedProjectSize" for="field_anticipatedProjectSize"
+            >Anticipated Project Size</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            name="anticipatedProjectSize"
+            id="field_anticipatedProjectSize"
+            data-cy="anticipatedProjectSize"
+            formControlName="anticipatedProjectSize"
+          />
+          <div
+            *ngIf="
+              editForm.get('anticipatedProjectSize')!.invalid &&
+              (editForm.get('anticipatedProjectSize')!.dirty || editForm.get('anticipatedProjectSize')!.touched)
+            "
+          >
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('anticipatedProjectSize')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+            <small
+              class="form-text text-danger"
+              [hidden]="!editForm.get('anticipatedProjectSize')?.errors?.number"
+              jhiTranslate="entity.validation.number"
+            >
+              This field should be a number.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.businessPlan.currency" for="field_currency">Currency</label>
+          <select class="form-control" name="currency" formControlName="currency" id="field_currency" data-cy="currency">
+            <option [ngValue]="null">{{ 'readyToPlanBeApp.Currency.null' | translate }}</option>
+            <option *ngFor="let currency of currencyValues" [value]="currency">
+              {{ 'readyToPlanBeApp.Currency.' + currency | translate }}
+            </option>
+          </select>
+          <div *ngIf="editForm.get('currency')!.invalid && (editForm.get('currency')!.dirty || editForm.get('currency')!.touched)">
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('currency')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

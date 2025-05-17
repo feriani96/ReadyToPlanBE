@@ -1,0 +1,56 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="businessPlan">
+      <h2 data-cy="businessPlanDetailsHeading"><span jhiTranslate="readyToPlanBeApp.businessPlan.detail.title">Business Plan</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="global.field.id">ID</span></dt>
+        <dd>
+          <span>{{ businessPlan.id }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.businessPlan.companyName">Company Name</span></dt>
+        <dd>
+          <span>{{ businessPlan.companyName }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.businessPlan.companyStartDate">Company Start Date</span></dt>
+        <dd>
+          <span>{{ businessPlan.companyStartDate | formatMediumDate }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.businessPlan.country">Country</span></dt>
+        <dd>
+          <span jhiTranslate="{{ 'readyToPlanBeApp.Country.' + businessPlan.country }}">{{ businessPlan.country }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.businessPlan.languages">Languages</span></dt>
+        <dd>
+          <span jhiTranslate="{{ 'readyToPlanBeApp.Languages.' + businessPlan.languages }}">{{ businessPlan.languages }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.businessPlan.companyDescription">Company Description</span></dt>
+        <dd>
+          <span>{{ businessPlan.companyDescription }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.businessPlan.anticipatedProjectSize">Anticipated Project Size</span></dt>
+        <dd>
+          <span>{{ businessPlan.anticipatedProjectSize }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.businessPlan.currency">Currency</span></dt>
+        <dd>
+          <span jhiTranslate="{{ 'readyToPlanBeApp.Currency.' + businessPlan.currency }}">{{ businessPlan.currency }}</span>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/business-plan', businessPlan.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+      </button>
+    </div>
+  </div>
+</div>
