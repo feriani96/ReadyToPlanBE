@@ -1,5 +1,7 @@
 package com.readytoplanbe.myapp.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.readytoplanbe.myapp.service.dto.BusinessPlanInputDTO;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -93,19 +95,50 @@ public class BusinessPlanGeneratorService {
     }
 
 
+  //  public String generatePresentation(BusinessPlanInputDTO dto, String apiKey) {
+    //    String prompt = createPromptFromDTO(dto);
+      //  try {
+        //    Optional<String> response = Optional.ofNullable(callGemini(prompt, apiKey).block());
+
+          //  return response.orElseThrow(() ->
+            //    new RuntimeException("Réponse vide de l'API Gemini lors de la génération du plan d'affaires"));
+
+        //} catch (Exception e) {
+          //  throw new RuntimeException("Erreur lors de la génération du plan d'affaires : " + e.getMessage(), e);
+        //}
+    //}
+
+
     public String generatePresentation(BusinessPlanInputDTO dto, String apiKey) {
         String prompt = createPromptFromDTO(dto);
         try {
-            Optional<String> response = Optional.ofNullable(callGemini(prompt, apiKey).block());
+            String jsonResponse = callGemini(prompt, apiKey).block();
 
-            return response.orElseThrow(() ->
-                new RuntimeException("Réponse vide de l'API Gemini lors de la génération du plan d'affaires"));
+            if (jsonResponse == null || jsonResponse.isEmpty()) {
+                throw new RuntimeException("Réponse vide de l'API Gemini.");
+            }
+
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonResponse);
+
+            // Accéder à candidates[0].content.parts[0].text
+            JsonNode textNode = root.path("candidates")
+                .path(0)
+                .path("content")
+                .path("parts")
+                .path(0)
+                .path("text");
+
+            if (textNode.isMissingNode()) {
+                throw new RuntimeException("Le champ texte attendu est manquant dans la réponse de Gemini.");
+            }
+
+            return textNode.asText(); // ✅ Affichage propre sans JSON autour
 
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la génération du plan d'affaires : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur lors de l'analyse de la réponse Gemini : " + e.getMessage(), e);
         }
     }
-
 
 
 

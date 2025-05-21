@@ -14,6 +14,7 @@ import { SortDirective } from './sort/sort.directive';
 import { ItemCountComponent } from './pagination/item-count.component';
 import { FilterComponent } from './filter/filter.component';
 import { SafeHtmlPipe } from './pipes/safe-html.pipe';
+import { NewlineToBrPipe } from './pipes/newline-to-br.pipe';
 
 @NgModule({
   imports: [SharedLibsModule],
@@ -30,7 +31,8 @@ import { SafeHtmlPipe } from './pipes/safe-html.pipe';
     SortDirective,
     ItemCountComponent,
     FilterComponent,
-    SafeHtmlPipe
+    SafeHtmlPipe,
+    NewlineToBrPipe
   ],
   exports: [
     SharedLibsModule,
@@ -46,7 +48,8 @@ import { SafeHtmlPipe } from './pipes/safe-html.pipe';
     SortDirective,
     ItemCountComponent,
     FilterComponent,
-    SafeHtmlPipe
+    SafeHtmlPipe,
+    NewlineToBrPipe
   ],
 })
 export class SharedModule {}

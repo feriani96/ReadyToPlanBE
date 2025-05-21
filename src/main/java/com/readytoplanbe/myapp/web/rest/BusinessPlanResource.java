@@ -38,9 +38,6 @@ public class BusinessPlanResource {
     private static final String ENTITY_NAME = "businessPlan";
 
     @Value("${gemini.api.key}")
-    private String apiKey;
-
-    @Value("${gemini.api.key}")
     private String geminiApiKey;
 
     @Value("${jhipster.clientApp.name}")
@@ -75,19 +72,14 @@ public class BusinessPlanResource {
             throw new BadRequestAlertException("A new businessPlan cannot already have an ID", ENTITY_NAME, "idexists");
         }
 
-        // 1. Sauvegarde initiale (sans présentation)
         BusinessPlanDTO savedPlan = businessPlanService.save(businessPlanDTO);
 
-        // 2. Génération de la présentation via Gemini AI (avec les données nécessaires)
-        // Attention : ici tu peux choisir les données à envoyer, par ex. transformer savedPlan en BusinessPlanInputDTO
         BusinessPlanInputDTO inputDTO = convertToInputDTO(savedPlan);
-        String presentation = businessPlanGeneratorService.generatePresentation(inputDTO, apiKey);
+        String presentation = businessPlanGeneratorService.generatePresentation(inputDTO, geminiApiKey);
 
-        // 3. Mise à jour du business plan avec la présentation générée
         savedPlan.setGeneratedPresentation(presentation);
         businessPlanService.updatePresentation(savedPlan.getId(), presentation);
 
-        // 4. Retourner le business plan avec présentation générée
         return ResponseEntity
             .created(new URI("/api/business-plans/" + savedPlan.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, savedPlan.getId()))
@@ -105,16 +97,12 @@ public class BusinessPlanResource {
 
         BusinessPlanDTO businessPlanDTO = optionalBusinessPlan.get();
 
-        // Convertir BusinessPlanDTO en BusinessPlanInputDTO pour passer à Gemini
         BusinessPlanInputDTO inputDTO = convertToInputDTO(businessPlanDTO);
 
-        // Générer la présentation avec Gemini AI
         String generatedPresentation = businessPlanGeneratorService.generatePresentation(inputDTO, geminiApiKey);
 
-        // Mettre à jour le champ generatedPresentation
         businessPlanDTO.setGeneratedPresentation(generatedPresentation);
 
-        // Sauvegarder la mise à jour
         BusinessPlanDTO updatedPlan = businessPlanService.save(businessPlanDTO);
 
         return ResponseEntity.ok(updatedPlan);
@@ -123,7 +111,6 @@ public class BusinessPlanResource {
     private BusinessPlanInputDTO convertToInputDTO(BusinessPlanDTO dto) {
         BusinessPlanInputDTO inputDTO = new BusinessPlanInputDTO();
 
-        // Informations générales
         inputDTO.setCompanyName(dto.getCompanyName());
         inputDTO.setCompanyDescription(dto.getCompanyDescription());
         inputDTO.setCompanyStartDate(dto.getCompanyStartDate());
@@ -138,10 +125,8 @@ public class BusinessPlanResource {
     private BusinessPlanDTO processBusinessPlan(BusinessPlanDTO dto, String apiKey) {
         BusinessPlanInputDTO inputDTO = convertToInputDTO(dto);  // conversion clean input
 
-        // Génération via Gemini
         String generatedPresentation = businessPlanGeneratorService.generatePresentation(inputDTO, apiKey);
 
-        // Stocker dans DTO qui sera retourné à l'utilisateur
         dto.setGeneratedPresentation(generatedPresentation);
 
         return dto;
@@ -244,12 +229,15 @@ public class BusinessPlanResource {
         return ResponseUtil.wrapOrNotFound(businessPlanDTO);
     }
 
-    // Ajoute cette méthode POST pour générer le business plan
     @PostMapping("/business-plan/generate")
-    public ResponseEntity<String> generateBusinessPlan(@RequestBody BusinessPlanInputDTO dto) {
-        String presentation = businessPlanGeneratorService.generatePresentation(dto, apiKey);
+    public ResponseEntity<String> generateBusinessPlan(@RequestBody BusinessPlanInputDTO inputDTO) {
+        log.debug("REST request to generate a business plan with input: {}", inputDTO);
+
+        String presentation = businessPlanGeneratorService.generatePresentation(inputDTO, geminiApiKey);
+
         return ResponseEntity.ok(presentation);
     }
+
 
     /**
      * {@code DELETE  /business-plans/:id} : delete the "id" businessPlan.

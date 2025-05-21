@@ -101,13 +101,11 @@
           <td>{{ businessPlan.companyDescription }}</td>
           <td>{{ businessPlan.anticipatedProjectSize }}</td>
           <td jhiTranslate="{{ 'readyToPlanBeApp.Currency.' + businessPlan.currency }}">{{ businessPlan.currency }}</td>
-          <!-- <td>{{ businessPlan.generatedPresentation }}</td> -->
           <td>
-            <button class="btn btn-secondary btn-sm" (click)="generatePresentation(businessPlan)">
-              Générer la présentation
-            </button>
-            <div *ngIf="businessPlan.generatedPresentation" [innerHTML]="businessPlan.generatedPresentation | safeHtml"></div>
+            <pre *ngIf="businessPlan.generatedPresentation">{{ businessPlan.generatedPresentation }}</pre>
+
           </td>
+
           <td class="text-end">
             <div class="btn-group">
               <button
