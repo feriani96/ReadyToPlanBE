@@ -93,6 +93,10 @@ mongock:
   migration-scan-package:
     - com.readytoplanbe.myapp.config.dbmigrations
 
+gemini:
+  api:
+    key: AIzaSyAQysYGTMJyllnb8DO-cqKYzlqG6d0OFt0
+
 spring:
   application:
     name: ReadyToPlanBE

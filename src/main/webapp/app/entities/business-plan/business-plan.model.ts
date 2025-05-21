@@ -12,6 +12,7 @@ export interface IBusinessPlan {
   companyDescription?: string | null;
   anticipatedProjectSize?: number | null;
   currency?: Currency | null;
+  generatedPresentation?: string | null;
 }
 
 export type NewBusinessPlan = Omit<IBusinessPlan, 'id'> & { id: null };

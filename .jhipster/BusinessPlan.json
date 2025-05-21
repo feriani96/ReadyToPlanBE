@@ -41,6 +41,10 @@
       "fieldType": "Currency",
       "fieldValidateRules": ["required"],
       "fieldValues": "USD,EUR,TND"
+    },
+    {
+      "fieldName": "generatedPresentation",
+      "fieldType": "String"
     }
   ],
   "name": "BusinessPlan",

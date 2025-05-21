@@ -24,7 +24,8 @@
       "languages": "Languages",
       "companyDescription": "Company Description",
       "anticipatedProjectSize": "Anticipated Project Size",
-      "currency": "Currency"
+      "currency": "Currency",
+      "generatedPresentation": "Generated Presentation"
     }
   }
 }

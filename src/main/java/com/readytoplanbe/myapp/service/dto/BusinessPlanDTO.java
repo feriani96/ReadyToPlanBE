@@ -39,6 +39,8 @@ public class BusinessPlanDTO implements Serializable {
     @NotNull
     private Currency currency;
 
+    private String generatedPresentation;
+
     public String getId() {
         return id;
     }
@@ -103,6 +105,14 @@ public class BusinessPlanDTO implements Serializable {
         this.currency = currency;
     }
 
+    public String getGeneratedPresentation() {
+        return generatedPresentation;
+    }
+
+    public void setGeneratedPresentation(String generatedPresentation) {
+        this.generatedPresentation = generatedPresentation;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -136,6 +146,7 @@ public class BusinessPlanDTO implements Serializable {
             ", companyDescription='" + getCompanyDescription() + "'" +
             ", anticipatedProjectSize=" + getAnticipatedProjectSize() +
             ", currency='" + getCurrency() + "'" +
+            ", generatedPresentation='" + getGeneratedPresentation() + "'" +
             "}";
     }
 }

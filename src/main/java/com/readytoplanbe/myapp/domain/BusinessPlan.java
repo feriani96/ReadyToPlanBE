@@ -52,6 +52,9 @@ public class BusinessPlan implements Serializable {
     @Field("currency")
     private Currency currency;
 
+    @Field("generated_presentation")
+    private String generatedPresentation;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public String getId() {
@@ -158,6 +161,19 @@ public class BusinessPlan implements Serializable {
         this.currency = currency;
     }
 
+    public String getGeneratedPresentation() {
+        return this.generatedPresentation;
+    }
+
+    public BusinessPlan generatedPresentation(String generatedPresentation) {
+        this.setGeneratedPresentation(generatedPresentation);
+        return this;
+    }
+
+    public void setGeneratedPresentation(String generatedPresentation) {
+        this.generatedPresentation = generatedPresentation;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -189,6 +205,7 @@ public class BusinessPlan implements Serializable {
             ", companyDescription='" + getCompanyDescription() + "'" +
             ", anticipatedProjectSize=" + getAnticipatedProjectSize() +
             ", currency='" + getCurrency() + "'" +
+            ", generatedPresentation='" + getGeneratedPresentation() + "'" +
             "}";
     }
 }

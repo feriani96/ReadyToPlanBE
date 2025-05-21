@@ -63,6 +63,25 @@ export class BusinessPlanComponent implements OnInit {
     });
   }
 
+  generatePresentation(businessPlan: IBusinessPlan): void {
+    if (!businessPlan.id) {
+      console.error('BusinessPlan ID is required');
+      return;
+    }
+    this.isLoading = true;
+    this.businessPlanService.generatePresentation(businessPlan.id).subscribe({
+      next: (presentation: string) => {
+        businessPlan.generatedPresentation = presentation;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+        alert('Erreur lors de la génération de la présentation');
+      }
+    });
+  }
+
+
   navigateToWithComponentValues(): void {
     this.handleNavigation(this.page, this.predicate, this.ascending);
   }

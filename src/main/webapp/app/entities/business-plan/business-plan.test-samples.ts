@@ -18,34 +18,35 @@ export const sampleWithRequiredData: IBusinessPlan = {
 };
 
 export const sampleWithPartialData: IBusinessPlan = {
-  id: '20d948c0-1593-4bfc-a647-9ea4473f3c81',
-  companyName: 'Small support SQL',
-  companyStartDate: dayjs('2025-05-17'),
-  country: Country['GERMANY'],
+  id: '0d948c01-593b-4fce-a479-ea4473f3c81b',
+  companyName: 'Handcrafted',
+  companyStartDate: dayjs('2025-05-16'),
+  country: Country['TUNISIA'],
   languages: Languages['FRENCH'],
-  companyDescription: 'SDD payment blue',
-  anticipatedProjectSize: 74721,
+  companyDescription: 'lime',
+  anticipatedProjectSize: 86087,
   currency: Currency['TND'],
 };
 
 export const sampleWithFullData: IBusinessPlan = {
-  id: 'dd32995a-e33b-48b2-a67c-5787ff6fe17e',
-  companyName: 'Cocos Forward Fantastic',
-  companyStartDate: dayjs('2025-05-17'),
-  country: Country['SAUDI_ARABIA'],
-  languages: Languages['FRENCH'],
-  companyDescription: 'Accountability',
-  anticipatedProjectSize: 41950,
-  currency: Currency['USD'],
+  id: 'e10a8b31-6bbd-4d32-995a-e33b8b2267c5',
+  companyName: 'Berkshire Administrator',
+  companyStartDate: dayjs('2025-05-16'),
+  country: Country['AUSTRALIA'],
+  languages: Languages['ENGLISH'],
+  companyDescription: 'connecting Sausages blue',
+  anticipatedProjectSize: 96117,
+  currency: Currency['EUR'],
+  generatedPresentation: 'Account SSL',
 };
 
 export const sampleWithNewData: NewBusinessPlan = {
-  companyName: 'program Taka bandwidth',
+  companyName: 'Producer',
   companyStartDate: dayjs('2025-05-17'),
-  country: Country['MEXICO'],
+  country: Country['SOUTH_AFRICA'],
   languages: Languages['ENGLISH'],
-  companyDescription: 'Branding Clothing',
-  anticipatedProjectSize: 49102,
+  companyDescription: 'bandwidth Macedonia',
+  anticipatedProjectSize: 53249,
   currency: Currency['TND'],
   id: null,
 };

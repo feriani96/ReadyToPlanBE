@@ -1,8 +1,10 @@
 package com.readytoplanbe.myapp.web.rest;
 
 import com.readytoplanbe.myapp.repository.BusinessPlanRepository;
+import com.readytoplanbe.myapp.service.BusinessPlanGeneratorService;
 import com.readytoplanbe.myapp.service.BusinessPlanService;
 import com.readytoplanbe.myapp.service.dto.BusinessPlanDTO;
+import com.readytoplanbe.myapp.service.dto.BusinessPlanInputDTO;
 import com.readytoplanbe.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -17,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -36,6 +37,12 @@ public class BusinessPlanResource {
 
     private static final String ENTITY_NAME = "businessPlan";
 
+    @Value("${gemini.api.key}")
+    private String apiKey;
+
+    @Value("${gemini.api.key}")
+    private String geminiApiKey;
+
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
@@ -43,9 +50,14 @@ public class BusinessPlanResource {
 
     private final BusinessPlanRepository businessPlanRepository;
 
-    public BusinessPlanResource(BusinessPlanService businessPlanService, BusinessPlanRepository businessPlanRepository) {
+    private final BusinessPlanGeneratorService businessPlanGeneratorService;
+
+    public BusinessPlanResource(BusinessPlanService businessPlanService,
+                                BusinessPlanRepository businessPlanRepository,
+                                BusinessPlanGeneratorService businessPlanGeneratorService) {
         this.businessPlanService = businessPlanService;
         this.businessPlanRepository = businessPlanRepository;
+        this.businessPlanGeneratorService = businessPlanGeneratorService;
     }
 
     /**
@@ -62,11 +74,77 @@ public class BusinessPlanResource {
         if (businessPlanDTO.getId() != null) {
             throw new BadRequestAlertException("A new businessPlan cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        BusinessPlanDTO result = businessPlanService.save(businessPlanDTO);
+
+        // 1. Sauvegarde initiale (sans présentation)
+        BusinessPlanDTO savedPlan = businessPlanService.save(businessPlanDTO);
+
+        // 2. Génération de la présentation via Gemini AI (avec les données nécessaires)
+        // Attention : ici tu peux choisir les données à envoyer, par ex. transformer savedPlan en BusinessPlanInputDTO
+        BusinessPlanInputDTO inputDTO = convertToInputDTO(savedPlan);
+        String presentation = businessPlanGeneratorService.generatePresentation(inputDTO, apiKey);
+
+        // 3. Mise à jour du business plan avec la présentation générée
+        savedPlan.setGeneratedPresentation(presentation);
+        businessPlanService.updatePresentation(savedPlan.getId(), presentation);
+
+        // 4. Retourner le business plan avec présentation générée
         return ResponseEntity
-            .created(new URI("/api/business-plans/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId()))
-            .body(result);
+            .created(new URI("/api/business-plans/" + savedPlan.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, savedPlan.getId()))
+            .body(savedPlan);
+    }
+
+    @PostMapping("/business-plans/{id}/generate-presentation")
+    public ResponseEntity<BusinessPlanDTO> generatePresentation(@PathVariable String id) {
+        log.debug("REST request to generate presentation for BusinessPlan : {}", id);
+
+        Optional<BusinessPlanDTO> optionalBusinessPlan = businessPlanService.findOne(id);
+        if (optionalBusinessPlan.isEmpty()) {
+            throw new BadRequestAlertException("BusinessPlan not found", ENTITY_NAME, "idnotfound");
+        }
+
+        BusinessPlanDTO businessPlanDTO = optionalBusinessPlan.get();
+
+        // Convertir BusinessPlanDTO en BusinessPlanInputDTO pour passer à Gemini
+        BusinessPlanInputDTO inputDTO = convertToInputDTO(businessPlanDTO);
+
+        // Générer la présentation avec Gemini AI
+        String generatedPresentation = businessPlanGeneratorService.generatePresentation(inputDTO, geminiApiKey);
+
+        // Mettre à jour le champ generatedPresentation
+        businessPlanDTO.setGeneratedPresentation(generatedPresentation);
+
+        // Sauvegarder la mise à jour
+        BusinessPlanDTO updatedPlan = businessPlanService.save(businessPlanDTO);
+
+        return ResponseEntity.ok(updatedPlan);
+    }
+
+    private BusinessPlanInputDTO convertToInputDTO(BusinessPlanDTO dto) {
+        BusinessPlanInputDTO inputDTO = new BusinessPlanInputDTO();
+
+        // Informations générales
+        inputDTO.setCompanyName(dto.getCompanyName());
+        inputDTO.setCompanyDescription(dto.getCompanyDescription());
+        inputDTO.setCompanyStartDate(dto.getCompanyStartDate());
+        inputDTO.setCountry(dto.getCountry());
+        inputDTO.setLanguages(dto.getLanguages());
+        inputDTO.setAnticipatedProjectSize(dto.getAnticipatedProjectSize());
+        inputDTO.setCurrency(dto.getCurrency());
+
+        return inputDTO;
+    }
+
+    private BusinessPlanDTO processBusinessPlan(BusinessPlanDTO dto, String apiKey) {
+        BusinessPlanInputDTO inputDTO = convertToInputDTO(dto);  // conversion clean input
+
+        // Génération via Gemini
+        String generatedPresentation = businessPlanGeneratorService.generatePresentation(inputDTO, apiKey);
+
+        // Stocker dans DTO qui sera retourné à l'utilisateur
+        dto.setGeneratedPresentation(generatedPresentation);
+
+        return dto;
     }
 
     /**
@@ -164,6 +242,13 @@ public class BusinessPlanResource {
         log.debug("REST request to get BusinessPlan : {}", id);
         Optional<BusinessPlanDTO> businessPlanDTO = businessPlanService.findOne(id);
         return ResponseUtil.wrapOrNotFound(businessPlanDTO);
+    }
+
+    // Ajoute cette méthode POST pour générer le business plan
+    @PostMapping("/business-plan/generate")
+    public ResponseEntity<String> generateBusinessPlan(@RequestBody BusinessPlanInputDTO dto) {
+        String presentation = businessPlanGeneratorService.generatePresentation(dto, apiKey);
+        return ResponseEntity.ok(presentation);
     }
 
     /**

@@ -27,6 +27,7 @@ describe('BusinessPlan Form Service', () => {
             companyDescription: expect.any(Object),
             anticipatedProjectSize: expect.any(Object),
             currency: expect.any(Object),
+            generatedPresentation: expect.any(Object),
           })
         );
       });
@@ -44,6 +45,7 @@ describe('BusinessPlan Form Service', () => {
             companyDescription: expect.any(Object),
             anticipatedProjectSize: expect.any(Object),
             currency: expect.any(Object),
+            generatedPresentation: expect.any(Object),
           })
         );
       });

@@ -54,6 +54,9 @@ class BusinessPlanResourceIT {
     private static final Currency DEFAULT_CURRENCY = Currency.USD;
     private static final Currency UPDATED_CURRENCY = Currency.EUR;
 
+    private static final String DEFAULT_GENERATED_PRESENTATION = "AAAAAAAAAA";
+    private static final String UPDATED_GENERATED_PRESENTATION = "BBBBBBBBBB";
+
     private static final String ENTITY_API_URL = "/api/business-plans";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -82,7 +85,8 @@ class BusinessPlanResourceIT {
             .languages(DEFAULT_LANGUAGES)
             .companyDescription(DEFAULT_COMPANY_DESCRIPTION)
             .anticipatedProjectSize(DEFAULT_ANTICIPATED_PROJECT_SIZE)
-            .currency(DEFAULT_CURRENCY);
+            .currency(DEFAULT_CURRENCY)
+            .generatedPresentation(DEFAULT_GENERATED_PRESENTATION);
         return businessPlan;
     }
 
@@ -100,7 +104,8 @@ class BusinessPlanResourceIT {
             .languages(UPDATED_LANGUAGES)
             .companyDescription(UPDATED_COMPANY_DESCRIPTION)
             .anticipatedProjectSize(UPDATED_ANTICIPATED_PROJECT_SIZE)
-            .currency(UPDATED_CURRENCY);
+            .currency(UPDATED_CURRENCY)
+            .generatedPresentation(UPDATED_GENERATED_PRESENTATION);
         return businessPlan;
     }
 
@@ -132,6 +137,7 @@ class BusinessPlanResourceIT {
         assertThat(testBusinessPlan.getCompanyDescription()).isEqualTo(DEFAULT_COMPANY_DESCRIPTION);
         assertThat(testBusinessPlan.getAnticipatedProjectSize()).isEqualTo(DEFAULT_ANTICIPATED_PROJECT_SIZE);
         assertThat(testBusinessPlan.getCurrency()).isEqualTo(DEFAULT_CURRENCY);
+        assertThat(testBusinessPlan.getGeneratedPresentation()).isEqualTo(DEFAULT_GENERATED_PRESENTATION);
     }
 
     @Test
@@ -304,7 +310,8 @@ class BusinessPlanResourceIT {
             .andExpect(jsonPath("$.[*].languages").value(hasItem(DEFAULT_LANGUAGES.toString())))
             .andExpect(jsonPath("$.[*].companyDescription").value(hasItem(DEFAULT_COMPANY_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].anticipatedProjectSize").value(hasItem(DEFAULT_ANTICIPATED_PROJECT_SIZE.doubleValue())))
-            .andExpect(jsonPath("$.[*].currency").value(hasItem(DEFAULT_CURRENCY.toString())));
+            .andExpect(jsonPath("$.[*].currency").value(hasItem(DEFAULT_CURRENCY.toString())))
+            .andExpect(jsonPath("$.[*].generatedPresentation").value(hasItem(DEFAULT_GENERATED_PRESENTATION)));
     }
 
     @Test
@@ -324,7 +331,8 @@ class BusinessPlanResourceIT {
             .andExpect(jsonPath("$.languages").value(DEFAULT_LANGUAGES.toString()))
             .andExpect(jsonPath("$.companyDescription").value(DEFAULT_COMPANY_DESCRIPTION))
             .andExpect(jsonPath("$.anticipatedProjectSize").value(DEFAULT_ANTICIPATED_PROJECT_SIZE.doubleValue()))
-            .andExpect(jsonPath("$.currency").value(DEFAULT_CURRENCY.toString()));
+            .andExpect(jsonPath("$.currency").value(DEFAULT_CURRENCY.toString()))
+            .andExpect(jsonPath("$.generatedPresentation").value(DEFAULT_GENERATED_PRESENTATION));
     }
 
     @Test
@@ -349,7 +357,8 @@ class BusinessPlanResourceIT {
             .languages(UPDATED_LANGUAGES)
             .companyDescription(UPDATED_COMPANY_DESCRIPTION)
             .anticipatedProjectSize(UPDATED_ANTICIPATED_PROJECT_SIZE)
-            .currency(UPDATED_CURRENCY);
+            .currency(UPDATED_CURRENCY)
+            .generatedPresentation(UPDATED_GENERATED_PRESENTATION);
         BusinessPlanDTO businessPlanDTO = businessPlanMapper.toDto(updatedBusinessPlan);
 
         restBusinessPlanMockMvc
@@ -371,6 +380,7 @@ class BusinessPlanResourceIT {
         assertThat(testBusinessPlan.getCompanyDescription()).isEqualTo(UPDATED_COMPANY_DESCRIPTION);
         assertThat(testBusinessPlan.getAnticipatedProjectSize()).isEqualTo(UPDATED_ANTICIPATED_PROJECT_SIZE);
         assertThat(testBusinessPlan.getCurrency()).isEqualTo(UPDATED_CURRENCY);
+        assertThat(testBusinessPlan.getGeneratedPresentation()).isEqualTo(UPDATED_GENERATED_PRESENTATION);
     }
 
     @Test
@@ -453,7 +463,8 @@ class BusinessPlanResourceIT {
             .country(UPDATED_COUNTRY)
             .companyDescription(UPDATED_COMPANY_DESCRIPTION)
             .anticipatedProjectSize(UPDATED_ANTICIPATED_PROJECT_SIZE)
-            .currency(UPDATED_CURRENCY);
+            .currency(UPDATED_CURRENCY)
+            .generatedPresentation(UPDATED_GENERATED_PRESENTATION);
 
         restBusinessPlanMockMvc
             .perform(
@@ -474,6 +485,7 @@ class BusinessPlanResourceIT {
         assertThat(testBusinessPlan.getCompanyDescription()).isEqualTo(UPDATED_COMPANY_DESCRIPTION);
         assertThat(testBusinessPlan.getAnticipatedProjectSize()).isEqualTo(UPDATED_ANTICIPATED_PROJECT_SIZE);
         assertThat(testBusinessPlan.getCurrency()).isEqualTo(UPDATED_CURRENCY);
+        assertThat(testBusinessPlan.getGeneratedPresentation()).isEqualTo(UPDATED_GENERATED_PRESENTATION);
     }
 
     @Test
@@ -494,7 +506,8 @@ class BusinessPlanResourceIT {
             .languages(UPDATED_LANGUAGES)
             .companyDescription(UPDATED_COMPANY_DESCRIPTION)
             .anticipatedProjectSize(UPDATED_ANTICIPATED_PROJECT_SIZE)
-            .currency(UPDATED_CURRENCY);
+            .currency(UPDATED_CURRENCY)
+            .generatedPresentation(UPDATED_GENERATED_PRESENTATION);
 
         restBusinessPlanMockMvc
             .perform(
@@ -515,6 +528,7 @@ class BusinessPlanResourceIT {
         assertThat(testBusinessPlan.getCompanyDescription()).isEqualTo(UPDATED_COMPANY_DESCRIPTION);
         assertThat(testBusinessPlan.getAnticipatedProjectSize()).isEqualTo(UPDATED_ANTICIPATED_PROJECT_SIZE);
         assertThat(testBusinessPlan.getCurrency()).isEqualTo(UPDATED_CURRENCY);
+        assertThat(testBusinessPlan.getGeneratedPresentation()).isEqualTo(UPDATED_GENERATED_PRESENTATION);
     }
 
     @Test

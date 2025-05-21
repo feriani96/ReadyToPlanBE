@@ -25,6 +25,7 @@ type BusinessPlanFormGroupContent = {
   companyDescription: FormControl<IBusinessPlan['companyDescription']>;
   anticipatedProjectSize: FormControl<IBusinessPlan['anticipatedProjectSize']>;
   currency: FormControl<IBusinessPlan['currency']>;
+  generatedPresentation: FormControl<IBusinessPlan['generatedPresentation']>;
 };
 
 export type BusinessPlanFormGroup = FormGroup<BusinessPlanFormGroupContent>;
@@ -65,6 +66,7 @@ export class BusinessPlanFormService {
       currency: new FormControl(businessPlanRawValue.currency, {
         validators: [Validators.required],
       }),
+      generatedPresentation: new FormControl(businessPlanRawValue.generatedPresentation),
     });
   }
 

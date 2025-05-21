@@ -124,4 +124,9 @@ export class BusinessPlanService {
       body: res.body ? res.body.map(item => this.convertDateFromServer(item)) : null,
     });
   }
+
+  generatePresentation(id: string): Observable<string> {
+    return this.http.get<string>(`${this.resourceUrl}/${id}/generate-presentation`);
+  }
+
 }
