@@ -63,7 +63,7 @@ export class BusinessPlanComponent implements OnInit {
     });
   }
 
-   navigateToWithComponentValues(): void {
+  navigateToWithComponentValues(): void {
     this.handleNavigation(this.page, this.predicate, this.ascending);
   }
 
@@ -132,54 +132,4 @@ export class BusinessPlanComponent implements OnInit {
       return [predicate + ',' + ascendingQueryParam];
     }
   }
-
-  generatePresentation(businessPlan: IBusinessPlan): void {
-    if (!businessPlan.id) {
-      console.error('BusinessPlan ID is required');
-      return;
-    }
-    this.isLoading = true;
-    this.businessPlanService.generatePresentation(businessPlan.id).subscribe({
-      next: (presentation: string) => {
-        try {
-          const parsed = JSON.parse(presentation);
-
-          businessPlan.generatedPresentation = this.formatPresentation(parsed);
-        } catch (e) {
-          businessPlan.generatedPresentation = presentation;
-        }
-
-        this.isLoading = false;
-      },
-      error: () => {
-        this.isLoading = false;
-        alert('Erreur lors de la génération de la présentation');
-      }
-    });
-  }
-
-  /**
-   * Formate un objet JSON en une chaîne plus lisible
-   * (à adapter selon la structure réelle de l'objet)
-   */
-  private formatPresentation(data: any): string {
-    // Exemple basique de formatage, à adapter selon ton besoin réel
-    if (typeof data !== 'object' || data === null) {
-      return String(data);
-    }
-
-    let result = '';
-
-    // Parcours des clés/valeurs
-    for (const [key, value] of Object.entries(data)) {
-      if (typeof value === 'object' && value !== null) {
-        result += `${key}:\n${this.formatPresentation(value).split('\n').map(line => '  ' + line).join('\n')}\n`;
-      } else {
-        result += `${key}: ${value}\n`;
-      }
-    }
-
-    return result.trim();
-  }
-
 }

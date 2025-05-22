@@ -1,0 +1,48 @@
+{
+  "changelogDate": "20250522022155",
+  "fields": [
+    {
+      "fieldName": "month",
+      "fieldType": "Month",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "JANUARY,FEBRUARY,MARCH,APRIL,MAY,JUNE,JULY,AUGUST,SEPTEMBER,OCTOBER,NOVEMBER,DECEMBER"
+    },
+    {
+      "fieldName": "year",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min", "max"],
+      "fieldValidateRulesMax": "2100",
+      "fieldValidateRulesMin": "1900"
+    },
+    {
+      "fieldName": "unitsSold",
+      "fieldType": "Double",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "totalRevenue",
+      "fieldType": "Double",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
+    }
+  ],
+  "name": "RevenueForecast",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityField": "nameProductOrService",
+      "otherEntityName": "productOrService",
+      "relationshipName": "productOrService",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "startDate",
+      "otherEntityName": "financialForecast",
+      "relationshipName": "financialForecast",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "no"
+}

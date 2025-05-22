@@ -1,10 +1,8 @@
 package com.readytoplanbe.myapp.web.rest;
 
 import com.readytoplanbe.myapp.repository.BusinessPlanRepository;
-import com.readytoplanbe.myapp.service.BusinessPlanGeneratorService;
 import com.readytoplanbe.myapp.service.BusinessPlanService;
 import com.readytoplanbe.myapp.service.dto.BusinessPlanDTO;
-import com.readytoplanbe.myapp.service.dto.BusinessPlanInputDTO;
 import com.readytoplanbe.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -37,9 +36,6 @@ public class BusinessPlanResource {
 
     private static final String ENTITY_NAME = "businessPlan";
 
-    @Value("${gemini.api.key}")
-    private String geminiApiKey;
-
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
@@ -47,14 +43,9 @@ public class BusinessPlanResource {
 
     private final BusinessPlanRepository businessPlanRepository;
 
-    private final BusinessPlanGeneratorService businessPlanGeneratorService;
-
-    public BusinessPlanResource(BusinessPlanService businessPlanService,
-                                BusinessPlanRepository businessPlanRepository,
-                                BusinessPlanGeneratorService businessPlanGeneratorService) {
+    public BusinessPlanResource(BusinessPlanService businessPlanService, BusinessPlanRepository businessPlanRepository) {
         this.businessPlanService = businessPlanService;
         this.businessPlanRepository = businessPlanRepository;
-        this.businessPlanGeneratorService = businessPlanGeneratorService;
     }
 
     /**
@@ -71,65 +62,11 @@ public class BusinessPlanResource {
         if (businessPlanDTO.getId() != null) {
             throw new BadRequestAlertException("A new businessPlan cannot already have an ID", ENTITY_NAME, "idexists");
         }
-
-        BusinessPlanDTO savedPlan = businessPlanService.save(businessPlanDTO);
-
-        BusinessPlanInputDTO inputDTO = convertToInputDTO(savedPlan);
-        String presentation = businessPlanGeneratorService.generatePresentation(inputDTO, geminiApiKey);
-
-        savedPlan.setGeneratedPresentation(presentation);
-        businessPlanService.updatePresentation(savedPlan.getId(), presentation);
-
+        BusinessPlanDTO result = businessPlanService.save(businessPlanDTO);
         return ResponseEntity
-            .created(new URI("/api/business-plans/" + savedPlan.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, savedPlan.getId()))
-            .body(savedPlan);
-    }
-
-    @PostMapping("/business-plans/{id}/generate-presentation")
-    public ResponseEntity<BusinessPlanDTO> generatePresentation(@PathVariable String id) {
-        log.debug("REST request to generate presentation for BusinessPlan : {}", id);
-
-        Optional<BusinessPlanDTO> optionalBusinessPlan = businessPlanService.findOne(id);
-        if (optionalBusinessPlan.isEmpty()) {
-            throw new BadRequestAlertException("BusinessPlan not found", ENTITY_NAME, "idnotfound");
-        }
-
-        BusinessPlanDTO businessPlanDTO = optionalBusinessPlan.get();
-
-        BusinessPlanInputDTO inputDTO = convertToInputDTO(businessPlanDTO);
-
-        String generatedPresentation = businessPlanGeneratorService.generatePresentation(inputDTO, geminiApiKey);
-
-        businessPlanDTO.setGeneratedPresentation(generatedPresentation);
-
-        BusinessPlanDTO updatedPlan = businessPlanService.save(businessPlanDTO);
-
-        return ResponseEntity.ok(updatedPlan);
-    }
-
-    private BusinessPlanInputDTO convertToInputDTO(BusinessPlanDTO dto) {
-        BusinessPlanInputDTO inputDTO = new BusinessPlanInputDTO();
-
-        inputDTO.setCompanyName(dto.getCompanyName());
-        inputDTO.setCompanyDescription(dto.getCompanyDescription());
-        inputDTO.setCompanyStartDate(dto.getCompanyStartDate());
-        inputDTO.setCountry(dto.getCountry());
-        inputDTO.setLanguages(dto.getLanguages());
-        inputDTO.setAnticipatedProjectSize(dto.getAnticipatedProjectSize());
-        inputDTO.setCurrency(dto.getCurrency());
-
-        return inputDTO;
-    }
-
-    private BusinessPlanDTO processBusinessPlan(BusinessPlanDTO dto, String apiKey) {
-        BusinessPlanInputDTO inputDTO = convertToInputDTO(dto);  // conversion clean input
-
-        String generatedPresentation = businessPlanGeneratorService.generatePresentation(inputDTO, apiKey);
-
-        dto.setGeneratedPresentation(generatedPresentation);
-
-        return dto;
+            .created(new URI("/api/business-plans/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId()))
+            .body(result);
     }
 
     /**
@@ -228,16 +165,6 @@ public class BusinessPlanResource {
         Optional<BusinessPlanDTO> businessPlanDTO = businessPlanService.findOne(id);
         return ResponseUtil.wrapOrNotFound(businessPlanDTO);
     }
-
-    @PostMapping("/business-plan/generate")
-    public ResponseEntity<String> generateBusinessPlan(@RequestBody BusinessPlanInputDTO inputDTO) {
-        log.debug("REST request to generate a business plan with input: {}", inputDTO);
-
-        String presentation = businessPlanGeneratorService.generatePresentation(inputDTO, geminiApiKey);
-
-        return ResponseEntity.ok(presentation);
-    }
-
 
     /**
      * {@code DELETE  /business-plans/:id} : delete the "id" businessPlan.

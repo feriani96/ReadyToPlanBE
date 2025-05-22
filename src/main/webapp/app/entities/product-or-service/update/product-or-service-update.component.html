@@ -1,0 +1,215 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2
+        id="jhi-product-or-service-heading"
+        data-cy="ProductOrServiceCreateUpdateHeading"
+        jhiTranslate="readyToPlanBeApp.productOrService.home.createOrEditLabel"
+      >
+        Create or edit a Product Or Service
+      </h2>
+
+      <div>
+        <jhi-alert-error></jhi-alert-error>
+
+        <div class="row mb-3" *ngIf="editForm.controls.id.value !== null">
+          <label class="form-label" jhiTranslate="global.field.id" for="field_id">ID</label>
+          <input type="text" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.productOrService.nameProductOrService" for="field_nameProductOrService"
+            >Name Product Or Service</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            name="nameProductOrService"
+            id="field_nameProductOrService"
+            data-cy="nameProductOrService"
+            formControlName="nameProductOrService"
+          />
+          <div
+            *ngIf="
+              editForm.get('nameProductOrService')!.invalid &&
+              (editForm.get('nameProductOrService')!.dirty || editForm.get('nameProductOrService')!.touched)
+            "
+          >
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('nameProductOrService')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('nameProductOrService')?.errors?.maxlength"
+              jhiTranslate="entity.validation.maxlength"
+              [translateValues]="{ max: 50 }"
+            >
+              This field cannot be longer than 50 characters.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.productOrService.productDescription" for="field_productDescription"
+            >Product Description</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            name="productDescription"
+            id="field_productDescription"
+            data-cy="productDescription"
+            formControlName="productDescription"
+          />
+          <div
+            *ngIf="
+              editForm.get('productDescription')!.invalid &&
+              (editForm.get('productDescription')!.dirty || editForm.get('productDescription')!.touched)
+            "
+          >
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('productDescription')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('productDescription')?.errors?.maxlength"
+              jhiTranslate="entity.validation.maxlength"
+              [translateValues]="{ max: 50 }"
+            >
+              This field cannot be longer than 50 characters.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.productOrService.unitPrice" for="field_unitPrice">Unit Price</label>
+          <input type="number" class="form-control" name="unitPrice" id="field_unitPrice" data-cy="unitPrice" formControlName="unitPrice" />
+          <div *ngIf="editForm.get('unitPrice')!.invalid && (editForm.get('unitPrice')!.dirty || editForm.get('unitPrice')!.touched)">
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('unitPrice')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('unitPrice')?.errors?.min"
+              jhiTranslate="entity.validation.min"
+              [translateValues]="{ min: 0 }"
+            >
+              This field should be at least 0.
+            </small>
+            <small
+              class="form-text text-danger"
+              [hidden]="!editForm.get('unitPrice')?.errors?.number"
+              jhiTranslate="entity.validation.number"
+            >
+              This field should be a number.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.productOrService.estimatedMonthlySales" for="field_estimatedMonthlySales"
+            >Estimated Monthly Sales</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            name="estimatedMonthlySales"
+            id="field_estimatedMonthlySales"
+            data-cy="estimatedMonthlySales"
+            formControlName="estimatedMonthlySales"
+          />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.productOrService.durationInMonths" for="field_durationInMonths"
+            >Duration In Months</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            name="durationInMonths"
+            id="field_durationInMonths"
+            data-cy="durationInMonths"
+            formControlName="durationInMonths"
+          />
+          <div
+            *ngIf="
+              editForm.get('durationInMonths')!.invalid &&
+              (editForm.get('durationInMonths')!.dirty || editForm.get('durationInMonths')!.touched)
+            "
+          >
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('durationInMonths')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('durationInMonths')?.errors?.min"
+              jhiTranslate="entity.validation.min"
+              [translateValues]="{ min: 1 }"
+            >
+              This field should be at least 1.
+            </small>
+            <small
+              class="form-text text-danger"
+              [hidden]="!editForm.get('durationInMonths')?.errors?.number"
+              jhiTranslate="entity.validation.number"
+            >
+              This field should be a number.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.productOrService.manualBusinessPlan" for="field_manualBusinessPlan"
+            >Manual Business Plan</label
+          >
+          <select
+            class="form-control"
+            id="field_manualBusinessPlan"
+            data-cy="manualBusinessPlan"
+            name="manualBusinessPlan"
+            formControlName="manualBusinessPlan"
+            [compareWith]="compareManualBusinessPlan"
+          >
+            <option [ngValue]="null"></option>
+            <option [ngValue]="manualBusinessPlanOption" *ngFor="let manualBusinessPlanOption of manualBusinessPlansSharedCollection">
+              {{ manualBusinessPlanOption.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

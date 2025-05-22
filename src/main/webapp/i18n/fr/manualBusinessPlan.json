@@ -1,0 +1,27 @@
+{
+  "readyToPlanBeApp": {
+    "manualBusinessPlan": {
+      "home": {
+        "title": "ManualBusinessPlans",
+        "refreshListLabel": "Actualiser la liste",
+        "createLabel": "Créer un nouveau Manual Business Plan",
+        "createOrEditLabel": "Créer ou éditer un Manual Business Plan",
+        "notFound": "Aucun Manual Business Plan trouvé"
+      },
+      "created": "Un nouveau Manual Business Plan a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Manual Business Plan avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Manual Business Plan avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Êtes-vous certain de vouloir supprimer le Manual Business Plan {{ id }} ?"
+      },
+      "detail": {
+        "title": "Manual Business Plan"
+      },
+      "id": "ID",
+      "name": "Name",
+      "description": "Description",
+      "creationDate": "Creation Date",
+      "entrepreneurName": "Entrepreneur Name"
+    }
+  }
+}

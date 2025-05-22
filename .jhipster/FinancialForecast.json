@@ -1,0 +1,28 @@
+{
+  "changelogDate": "20250522013813",
+  "fields": [
+    {
+      "fieldName": "startDate",
+      "fieldType": "LocalDate",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "durationInMonths",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["min"],
+      "fieldValidateRulesMin": "1"
+    }
+  ],
+  "name": "FinancialForecast",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "manualBusinessPlan",
+      "relationshipName": "manualBusinessPlan",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "no"
+}

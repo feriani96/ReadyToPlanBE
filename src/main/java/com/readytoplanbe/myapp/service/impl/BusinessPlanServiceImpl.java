@@ -2,17 +2,12 @@ package com.readytoplanbe.myapp.service.impl;
 
 import com.readytoplanbe.myapp.domain.BusinessPlan;
 import com.readytoplanbe.myapp.repository.BusinessPlanRepository;
-import com.readytoplanbe.myapp.service.BusinessPlanGeneratorService;
 import com.readytoplanbe.myapp.service.BusinessPlanService;
 import com.readytoplanbe.myapp.service.dto.BusinessPlanDTO;
-import com.readytoplanbe.myapp.service.dto.BusinessPlanInputDTO;
 import com.readytoplanbe.myapp.service.mapper.BusinessPlanMapper;
 import java.util.Optional;
-
-import com.readytoplanbe.myapp.web.rest.errors.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,46 +24,9 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
 
     private final BusinessPlanMapper businessPlanMapper;
 
-    private final BusinessPlanGeneratorService businessPlanGeneratorService;
-
-    @Value("${gemini.api.key}")
-    private String geminiApiKey;
-
-
-    public BusinessPlanServiceImpl(BusinessPlanRepository businessPlanRepository,
-                                   BusinessPlanMapper businessPlanMapper,
-                                   BusinessPlanGeneratorService businessPlanGeneratorService) {
+    public BusinessPlanServiceImpl(BusinessPlanRepository businessPlanRepository, BusinessPlanMapper businessPlanMapper) {
         this.businessPlanRepository = businessPlanRepository;
         this.businessPlanMapper = businessPlanMapper;
-        this.businessPlanGeneratorService = businessPlanGeneratorService;
-    }
-
-    @Override
-    public BusinessPlanDTO generateAndSaveFromInput(BusinessPlanInputDTO inputDTO) {
-        String generatedPresentation = businessPlanGeneratorService.generatePresentation(inputDTO, geminiApiKey);
-
-        BusinessPlanDTO dto = new BusinessPlanDTO();
-        dto.setCompanyName(inputDTO.getCompanyName());
-        dto.setCompanyDescription(inputDTO.getCompanyDescription());
-        dto.setCompanyStartDate(inputDTO.getCompanyStartDate());
-        dto.setCountry(inputDTO.getCountry());
-        dto.setLanguages(inputDTO.getLanguages());
-        dto.setAnticipatedProjectSize(inputDTO.getAnticipatedProjectSize());
-        dto.setCurrency(inputDTO.getCurrency());
-        dto.setGeneratedPresentation(generatedPresentation);
-
-        return save(dto);
-    }
-
-    @Override
-    public BusinessPlanDTO updatePresentation(String id, String presentation) {
-        Optional<BusinessPlanDTO> optionalPlan = findOne(id);
-        if (optionalPlan.isPresent()) {
-            BusinessPlanDTO plan = optionalPlan.get();
-            plan.setGeneratedPresentation(presentation);
-            return save(plan);
-        }
-        throw new EntityNotFoundException("BusinessPlan not found");
     }
 
     @Override

@@ -101,11 +101,7 @@
           <td>{{ businessPlan.companyDescription }}</td>
           <td>{{ businessPlan.anticipatedProjectSize }}</td>
           <td jhiTranslate="{{ 'readyToPlanBeApp.Currency.' + businessPlan.currency }}">{{ businessPlan.currency }}</td>
-          <td>
-            <pre *ngIf="businessPlan.generatedPresentation">{{ businessPlan.generatedPresentation }}</pre>
-
-          </td>
-
+          <td>{{ businessPlan.generatedPresentation }}</td>
           <td class="text-end">
             <div class="btn-group">
               <button

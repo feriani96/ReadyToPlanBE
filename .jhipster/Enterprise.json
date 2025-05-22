@@ -1,0 +1,44 @@
+{
+  "changelogDate": "20250522010910",
+  "fields": [
+    {
+      "fieldName": "enterpriseName",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "50"
+    },
+    {
+      "fieldName": "country",
+      "fieldType": "Country",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "ALGERIA,ARGENTINA,AUSTRALIA,BRAZIL,CANADA,CHINA,EGYPT,FRANCE,GERMANY,INDIA,ITALY,JAPAN,MEXICO,MOROCCO,RUSSIA,SAUDI_ARABIA,SOUTH_AFRICA,SOUTH_KOREA,SPAIN,TUNISIA,TURKEY,UNITED_ARAB_EMIRATES,UNITED_KINGDOM,UNITED_STATES"
+    },
+    {
+      "fieldName": "phoneNumber",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "1000"
+    },
+    {
+      "fieldName": "amount",
+      "fieldType": "Long",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "currency",
+      "fieldType": "Currency",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "USD,EUR,TND"
+    }
+  ],
+  "name": "Enterprise",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [],
+  "service": "no"
+}

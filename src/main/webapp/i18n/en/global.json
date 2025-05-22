@@ -8,6 +8,12 @@
       "entities": {
         "main": "Entities",
         "businessPlan": "Business Plan",
+        "enterprise": "Enterprise",
+        "manualBusinessPlan": "Manual Business Plan",
+        "financialForecast": "Financial Forecast",
+        "productOrService": "Product Or Service",
+        "revenueForecast": "Revenue Forecast",
+        "expenseForecast": "Expense Forecast",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {

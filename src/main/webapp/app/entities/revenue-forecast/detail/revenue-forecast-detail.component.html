@@ -1,0 +1,62 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="revenueForecast">
+      <h2 data-cy="revenueForecastDetailsHeading">
+        <span jhiTranslate="readyToPlanBeApp.revenueForecast.detail.title">Revenue Forecast</span>
+      </h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="global.field.id">ID</span></dt>
+        <dd>
+          <span>{{ revenueForecast.id }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.revenueForecast.month">Month</span></dt>
+        <dd>
+          <span jhiTranslate="{{ 'readyToPlanBeApp.Month.' + revenueForecast.month }}">{{ revenueForecast.month }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.revenueForecast.year">Year</span></dt>
+        <dd>
+          <span>{{ revenueForecast.year }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.revenueForecast.unitsSold">Units Sold</span></dt>
+        <dd>
+          <span>{{ revenueForecast.unitsSold }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.revenueForecast.totalRevenue">Total Revenue</span></dt>
+        <dd>
+          <span>{{ revenueForecast.totalRevenue }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.revenueForecast.productOrService">Product Or Service</span></dt>
+        <dd>
+          <div *ngIf="revenueForecast.productOrService">
+            <a [routerLink]="['/product-or-service', revenueForecast.productOrService.id, 'view']">{{
+              revenueForecast.productOrService.nameProductOrService
+            }}</a>
+          </div>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.revenueForecast.financialForecast">Financial Forecast</span></dt>
+        <dd>
+          <div *ngIf="revenueForecast.financialForecast">
+            <a [routerLink]="['/financial-forecast', revenueForecast.financialForecast.id, 'view']">{{
+              revenueForecast.financialForecast.startDate
+            }}</a>
+          </div>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/revenue-forecast', revenueForecast.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+      </button>
+    </div>
+  </div>
+</div>
