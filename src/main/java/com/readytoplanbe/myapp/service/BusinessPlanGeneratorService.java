@@ -94,21 +94,6 @@ public class BusinessPlanGeneratorService {
             .bodyToMono(String.class);
     }
 
-
-  //  public String generatePresentation(BusinessPlanInputDTO dto, String apiKey) {
-    //    String prompt = createPromptFromDTO(dto);
-      //  try {
-        //    Optional<String> response = Optional.ofNullable(callGemini(prompt, apiKey).block());
-
-          //  return response.orElseThrow(() ->
-            //    new RuntimeException("Réponse vide de l'API Gemini lors de la génération du plan d'affaires"));
-
-        //} catch (Exception e) {
-          //  throw new RuntimeException("Erreur lors de la génération du plan d'affaires : " + e.getMessage(), e);
-        //}
-    //}
-
-
     public String generatePresentation(BusinessPlanInputDTO dto, String apiKey) {
         String prompt = createPromptFromDTO(dto);
         try {

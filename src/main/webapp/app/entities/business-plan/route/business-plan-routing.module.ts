@@ -7,6 +7,7 @@ import { BusinessPlanDetailComponent } from '../detail/business-plan-detail.comp
 import { BusinessPlanUpdateComponent } from '../update/business-plan-update.component';
 import { BusinessPlanRoutingResolveService } from './business-plan-routing-resolve.service';
 import { ASC } from 'app/config/navigation.constants';
+import { BusinessPlanPresentationComponent } from '../presentation/business-plan-presentation.component';
 
 const businessPlanRoute: Routes = [
   {
@@ -40,6 +41,15 @@ const businessPlanRoute: Routes = [
       businessPlan: BusinessPlanRoutingResolveService,
     },
     canActivate: [UserRouteAccessService],
+  },
+
+  {
+      path: ':id/presentation',
+      component: BusinessPlanPresentationComponent,
+      resolve: {
+        businessPlan: BusinessPlanRoutingResolveService,
+      },
+      canActivate: [UserRouteAccessService],
   },
 ];
 

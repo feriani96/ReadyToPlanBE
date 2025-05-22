@@ -15,9 +15,14 @@ import { ItemCountComponent } from './pagination/item-count.component';
 import { FilterComponent } from './filter/filter.component';
 import { SafeHtmlPipe } from './pipes/safe-html.pipe';
 import { NewlineToBrPipe } from './pipes/newline-to-br.pipe';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { SafeUrlPipe } from './pipes/safe-url.pipe';
 
 @NgModule({
-  imports: [SharedLibsModule],
+  imports: [
+    SharedLibsModule,
+    FontAwesomeModule,
+  ],
   declarations: [
     FindLanguageFromKeyPipe,
     TranslateDirective,
@@ -32,10 +37,13 @@ import { NewlineToBrPipe } from './pipes/newline-to-br.pipe';
     ItemCountComponent,
     FilterComponent,
     SafeHtmlPipe,
-    NewlineToBrPipe
+    NewlineToBrPipe,
+    SafeUrlPipe,
+
   ],
   exports: [
     SharedLibsModule,
+    FontAwesomeModule,
     FindLanguageFromKeyPipe,
     TranslateDirective,
     AlertComponent,
@@ -49,7 +57,8 @@ import { NewlineToBrPipe } from './pipes/newline-to-br.pipe';
     ItemCountComponent,
     FilterComponent,
     SafeHtmlPipe,
-    NewlineToBrPipe
+    NewlineToBrPipe,
+    SafeUrlPipe,
   ],
 })
 export class SharedModule {}

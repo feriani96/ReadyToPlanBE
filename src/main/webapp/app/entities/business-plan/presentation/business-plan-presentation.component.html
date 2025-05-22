@@ -1,0 +1,15 @@
+<div class="container mt-4" *ngIf="businessPlan">
+  <h2>Présentation Générée pour : {{ businessPlan.companyName }}</h2>
+  <hr />
+
+  <div class="presentation-content" [innerHTML]="businessPlan.generatedPresentation"></div>
+
+  <a
+    class="btn btn-primary mt-3"
+    [href]="'data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,' + businessPlan.generatedPresentation"
+    download="presentation.pptx"
+    *ngIf="businessPlan.generatedPresentation"
+  >
+    Télécharger la présentation
+  </a>
+</div>

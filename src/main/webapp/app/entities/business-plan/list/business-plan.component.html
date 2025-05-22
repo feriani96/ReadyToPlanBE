@@ -101,7 +101,14 @@
           <td>{{ businessPlan.companyDescription }}</td>
           <td>{{ businessPlan.anticipatedProjectSize }}</td>
           <td jhiTranslate="{{ 'readyToPlanBeApp.Currency.' + businessPlan.currency }}">{{ businessPlan.currency }}</td>
-          <td>{{ businessPlan.generatedPresentation }}</td>
+          <!-- <td>{{ businessPlan.generatedPresentation }}</td> -->
+          <td>
+            <a [routerLink]="['/business-plan', businessPlan.id, 'presentation']" class="btn btn-outline-secondary btn-sm">
+              <fa-icon icon="file-powerpoint"></fa-icon>
+              <span class="d-none d-md-inline">Voir Présentation</span>
+            </a>
+          </td>
+
           <td class="text-end">
             <div class="btn-group">
               <button
