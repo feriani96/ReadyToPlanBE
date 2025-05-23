@@ -3,6 +3,7 @@ package com.readytoplanbe.myapp.web.rest;
 import com.readytoplanbe.myapp.repository.BusinessPlanRepository;
 import com.readytoplanbe.myapp.service.BusinessPlanService;
 import com.readytoplanbe.myapp.service.dto.BusinessPlanDTO;
+import com.readytoplanbe.myapp.service.dto.BusinessPlanInputDTO;
 import com.readytoplanbe.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -165,6 +166,18 @@ public class BusinessPlanResource {
         Optional<BusinessPlanDTO> businessPlanDTO = businessPlanService.findOne(id);
         return ResponseUtil.wrapOrNotFound(businessPlanDTO);
     }
+
+    @PostMapping("/business-plans/generate")
+    public ResponseEntity<String> generateBusinessPlan(@Valid @RequestBody BusinessPlanDTO businessPlanDTO) {
+        log.debug("REST request to generate BusinessPlan presentation for : {}", businessPlanDTO);
+
+        BusinessPlanInputDTO input = new BusinessPlanInputDTO(businessPlanDTO);
+        String generatedPresentation = businessPlanService.generatePresentation(input);
+
+        // Tu peux retourner directement la présentation générée
+        return ResponseEntity.ok(generatedPresentation);
+    }
+
 
     /**
      * {@code DELETE  /business-plans/:id} : delete the "id" businessPlan.

@@ -69,6 +69,16 @@ export class BusinessPlanService {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
+    /**
+     * Nouvelle méthode pour générer la présentation du business plan
+     * @param businessPlan businessPlan DTO
+     * @returns Observable<string> avec la présentation générée par le backend
+     */
+    generateBusinessPlan(businessPlan: IBusinessPlan | NewBusinessPlan): Observable<string> {
+      const copy = this.convertDateFromClient(businessPlan);
+      return this.http.post(`${this.resourceUrl}/generate`, copy, { responseType: 'text' });
+    }
+
   getBusinessPlanIdentifier(businessPlan: Pick<IBusinessPlan, 'id'>): string {
     return businessPlan.id;
   }

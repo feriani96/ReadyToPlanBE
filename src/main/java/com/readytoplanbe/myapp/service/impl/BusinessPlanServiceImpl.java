@@ -2,12 +2,15 @@ package com.readytoplanbe.myapp.service.impl;
 
 import com.readytoplanbe.myapp.domain.BusinessPlan;
 import com.readytoplanbe.myapp.repository.BusinessPlanRepository;
+import com.readytoplanbe.myapp.service.BusinessPlanGeneratorService;
 import com.readytoplanbe.myapp.service.BusinessPlanService;
 import com.readytoplanbe.myapp.service.dto.BusinessPlanDTO;
+import com.readytoplanbe.myapp.service.dto.BusinessPlanInputDTO;
 import com.readytoplanbe.myapp.service.mapper.BusinessPlanMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,15 +27,35 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
 
     private final BusinessPlanMapper businessPlanMapper;
 
-    public BusinessPlanServiceImpl(BusinessPlanRepository businessPlanRepository, BusinessPlanMapper businessPlanMapper) {
+    private final BusinessPlanGeneratorService generatorService;
+
+    @Value("${gemini.api.key}")
+    private String apikey;
+    public BusinessPlanServiceImpl(
+        BusinessPlanRepository businessPlanRepository,
+        BusinessPlanMapper businessPlanMapper,
+        BusinessPlanGeneratorService generatorService) {
         this.businessPlanRepository = businessPlanRepository;
         this.businessPlanMapper = businessPlanMapper;
+        this.generatorService = generatorService;
+
+    }
+
+    @Override
+    public String generatePresentation(BusinessPlanInputDTO input) {
+        return generatorService.generatePresentation(input, apikey);
     }
 
     @Override
     public BusinessPlanDTO save(BusinessPlanDTO businessPlanDTO) {
         log.debug("Request to save BusinessPlan : {}", businessPlanDTO);
         BusinessPlan businessPlan = businessPlanMapper.toEntity(businessPlanDTO);
+
+        // Appel à Gemini pour générer la présentation
+        BusinessPlanInputDTO input = new BusinessPlanInputDTO(businessPlanDTO);
+        String presentation = generatorService.generatePresentation(input, apikey);
+        businessPlan.setGeneratedPresentation(presentation);
+
         businessPlan = businessPlanRepository.save(businessPlan);
         return businessPlanMapper.toDto(businessPlan);
     }
@@ -41,6 +64,12 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
     public BusinessPlanDTO update(BusinessPlanDTO businessPlanDTO) {
         log.debug("Request to update BusinessPlan : {}", businessPlanDTO);
         BusinessPlan businessPlan = businessPlanMapper.toEntity(businessPlanDTO);
+
+        // Regénérer la présentation
+        BusinessPlanInputDTO input = new BusinessPlanInputDTO(businessPlanDTO);
+        String presentation = generatorService.generatePresentation(input, apikey);
+        businessPlan.setGeneratedPresentation(presentation);
+
         businessPlan = businessPlanRepository.save(businessPlan);
         return businessPlanMapper.toDto(businessPlan);
     }

@@ -222,4 +222,15 @@ public class BusinessPlanInputDTO {
     public void setCriticalDependencies(String criticalDependencies) {
         this.criticalDependencies = criticalDependencies;
     }
+
+    public BusinessPlanInputDTO(BusinessPlanDTO businessPlanDTO) {
+        this.companyName = businessPlanDTO.getCompanyName();
+        this.companyDescription = businessPlanDTO.getCompanyDescription();
+        this.companyStartDate = businessPlanDTO.getCompanyStartDate();
+        this.country = businessPlanDTO.getCountry();
+        this.languages = businessPlanDTO.getLanguages();
+        this.anticipatedProjectSize = businessPlanDTO.getAnticipatedProjectSize();
+        this.currency = businessPlanDTO.getCurrency();
+    }
+
 }

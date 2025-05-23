@@ -2,6 +2,8 @@ package com.readytoplanbe.myapp.service;
 
 import com.readytoplanbe.myapp.service.dto.BusinessPlanDTO;
 import java.util.Optional;
+
+import com.readytoplanbe.myapp.service.dto.BusinessPlanInputDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -16,6 +18,8 @@ public interface BusinessPlanService {
      * @return the persisted entity.
      */
     BusinessPlanDTO save(BusinessPlanDTO businessPlanDTO);
+
+    String generatePresentation(BusinessPlanInputDTO input);
 
     /**
      * Updates a businessPlan.
