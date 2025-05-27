@@ -104,7 +104,7 @@ public class BusinessPlanGeneratorService {
             dto.getLanguages(),
             dto.getAnticipatedProjectSize(),
             dto.getCurrency()
-        ) + planInstruction;
+        ) + planInstruction.replace("\n\n", "\n\n===SLIDE===\n\n");
 
     }
 
