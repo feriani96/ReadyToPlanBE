@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class BusinessPlanGeneratorService {
@@ -142,7 +141,6 @@ public class BusinessPlanGeneratorService {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonResponse);
 
-            // Accéder à candidates[0].content.parts[0].text
             JsonNode textNode = root.path("candidates")
                 .path(0)
                 .path("content")
@@ -154,7 +152,7 @@ public class BusinessPlanGeneratorService {
                 throw new RuntimeException("Le champ texte attendu est manquant dans la réponse de Gemini.");
             }
 
-            return textNode.asText(); // ✅ Affichage propre sans JSON autour
+            return textNode.asText();
 
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors de l'analyse de la réponse Gemini : " + e.getMessage(), e);

@@ -66,9 +66,11 @@ public class BusinessPlanServiceImpl implements BusinessPlanService {
         BusinessPlan businessPlan = businessPlanMapper.toEntity(businessPlanDTO);
 
         // Regénérer la présentation
-        BusinessPlanInputDTO input = new BusinessPlanInputDTO(businessPlanDTO);
-        String presentation = generatorService.generatePresentation(input, apikey);
-        businessPlan.setGeneratedPresentation(presentation);
+        if (businessPlanDTO.isRegeneratePresentation()) {
+            BusinessPlanInputDTO input = new BusinessPlanInputDTO(businessPlanDTO);
+            String presentation = generatorService.generatePresentation(input, apikey);
+            businessPlan.setGeneratedPresentation(presentation);
+        }
 
         businessPlan = businessPlanRepository.save(businessPlan);
         return businessPlanMapper.toDto(businessPlan);
