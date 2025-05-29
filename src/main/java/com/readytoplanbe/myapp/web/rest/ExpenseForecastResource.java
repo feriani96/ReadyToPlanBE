@@ -1,7 +1,8 @@
 package com.readytoplanbe.myapp.web.rest;
 
-import com.readytoplanbe.myapp.domain.ExpenseForecast;
 import com.readytoplanbe.myapp.repository.ExpenseForecastRepository;
+import com.readytoplanbe.myapp.service.ExpenseForecastService;
+import com.readytoplanbe.myapp.service.dto.ExpenseForecastDTO;
 import com.readytoplanbe.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,27 +39,30 @@ public class ExpenseForecastResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
+    private final ExpenseForecastService expenseForecastService;
+
     private final ExpenseForecastRepository expenseForecastRepository;
 
-    public ExpenseForecastResource(ExpenseForecastRepository expenseForecastRepository) {
+    public ExpenseForecastResource(ExpenseForecastService expenseForecastService, ExpenseForecastRepository expenseForecastRepository) {
+        this.expenseForecastService = expenseForecastService;
         this.expenseForecastRepository = expenseForecastRepository;
     }
 
     /**
      * {@code POST  /expense-forecasts} : Create a new expenseForecast.
      *
-     * @param expenseForecast the expenseForecast to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new expenseForecast, or with status {@code 400 (Bad Request)} if the expenseForecast has already an ID.
+     * @param expenseForecastDTO the expenseForecastDTO to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new expenseForecastDTO, or with status {@code 400 (Bad Request)} if the expenseForecast has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/expense-forecasts")
-    public ResponseEntity<ExpenseForecast> createExpenseForecast(@Valid @RequestBody ExpenseForecast expenseForecast)
+    public ResponseEntity<ExpenseForecastDTO> createExpenseForecast(@Valid @RequestBody ExpenseForecastDTO expenseForecastDTO)
         throws URISyntaxException {
-        log.debug("REST request to save ExpenseForecast : {}", expenseForecast);
-        if (expenseForecast.getId() != null) {
+        log.debug("REST request to save ExpenseForecast : {}", expenseForecastDTO);
+        if (expenseForecastDTO.getId() != null) {
             throw new BadRequestAlertException("A new expenseForecast cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        ExpenseForecast result = expenseForecastRepository.save(expenseForecast);
+        ExpenseForecastDTO result = expenseForecastService.save(expenseForecastDTO);
         return ResponseEntity
             .created(new URI("/api/expense-forecasts/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId()))
@@ -68,23 +72,23 @@ public class ExpenseForecastResource {
     /**
      * {@code PUT  /expense-forecasts/:id} : Updates an existing expenseForecast.
      *
-     * @param id the id of the expenseForecast to save.
-     * @param expenseForecast the expenseForecast to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated expenseForecast,
-     * or with status {@code 400 (Bad Request)} if the expenseForecast is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the expenseForecast couldn't be updated.
+     * @param id the id of the expenseForecastDTO to save.
+     * @param expenseForecastDTO the expenseForecastDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated expenseForecastDTO,
+     * or with status {@code 400 (Bad Request)} if the expenseForecastDTO is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the expenseForecastDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/expense-forecasts/{id}")
-    public ResponseEntity<ExpenseForecast> updateExpenseForecast(
+    public ResponseEntity<ExpenseForecastDTO> updateExpenseForecast(
         @PathVariable(value = "id", required = false) final String id,
-        @Valid @RequestBody ExpenseForecast expenseForecast
+        @Valid @RequestBody ExpenseForecastDTO expenseForecastDTO
     ) throws URISyntaxException {
-        log.debug("REST request to update ExpenseForecast : {}, {}", id, expenseForecast);
-        if (expenseForecast.getId() == null) {
+        log.debug("REST request to update ExpenseForecast : {}, {}", id, expenseForecastDTO);
+        if (expenseForecastDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, expenseForecast.getId())) {
+        if (!Objects.equals(id, expenseForecastDTO.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -92,34 +96,34 @@ public class ExpenseForecastResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        ExpenseForecast result = expenseForecastRepository.save(expenseForecast);
+        ExpenseForecastDTO result = expenseForecastService.update(expenseForecastDTO);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, expenseForecast.getId()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, expenseForecastDTO.getId()))
             .body(result);
     }
 
     /**
      * {@code PATCH  /expense-forecasts/:id} : Partial updates given fields of an existing expenseForecast, field will ignore if it is null
      *
-     * @param id the id of the expenseForecast to save.
-     * @param expenseForecast the expenseForecast to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated expenseForecast,
-     * or with status {@code 400 (Bad Request)} if the expenseForecast is not valid,
-     * or with status {@code 404 (Not Found)} if the expenseForecast is not found,
-     * or with status {@code 500 (Internal Server Error)} if the expenseForecast couldn't be updated.
+     * @param id the id of the expenseForecastDTO to save.
+     * @param expenseForecastDTO the expenseForecastDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated expenseForecastDTO,
+     * or with status {@code 400 (Bad Request)} if the expenseForecastDTO is not valid,
+     * or with status {@code 404 (Not Found)} if the expenseForecastDTO is not found,
+     * or with status {@code 500 (Internal Server Error)} if the expenseForecastDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/expense-forecasts/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<ExpenseForecast> partialUpdateExpenseForecast(
+    public ResponseEntity<ExpenseForecastDTO> partialUpdateExpenseForecast(
         @PathVariable(value = "id", required = false) final String id,
-        @NotNull @RequestBody ExpenseForecast expenseForecast
+        @NotNull @RequestBody ExpenseForecastDTO expenseForecastDTO
     ) throws URISyntaxException {
-        log.debug("REST request to partial update ExpenseForecast partially : {}, {}", id, expenseForecast);
-        if (expenseForecast.getId() == null) {
+        log.debug("REST request to partial update ExpenseForecast partially : {}, {}", id, expenseForecastDTO);
+        if (expenseForecastDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, expenseForecast.getId())) {
+        if (!Objects.equals(id, expenseForecastDTO.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -127,23 +131,11 @@ public class ExpenseForecastResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<ExpenseForecast> result = expenseForecastRepository
-            .findById(expenseForecast.getId())
-            .map(existingExpenseForecast -> {
-                if (expenseForecast.getLabel() != null) {
-                    existingExpenseForecast.setLabel(expenseForecast.getLabel());
-                }
-                if (expenseForecast.getMonthlyAmount() != null) {
-                    existingExpenseForecast.setMonthlyAmount(expenseForecast.getMonthlyAmount());
-                }
-
-                return existingExpenseForecast;
-            })
-            .map(expenseForecastRepository::save);
+        Optional<ExpenseForecastDTO> result = expenseForecastService.partialUpdate(expenseForecastDTO);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, expenseForecast.getId())
+            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, expenseForecastDTO.getId())
         );
     }
 
@@ -155,16 +147,16 @@ public class ExpenseForecastResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of expenseForecasts in body.
      */
     @GetMapping("/expense-forecasts")
-    public ResponseEntity<List<ExpenseForecast>> getAllExpenseForecasts(
+    public ResponseEntity<List<ExpenseForecastDTO>> getAllExpenseForecasts(
         @org.springdoc.api.annotations.ParameterObject Pageable pageable,
         @RequestParam(required = false, defaultValue = "false") boolean eagerload
     ) {
         log.debug("REST request to get a page of ExpenseForecasts");
-        Page<ExpenseForecast> page;
+        Page<ExpenseForecastDTO> page;
         if (eagerload) {
-            page = expenseForecastRepository.findAllWithEagerRelationships(pageable);
+            page = expenseForecastService.findAllWithEagerRelationships(pageable);
         } else {
-            page = expenseForecastRepository.findAll(pageable);
+            page = expenseForecastService.findAll(pageable);
         }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
@@ -173,26 +165,26 @@ public class ExpenseForecastResource {
     /**
      * {@code GET  /expense-forecasts/:id} : get the "id" expenseForecast.
      *
-     * @param id the id of the expenseForecast to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the expenseForecast, or with status {@code 404 (Not Found)}.
+     * @param id the id of the expenseForecastDTO to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the expenseForecastDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/expense-forecasts/{id}")
-    public ResponseEntity<ExpenseForecast> getExpenseForecast(@PathVariable String id) {
+    public ResponseEntity<ExpenseForecastDTO> getExpenseForecast(@PathVariable String id) {
         log.debug("REST request to get ExpenseForecast : {}", id);
-        Optional<ExpenseForecast> expenseForecast = expenseForecastRepository.findOneWithEagerRelationships(id);
-        return ResponseUtil.wrapOrNotFound(expenseForecast);
+        Optional<ExpenseForecastDTO> expenseForecastDTO = expenseForecastService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(expenseForecastDTO);
     }
 
     /**
      * {@code DELETE  /expense-forecasts/:id} : delete the "id" expenseForecast.
      *
-     * @param id the id of the expenseForecast to delete.
+     * @param id the id of the expenseForecastDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/expense-forecasts/{id}")
     public ResponseEntity<Void> deleteExpenseForecast(@PathVariable String id) {
         log.debug("REST request to delete ExpenseForecast : {}", id);
-        expenseForecastRepository.deleteById(id);
+        expenseForecastService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id)).build();
     }
 }

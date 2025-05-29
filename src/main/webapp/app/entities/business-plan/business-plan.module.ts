@@ -5,10 +5,9 @@ import { BusinessPlanDetailComponent } from './detail/business-plan-detail.compo
 import { BusinessPlanUpdateComponent } from './update/business-plan-update.component';
 import { BusinessPlanDeleteDialogComponent } from './delete/business-plan-delete-dialog.component';
 import { BusinessPlanRoutingModule } from './route/business-plan-routing.module';
-import { BusinessPlanPresentationComponent } from './presentation/business-plan-presentation.component';
 
 @NgModule({
   imports: [SharedModule, BusinessPlanRoutingModule],
-  declarations: [BusinessPlanComponent, BusinessPlanDetailComponent, BusinessPlanUpdateComponent, BusinessPlanDeleteDialogComponent, BusinessPlanPresentationComponent],
+  declarations: [BusinessPlanComponent, BusinessPlanDetailComponent, BusinessPlanUpdateComponent, BusinessPlanDeleteDialogComponent],
 })
 export class BusinessPlanModule {}

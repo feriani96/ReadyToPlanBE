@@ -1,7 +1,8 @@
 package com.readytoplanbe.myapp.web.rest;
 
-import com.readytoplanbe.myapp.domain.RevenueForecast;
 import com.readytoplanbe.myapp.repository.RevenueForecastRepository;
+import com.readytoplanbe.myapp.service.RevenueForecastService;
+import com.readytoplanbe.myapp.service.dto.RevenueForecastDTO;
 import com.readytoplanbe.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,27 +39,30 @@ public class RevenueForecastResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
+    private final RevenueForecastService revenueForecastService;
+
     private final RevenueForecastRepository revenueForecastRepository;
 
-    public RevenueForecastResource(RevenueForecastRepository revenueForecastRepository) {
+    public RevenueForecastResource(RevenueForecastService revenueForecastService, RevenueForecastRepository revenueForecastRepository) {
+        this.revenueForecastService = revenueForecastService;
         this.revenueForecastRepository = revenueForecastRepository;
     }
 
     /**
      * {@code POST  /revenue-forecasts} : Create a new revenueForecast.
      *
-     * @param revenueForecast the revenueForecast to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new revenueForecast, or with status {@code 400 (Bad Request)} if the revenueForecast has already an ID.
+     * @param revenueForecastDTO the revenueForecastDTO to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new revenueForecastDTO, or with status {@code 400 (Bad Request)} if the revenueForecast has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/revenue-forecasts")
-    public ResponseEntity<RevenueForecast> createRevenueForecast(@Valid @RequestBody RevenueForecast revenueForecast)
+    public ResponseEntity<RevenueForecastDTO> createRevenueForecast(@Valid @RequestBody RevenueForecastDTO revenueForecastDTO)
         throws URISyntaxException {
-        log.debug("REST request to save RevenueForecast : {}", revenueForecast);
-        if (revenueForecast.getId() != null) {
+        log.debug("REST request to save RevenueForecast : {}", revenueForecastDTO);
+        if (revenueForecastDTO.getId() != null) {
             throw new BadRequestAlertException("A new revenueForecast cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        RevenueForecast result = revenueForecastRepository.save(revenueForecast);
+        RevenueForecastDTO result = revenueForecastService.save(revenueForecastDTO);
         return ResponseEntity
             .created(new URI("/api/revenue-forecasts/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId()))
@@ -68,23 +72,23 @@ public class RevenueForecastResource {
     /**
      * {@code PUT  /revenue-forecasts/:id} : Updates an existing revenueForecast.
      *
-     * @param id the id of the revenueForecast to save.
-     * @param revenueForecast the revenueForecast to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated revenueForecast,
-     * or with status {@code 400 (Bad Request)} if the revenueForecast is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the revenueForecast couldn't be updated.
+     * @param id the id of the revenueForecastDTO to save.
+     * @param revenueForecastDTO the revenueForecastDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated revenueForecastDTO,
+     * or with status {@code 400 (Bad Request)} if the revenueForecastDTO is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the revenueForecastDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/revenue-forecasts/{id}")
-    public ResponseEntity<RevenueForecast> updateRevenueForecast(
+    public ResponseEntity<RevenueForecastDTO> updateRevenueForecast(
         @PathVariable(value = "id", required = false) final String id,
-        @Valid @RequestBody RevenueForecast revenueForecast
+        @Valid @RequestBody RevenueForecastDTO revenueForecastDTO
     ) throws URISyntaxException {
-        log.debug("REST request to update RevenueForecast : {}, {}", id, revenueForecast);
-        if (revenueForecast.getId() == null) {
+        log.debug("REST request to update RevenueForecast : {}, {}", id, revenueForecastDTO);
+        if (revenueForecastDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, revenueForecast.getId())) {
+        if (!Objects.equals(id, revenueForecastDTO.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -92,34 +96,34 @@ public class RevenueForecastResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        RevenueForecast result = revenueForecastRepository.save(revenueForecast);
+        RevenueForecastDTO result = revenueForecastService.update(revenueForecastDTO);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, revenueForecast.getId()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, revenueForecastDTO.getId()))
             .body(result);
     }
 
     /**
      * {@code PATCH  /revenue-forecasts/:id} : Partial updates given fields of an existing revenueForecast, field will ignore if it is null
      *
-     * @param id the id of the revenueForecast to save.
-     * @param revenueForecast the revenueForecast to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated revenueForecast,
-     * or with status {@code 400 (Bad Request)} if the revenueForecast is not valid,
-     * or with status {@code 404 (Not Found)} if the revenueForecast is not found,
-     * or with status {@code 500 (Internal Server Error)} if the revenueForecast couldn't be updated.
+     * @param id the id of the revenueForecastDTO to save.
+     * @param revenueForecastDTO the revenueForecastDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated revenueForecastDTO,
+     * or with status {@code 400 (Bad Request)} if the revenueForecastDTO is not valid,
+     * or with status {@code 404 (Not Found)} if the revenueForecastDTO is not found,
+     * or with status {@code 500 (Internal Server Error)} if the revenueForecastDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/revenue-forecasts/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<RevenueForecast> partialUpdateRevenueForecast(
+    public ResponseEntity<RevenueForecastDTO> partialUpdateRevenueForecast(
         @PathVariable(value = "id", required = false) final String id,
-        @NotNull @RequestBody RevenueForecast revenueForecast
+        @NotNull @RequestBody RevenueForecastDTO revenueForecastDTO
     ) throws URISyntaxException {
-        log.debug("REST request to partial update RevenueForecast partially : {}, {}", id, revenueForecast);
-        if (revenueForecast.getId() == null) {
+        log.debug("REST request to partial update RevenueForecast partially : {}, {}", id, revenueForecastDTO);
+        if (revenueForecastDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, revenueForecast.getId())) {
+        if (!Objects.equals(id, revenueForecastDTO.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -127,29 +131,11 @@ public class RevenueForecastResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<RevenueForecast> result = revenueForecastRepository
-            .findById(revenueForecast.getId())
-            .map(existingRevenueForecast -> {
-                if (revenueForecast.getMonth() != null) {
-                    existingRevenueForecast.setMonth(revenueForecast.getMonth());
-                }
-                if (revenueForecast.getYear() != null) {
-                    existingRevenueForecast.setYear(revenueForecast.getYear());
-                }
-                if (revenueForecast.getUnitsSold() != null) {
-                    existingRevenueForecast.setUnitsSold(revenueForecast.getUnitsSold());
-                }
-                if (revenueForecast.getTotalRevenue() != null) {
-                    existingRevenueForecast.setTotalRevenue(revenueForecast.getTotalRevenue());
-                }
-
-                return existingRevenueForecast;
-            })
-            .map(revenueForecastRepository::save);
+        Optional<RevenueForecastDTO> result = revenueForecastService.partialUpdate(revenueForecastDTO);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, revenueForecast.getId())
+            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, revenueForecastDTO.getId())
         );
     }
 
@@ -161,16 +147,16 @@ public class RevenueForecastResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of revenueForecasts in body.
      */
     @GetMapping("/revenue-forecasts")
-    public ResponseEntity<List<RevenueForecast>> getAllRevenueForecasts(
+    public ResponseEntity<List<RevenueForecastDTO>> getAllRevenueForecasts(
         @org.springdoc.api.annotations.ParameterObject Pageable pageable,
         @RequestParam(required = false, defaultValue = "false") boolean eagerload
     ) {
         log.debug("REST request to get a page of RevenueForecasts");
-        Page<RevenueForecast> page;
+        Page<RevenueForecastDTO> page;
         if (eagerload) {
-            page = revenueForecastRepository.findAllWithEagerRelationships(pageable);
+            page = revenueForecastService.findAllWithEagerRelationships(pageable);
         } else {
-            page = revenueForecastRepository.findAll(pageable);
+            page = revenueForecastService.findAll(pageable);
         }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
@@ -179,26 +165,26 @@ public class RevenueForecastResource {
     /**
      * {@code GET  /revenue-forecasts/:id} : get the "id" revenueForecast.
      *
-     * @param id the id of the revenueForecast to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the revenueForecast, or with status {@code 404 (Not Found)}.
+     * @param id the id of the revenueForecastDTO to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the revenueForecastDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/revenue-forecasts/{id}")
-    public ResponseEntity<RevenueForecast> getRevenueForecast(@PathVariable String id) {
+    public ResponseEntity<RevenueForecastDTO> getRevenueForecast(@PathVariable String id) {
         log.debug("REST request to get RevenueForecast : {}", id);
-        Optional<RevenueForecast> revenueForecast = revenueForecastRepository.findOneWithEagerRelationships(id);
-        return ResponseUtil.wrapOrNotFound(revenueForecast);
+        Optional<RevenueForecastDTO> revenueForecastDTO = revenueForecastService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(revenueForecastDTO);
     }
 
     /**
      * {@code DELETE  /revenue-forecasts/:id} : delete the "id" revenueForecast.
      *
-     * @param id the id of the revenueForecast to delete.
+     * @param id the id of the revenueForecastDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/revenue-forecasts/{id}")
     public ResponseEntity<Void> deleteRevenueForecast(@PathVariable String id) {
         log.debug("REST request to delete RevenueForecast : {}", id);
-        revenueForecastRepository.deleteById(id);
+        revenueForecastService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id)).build();
     }
 }

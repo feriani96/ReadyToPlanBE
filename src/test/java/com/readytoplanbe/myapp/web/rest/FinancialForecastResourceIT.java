@@ -9,6 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.readytoplanbe.myapp.IntegrationTest;
 import com.readytoplanbe.myapp.domain.FinancialForecast;
 import com.readytoplanbe.myapp.repository.FinancialForecastRepository;
+import com.readytoplanbe.myapp.service.FinancialForecastService;
+import com.readytoplanbe.myapp.service.dto.FinancialForecastDTO;
+import com.readytoplanbe.myapp.service.mapper.FinancialForecastMapper;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -53,6 +56,12 @@ class FinancialForecastResourceIT {
     private FinancialForecastRepository financialForecastRepositoryMock;
 
     @Autowired
+    private FinancialForecastMapper financialForecastMapper;
+
+    @Mock
+    private FinancialForecastService financialForecastServiceMock;
+
+    @Autowired
     private MockMvc restFinancialForecastMockMvc;
 
     private FinancialForecast financialForecast;
@@ -93,9 +102,12 @@ class FinancialForecastResourceIT {
     void createFinancialForecast() throws Exception {
         int databaseSizeBeforeCreate = financialForecastRepository.findAll().size();
         // Create the FinancialForecast
+        FinancialForecastDTO financialForecastDTO = financialForecastMapper.toDto(financialForecast);
         restFinancialForecastMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(financialForecast))
+                post(ENTITY_API_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(financialForecastDTO))
             )
             .andExpect(status().isCreated());
 
@@ -111,13 +123,16 @@ class FinancialForecastResourceIT {
     void createFinancialForecastWithExistingId() throws Exception {
         // Create the FinancialForecast with an existing ID
         financialForecast.setId("existing_id");
+        FinancialForecastDTO financialForecastDTO = financialForecastMapper.toDto(financialForecast);
 
         int databaseSizeBeforeCreate = financialForecastRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restFinancialForecastMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(financialForecast))
+                post(ENTITY_API_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(financialForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -133,10 +148,13 @@ class FinancialForecastResourceIT {
         financialForecast.setStartDate(null);
 
         // Create the FinancialForecast, which fails.
+        FinancialForecastDTO financialForecastDTO = financialForecastMapper.toDto(financialForecast);
 
         restFinancialForecastMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(financialForecast))
+                post(ENTITY_API_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(financialForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -161,16 +179,16 @@ class FinancialForecastResourceIT {
 
     @SuppressWarnings({ "unchecked" })
     void getAllFinancialForecastsWithEagerRelationshipsIsEnabled() throws Exception {
-        when(financialForecastRepositoryMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+        when(financialForecastServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
         restFinancialForecastMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
 
-        verify(financialForecastRepositoryMock, times(1)).findAllWithEagerRelationships(any());
+        verify(financialForecastServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @SuppressWarnings({ "unchecked" })
     void getAllFinancialForecastsWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(financialForecastRepositoryMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+        when(financialForecastServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
         restFinancialForecastMockMvc.perform(get(ENTITY_API_URL + "?eagerload=false")).andExpect(status().isOk());
         verify(financialForecastRepositoryMock, times(1)).findAll(any(Pageable.class));
@@ -207,12 +225,13 @@ class FinancialForecastResourceIT {
         // Update the financialForecast
         FinancialForecast updatedFinancialForecast = financialForecastRepository.findById(financialForecast.getId()).get();
         updatedFinancialForecast.startDate(UPDATED_START_DATE).durationInMonths(UPDATED_DURATION_IN_MONTHS);
+        FinancialForecastDTO financialForecastDTO = financialForecastMapper.toDto(updatedFinancialForecast);
 
         restFinancialForecastMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, updatedFinancialForecast.getId())
+                put(ENTITY_API_URL_ID, financialForecastDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(updatedFinancialForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(financialForecastDTO))
             )
             .andExpect(status().isOk());
 
@@ -229,12 +248,15 @@ class FinancialForecastResourceIT {
         int databaseSizeBeforeUpdate = financialForecastRepository.findAll().size();
         financialForecast.setId(UUID.randomUUID().toString());
 
+        // Create the FinancialForecast
+        FinancialForecastDTO financialForecastDTO = financialForecastMapper.toDto(financialForecast);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restFinancialForecastMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, financialForecast.getId())
+                put(ENTITY_API_URL_ID, financialForecastDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(financialForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(financialForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -248,12 +270,15 @@ class FinancialForecastResourceIT {
         int databaseSizeBeforeUpdate = financialForecastRepository.findAll().size();
         financialForecast.setId(UUID.randomUUID().toString());
 
+        // Create the FinancialForecast
+        FinancialForecastDTO financialForecastDTO = financialForecastMapper.toDto(financialForecast);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restFinancialForecastMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, UUID.randomUUID().toString())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(financialForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(financialForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -267,10 +292,13 @@ class FinancialForecastResourceIT {
         int databaseSizeBeforeUpdate = financialForecastRepository.findAll().size();
         financialForecast.setId(UUID.randomUUID().toString());
 
+        // Create the FinancialForecast
+        FinancialForecastDTO financialForecastDTO = financialForecastMapper.toDto(financialForecast);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restFinancialForecastMockMvc
             .perform(
-                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(financialForecast))
+                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(financialForecastDTO))
             )
             .andExpect(status().isMethodNotAllowed());
 
@@ -340,12 +368,15 @@ class FinancialForecastResourceIT {
         int databaseSizeBeforeUpdate = financialForecastRepository.findAll().size();
         financialForecast.setId(UUID.randomUUID().toString());
 
+        // Create the FinancialForecast
+        FinancialForecastDTO financialForecastDTO = financialForecastMapper.toDto(financialForecast);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restFinancialForecastMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, financialForecast.getId())
+                patch(ENTITY_API_URL_ID, financialForecastDTO.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(financialForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(financialForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -359,12 +390,15 @@ class FinancialForecastResourceIT {
         int databaseSizeBeforeUpdate = financialForecastRepository.findAll().size();
         financialForecast.setId(UUID.randomUUID().toString());
 
+        // Create the FinancialForecast
+        FinancialForecastDTO financialForecastDTO = financialForecastMapper.toDto(financialForecast);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restFinancialForecastMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, UUID.randomUUID().toString())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(financialForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(financialForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -378,12 +412,15 @@ class FinancialForecastResourceIT {
         int databaseSizeBeforeUpdate = financialForecastRepository.findAll().size();
         financialForecast.setId(UUID.randomUUID().toString());
 
+        // Create the FinancialForecast
+        FinancialForecastDTO financialForecastDTO = financialForecastMapper.toDto(financialForecast);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restFinancialForecastMockMvc
             .perform(
                 patch(ENTITY_API_URL)
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(financialForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(financialForecastDTO))
             )
             .andExpect(status().isMethodNotAllowed());
 

@@ -1,7 +1,8 @@
 package com.readytoplanbe.myapp.web.rest;
 
-import com.readytoplanbe.myapp.domain.FinancialForecast;
 import com.readytoplanbe.myapp.repository.FinancialForecastRepository;
+import com.readytoplanbe.myapp.service.FinancialForecastService;
+import com.readytoplanbe.myapp.service.dto.FinancialForecastDTO;
 import com.readytoplanbe.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,27 +39,33 @@ public class FinancialForecastResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
+    private final FinancialForecastService financialForecastService;
+
     private final FinancialForecastRepository financialForecastRepository;
 
-    public FinancialForecastResource(FinancialForecastRepository financialForecastRepository) {
+    public FinancialForecastResource(
+        FinancialForecastService financialForecastService,
+        FinancialForecastRepository financialForecastRepository
+    ) {
+        this.financialForecastService = financialForecastService;
         this.financialForecastRepository = financialForecastRepository;
     }
 
     /**
      * {@code POST  /financial-forecasts} : Create a new financialForecast.
      *
-     * @param financialForecast the financialForecast to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new financialForecast, or with status {@code 400 (Bad Request)} if the financialForecast has already an ID.
+     * @param financialForecastDTO the financialForecastDTO to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new financialForecastDTO, or with status {@code 400 (Bad Request)} if the financialForecast has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/financial-forecasts")
-    public ResponseEntity<FinancialForecast> createFinancialForecast(@Valid @RequestBody FinancialForecast financialForecast)
+    public ResponseEntity<FinancialForecastDTO> createFinancialForecast(@Valid @RequestBody FinancialForecastDTO financialForecastDTO)
         throws URISyntaxException {
-        log.debug("REST request to save FinancialForecast : {}", financialForecast);
-        if (financialForecast.getId() != null) {
+        log.debug("REST request to save FinancialForecast : {}", financialForecastDTO);
+        if (financialForecastDTO.getId() != null) {
             throw new BadRequestAlertException("A new financialForecast cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        FinancialForecast result = financialForecastRepository.save(financialForecast);
+        FinancialForecastDTO result = financialForecastService.save(financialForecastDTO);
         return ResponseEntity
             .created(new URI("/api/financial-forecasts/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId()))
@@ -68,23 +75,23 @@ public class FinancialForecastResource {
     /**
      * {@code PUT  /financial-forecasts/:id} : Updates an existing financialForecast.
      *
-     * @param id the id of the financialForecast to save.
-     * @param financialForecast the financialForecast to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated financialForecast,
-     * or with status {@code 400 (Bad Request)} if the financialForecast is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the financialForecast couldn't be updated.
+     * @param id the id of the financialForecastDTO to save.
+     * @param financialForecastDTO the financialForecastDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated financialForecastDTO,
+     * or with status {@code 400 (Bad Request)} if the financialForecastDTO is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the financialForecastDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/financial-forecasts/{id}")
-    public ResponseEntity<FinancialForecast> updateFinancialForecast(
+    public ResponseEntity<FinancialForecastDTO> updateFinancialForecast(
         @PathVariable(value = "id", required = false) final String id,
-        @Valid @RequestBody FinancialForecast financialForecast
+        @Valid @RequestBody FinancialForecastDTO financialForecastDTO
     ) throws URISyntaxException {
-        log.debug("REST request to update FinancialForecast : {}, {}", id, financialForecast);
-        if (financialForecast.getId() == null) {
+        log.debug("REST request to update FinancialForecast : {}, {}", id, financialForecastDTO);
+        if (financialForecastDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, financialForecast.getId())) {
+        if (!Objects.equals(id, financialForecastDTO.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -92,34 +99,34 @@ public class FinancialForecastResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        FinancialForecast result = financialForecastRepository.save(financialForecast);
+        FinancialForecastDTO result = financialForecastService.update(financialForecastDTO);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, financialForecast.getId()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, financialForecastDTO.getId()))
             .body(result);
     }
 
     /**
      * {@code PATCH  /financial-forecasts/:id} : Partial updates given fields of an existing financialForecast, field will ignore if it is null
      *
-     * @param id the id of the financialForecast to save.
-     * @param financialForecast the financialForecast to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated financialForecast,
-     * or with status {@code 400 (Bad Request)} if the financialForecast is not valid,
-     * or with status {@code 404 (Not Found)} if the financialForecast is not found,
-     * or with status {@code 500 (Internal Server Error)} if the financialForecast couldn't be updated.
+     * @param id the id of the financialForecastDTO to save.
+     * @param financialForecastDTO the financialForecastDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated financialForecastDTO,
+     * or with status {@code 400 (Bad Request)} if the financialForecastDTO is not valid,
+     * or with status {@code 404 (Not Found)} if the financialForecastDTO is not found,
+     * or with status {@code 500 (Internal Server Error)} if the financialForecastDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/financial-forecasts/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<FinancialForecast> partialUpdateFinancialForecast(
+    public ResponseEntity<FinancialForecastDTO> partialUpdateFinancialForecast(
         @PathVariable(value = "id", required = false) final String id,
-        @NotNull @RequestBody FinancialForecast financialForecast
+        @NotNull @RequestBody FinancialForecastDTO financialForecastDTO
     ) throws URISyntaxException {
-        log.debug("REST request to partial update FinancialForecast partially : {}, {}", id, financialForecast);
-        if (financialForecast.getId() == null) {
+        log.debug("REST request to partial update FinancialForecast partially : {}, {}", id, financialForecastDTO);
+        if (financialForecastDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, financialForecast.getId())) {
+        if (!Objects.equals(id, financialForecastDTO.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -127,23 +134,11 @@ public class FinancialForecastResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<FinancialForecast> result = financialForecastRepository
-            .findById(financialForecast.getId())
-            .map(existingFinancialForecast -> {
-                if (financialForecast.getStartDate() != null) {
-                    existingFinancialForecast.setStartDate(financialForecast.getStartDate());
-                }
-                if (financialForecast.getDurationInMonths() != null) {
-                    existingFinancialForecast.setDurationInMonths(financialForecast.getDurationInMonths());
-                }
-
-                return existingFinancialForecast;
-            })
-            .map(financialForecastRepository::save);
+        Optional<FinancialForecastDTO> result = financialForecastService.partialUpdate(financialForecastDTO);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, financialForecast.getId())
+            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, financialForecastDTO.getId())
         );
     }
 
@@ -155,16 +150,16 @@ public class FinancialForecastResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of financialForecasts in body.
      */
     @GetMapping("/financial-forecasts")
-    public ResponseEntity<List<FinancialForecast>> getAllFinancialForecasts(
+    public ResponseEntity<List<FinancialForecastDTO>> getAllFinancialForecasts(
         @org.springdoc.api.annotations.ParameterObject Pageable pageable,
         @RequestParam(required = false, defaultValue = "false") boolean eagerload
     ) {
         log.debug("REST request to get a page of FinancialForecasts");
-        Page<FinancialForecast> page;
+        Page<FinancialForecastDTO> page;
         if (eagerload) {
-            page = financialForecastRepository.findAllWithEagerRelationships(pageable);
+            page = financialForecastService.findAllWithEagerRelationships(pageable);
         } else {
-            page = financialForecastRepository.findAll(pageable);
+            page = financialForecastService.findAll(pageable);
         }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
@@ -173,26 +168,26 @@ public class FinancialForecastResource {
     /**
      * {@code GET  /financial-forecasts/:id} : get the "id" financialForecast.
      *
-     * @param id the id of the financialForecast to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the financialForecast, or with status {@code 404 (Not Found)}.
+     * @param id the id of the financialForecastDTO to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the financialForecastDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/financial-forecasts/{id}")
-    public ResponseEntity<FinancialForecast> getFinancialForecast(@PathVariable String id) {
+    public ResponseEntity<FinancialForecastDTO> getFinancialForecast(@PathVariable String id) {
         log.debug("REST request to get FinancialForecast : {}", id);
-        Optional<FinancialForecast> financialForecast = financialForecastRepository.findOneWithEagerRelationships(id);
-        return ResponseUtil.wrapOrNotFound(financialForecast);
+        Optional<FinancialForecastDTO> financialForecastDTO = financialForecastService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(financialForecastDTO);
     }
 
     /**
      * {@code DELETE  /financial-forecasts/:id} : delete the "id" financialForecast.
      *
-     * @param id the id of the financialForecast to delete.
+     * @param id the id of the financialForecastDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/financial-forecasts/{id}")
     public ResponseEntity<Void> deleteFinancialForecast(@PathVariable String id) {
         log.debug("REST request to delete FinancialForecast : {}", id);
-        financialForecastRepository.deleteById(id);
+        financialForecastService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id)).build();
     }
 }

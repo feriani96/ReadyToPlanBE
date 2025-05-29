@@ -1,5 +1,6 @@
 {
   "changelogDate": "20250522012634",
+  "dto": "mapstruct",
   "fields": [
     {
       "fieldName": "name",
@@ -28,5 +29,5 @@
   "pagination": "pagination",
   "readOnly": false,
   "relationships": [],
-  "service": "no"
+  "service": "serviceImpl"
 }

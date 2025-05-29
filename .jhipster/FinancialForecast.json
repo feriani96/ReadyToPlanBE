@@ -1,5 +1,6 @@
 {
   "changelogDate": "20250522013813",
+  "dto": "mapstruct",
   "fields": [
     {
       "fieldName": "startDate",
@@ -24,5 +25,5 @@
       "relationshipType": "many-to-one"
     }
   ],
-  "service": "no"
+  "service": "serviceImpl"
 }

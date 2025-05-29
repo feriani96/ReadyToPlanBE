@@ -9,6 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.readytoplanbe.myapp.IntegrationTest;
 import com.readytoplanbe.myapp.domain.ProductOrService;
 import com.readytoplanbe.myapp.repository.ProductOrServiceRepository;
+import com.readytoplanbe.myapp.service.ProductOrServiceService;
+import com.readytoplanbe.myapp.service.dto.ProductOrServiceDTO;
+import com.readytoplanbe.myapp.service.mapper.ProductOrServiceMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -60,6 +63,12 @@ class ProductOrServiceResourceIT {
     private ProductOrServiceRepository productOrServiceRepositoryMock;
 
     @Autowired
+    private ProductOrServiceMapper productOrServiceMapper;
+
+    @Mock
+    private ProductOrServiceService productOrServiceServiceMock;
+
+    @Autowired
     private MockMvc restProductOrServiceMockMvc;
 
     private ProductOrService productOrService;
@@ -106,9 +115,10 @@ class ProductOrServiceResourceIT {
     void createProductOrService() throws Exception {
         int databaseSizeBeforeCreate = productOrServiceRepository.findAll().size();
         // Create the ProductOrService
+        ProductOrServiceDTO productOrServiceDTO = productOrServiceMapper.toDto(productOrService);
         restProductOrServiceMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productOrService))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productOrServiceDTO))
             )
             .andExpect(status().isCreated());
 
@@ -127,13 +137,14 @@ class ProductOrServiceResourceIT {
     void createProductOrServiceWithExistingId() throws Exception {
         // Create the ProductOrService with an existing ID
         productOrService.setId("existing_id");
+        ProductOrServiceDTO productOrServiceDTO = productOrServiceMapper.toDto(productOrService);
 
         int databaseSizeBeforeCreate = productOrServiceRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restProductOrServiceMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productOrService))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productOrServiceDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -149,10 +160,11 @@ class ProductOrServiceResourceIT {
         productOrService.setNameProductOrService(null);
 
         // Create the ProductOrService, which fails.
+        ProductOrServiceDTO productOrServiceDTO = productOrServiceMapper.toDto(productOrService);
 
         restProductOrServiceMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productOrService))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productOrServiceDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -167,10 +179,11 @@ class ProductOrServiceResourceIT {
         productOrService.setProductDescription(null);
 
         // Create the ProductOrService, which fails.
+        ProductOrServiceDTO productOrServiceDTO = productOrServiceMapper.toDto(productOrService);
 
         restProductOrServiceMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productOrService))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productOrServiceDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -185,10 +198,11 @@ class ProductOrServiceResourceIT {
         productOrService.setUnitPrice(null);
 
         // Create the ProductOrService, which fails.
+        ProductOrServiceDTO productOrServiceDTO = productOrServiceMapper.toDto(productOrService);
 
         restProductOrServiceMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productOrService))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productOrServiceDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -203,10 +217,11 @@ class ProductOrServiceResourceIT {
         productOrService.setDurationInMonths(null);
 
         // Create the ProductOrService, which fails.
+        ProductOrServiceDTO productOrServiceDTO = productOrServiceMapper.toDto(productOrService);
 
         restProductOrServiceMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productOrService))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productOrServiceDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -234,16 +249,16 @@ class ProductOrServiceResourceIT {
 
     @SuppressWarnings({ "unchecked" })
     void getAllProductOrServicesWithEagerRelationshipsIsEnabled() throws Exception {
-        when(productOrServiceRepositoryMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+        when(productOrServiceServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
         restProductOrServiceMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
 
-        verify(productOrServiceRepositoryMock, times(1)).findAllWithEagerRelationships(any());
+        verify(productOrServiceServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @SuppressWarnings({ "unchecked" })
     void getAllProductOrServicesWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(productOrServiceRepositoryMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+        when(productOrServiceServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
         restProductOrServiceMockMvc.perform(get(ENTITY_API_URL + "?eagerload=false")).andExpect(status().isOk());
         verify(productOrServiceRepositoryMock, times(1)).findAll(any(Pageable.class));
@@ -288,12 +303,13 @@ class ProductOrServiceResourceIT {
             .unitPrice(UPDATED_UNIT_PRICE)
             .estimatedMonthlySales(UPDATED_ESTIMATED_MONTHLY_SALES)
             .durationInMonths(UPDATED_DURATION_IN_MONTHS);
+        ProductOrServiceDTO productOrServiceDTO = productOrServiceMapper.toDto(updatedProductOrService);
 
         restProductOrServiceMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, updatedProductOrService.getId())
+                put(ENTITY_API_URL_ID, productOrServiceDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(updatedProductOrService))
+                    .content(TestUtil.convertObjectToJsonBytes(productOrServiceDTO))
             )
             .andExpect(status().isOk());
 
@@ -313,12 +329,15 @@ class ProductOrServiceResourceIT {
         int databaseSizeBeforeUpdate = productOrServiceRepository.findAll().size();
         productOrService.setId(UUID.randomUUID().toString());
 
+        // Create the ProductOrService
+        ProductOrServiceDTO productOrServiceDTO = productOrServiceMapper.toDto(productOrService);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restProductOrServiceMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, productOrService.getId())
+                put(ENTITY_API_URL_ID, productOrServiceDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(productOrService))
+                    .content(TestUtil.convertObjectToJsonBytes(productOrServiceDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -332,12 +351,15 @@ class ProductOrServiceResourceIT {
         int databaseSizeBeforeUpdate = productOrServiceRepository.findAll().size();
         productOrService.setId(UUID.randomUUID().toString());
 
+        // Create the ProductOrService
+        ProductOrServiceDTO productOrServiceDTO = productOrServiceMapper.toDto(productOrService);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restProductOrServiceMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, UUID.randomUUID().toString())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(productOrService))
+                    .content(TestUtil.convertObjectToJsonBytes(productOrServiceDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -351,10 +373,13 @@ class ProductOrServiceResourceIT {
         int databaseSizeBeforeUpdate = productOrServiceRepository.findAll().size();
         productOrService.setId(UUID.randomUUID().toString());
 
+        // Create the ProductOrService
+        ProductOrServiceDTO productOrServiceDTO = productOrServiceMapper.toDto(productOrService);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restProductOrServiceMockMvc
             .perform(
-                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productOrService))
+                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(productOrServiceDTO))
             )
             .andExpect(status().isMethodNotAllowed());
 
@@ -437,12 +462,15 @@ class ProductOrServiceResourceIT {
         int databaseSizeBeforeUpdate = productOrServiceRepository.findAll().size();
         productOrService.setId(UUID.randomUUID().toString());
 
+        // Create the ProductOrService
+        ProductOrServiceDTO productOrServiceDTO = productOrServiceMapper.toDto(productOrService);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restProductOrServiceMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, productOrService.getId())
+                patch(ENTITY_API_URL_ID, productOrServiceDTO.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(productOrService))
+                    .content(TestUtil.convertObjectToJsonBytes(productOrServiceDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -456,12 +484,15 @@ class ProductOrServiceResourceIT {
         int databaseSizeBeforeUpdate = productOrServiceRepository.findAll().size();
         productOrService.setId(UUID.randomUUID().toString());
 
+        // Create the ProductOrService
+        ProductOrServiceDTO productOrServiceDTO = productOrServiceMapper.toDto(productOrService);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restProductOrServiceMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, UUID.randomUUID().toString())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(productOrService))
+                    .content(TestUtil.convertObjectToJsonBytes(productOrServiceDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -475,12 +506,15 @@ class ProductOrServiceResourceIT {
         int databaseSizeBeforeUpdate = productOrServiceRepository.findAll().size();
         productOrService.setId(UUID.randomUUID().toString());
 
+        // Create the ProductOrService
+        ProductOrServiceDTO productOrServiceDTO = productOrServiceMapper.toDto(productOrService);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restProductOrServiceMockMvc
             .perform(
                 patch(ENTITY_API_URL)
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(productOrService))
+                    .content(TestUtil.convertObjectToJsonBytes(productOrServiceDTO))
             )
             .andExpect(status().isMethodNotAllowed());
 

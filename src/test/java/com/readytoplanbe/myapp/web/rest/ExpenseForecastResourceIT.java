@@ -9,6 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.readytoplanbe.myapp.IntegrationTest;
 import com.readytoplanbe.myapp.domain.ExpenseForecast;
 import com.readytoplanbe.myapp.repository.ExpenseForecastRepository;
+import com.readytoplanbe.myapp.service.ExpenseForecastService;
+import com.readytoplanbe.myapp.service.dto.ExpenseForecastDTO;
+import com.readytoplanbe.myapp.service.mapper.ExpenseForecastMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -51,6 +54,12 @@ class ExpenseForecastResourceIT {
     private ExpenseForecastRepository expenseForecastRepositoryMock;
 
     @Autowired
+    private ExpenseForecastMapper expenseForecastMapper;
+
+    @Mock
+    private ExpenseForecastService expenseForecastServiceMock;
+
+    @Autowired
     private MockMvc restExpenseForecastMockMvc;
 
     private ExpenseForecast expenseForecast;
@@ -87,9 +96,10 @@ class ExpenseForecastResourceIT {
     void createExpenseForecast() throws Exception {
         int databaseSizeBeforeCreate = expenseForecastRepository.findAll().size();
         // Create the ExpenseForecast
+        ExpenseForecastDTO expenseForecastDTO = expenseForecastMapper.toDto(expenseForecast);
         restExpenseForecastMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(expenseForecast))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(expenseForecastDTO))
             )
             .andExpect(status().isCreated());
 
@@ -105,13 +115,14 @@ class ExpenseForecastResourceIT {
     void createExpenseForecastWithExistingId() throws Exception {
         // Create the ExpenseForecast with an existing ID
         expenseForecast.setId("existing_id");
+        ExpenseForecastDTO expenseForecastDTO = expenseForecastMapper.toDto(expenseForecast);
 
         int databaseSizeBeforeCreate = expenseForecastRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restExpenseForecastMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(expenseForecast))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(expenseForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -127,10 +138,11 @@ class ExpenseForecastResourceIT {
         expenseForecast.setLabel(null);
 
         // Create the ExpenseForecast, which fails.
+        ExpenseForecastDTO expenseForecastDTO = expenseForecastMapper.toDto(expenseForecast);
 
         restExpenseForecastMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(expenseForecast))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(expenseForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -145,10 +157,11 @@ class ExpenseForecastResourceIT {
         expenseForecast.setMonthlyAmount(null);
 
         // Create the ExpenseForecast, which fails.
+        ExpenseForecastDTO expenseForecastDTO = expenseForecastMapper.toDto(expenseForecast);
 
         restExpenseForecastMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(expenseForecast))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(expenseForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -173,16 +186,16 @@ class ExpenseForecastResourceIT {
 
     @SuppressWarnings({ "unchecked" })
     void getAllExpenseForecastsWithEagerRelationshipsIsEnabled() throws Exception {
-        when(expenseForecastRepositoryMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+        when(expenseForecastServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
         restExpenseForecastMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
 
-        verify(expenseForecastRepositoryMock, times(1)).findAllWithEagerRelationships(any());
+        verify(expenseForecastServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @SuppressWarnings({ "unchecked" })
     void getAllExpenseForecastsWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(expenseForecastRepositoryMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+        when(expenseForecastServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
         restExpenseForecastMockMvc.perform(get(ENTITY_API_URL + "?eagerload=false")).andExpect(status().isOk());
         verify(expenseForecastRepositoryMock, times(1)).findAll(any(Pageable.class));
@@ -219,12 +232,13 @@ class ExpenseForecastResourceIT {
         // Update the expenseForecast
         ExpenseForecast updatedExpenseForecast = expenseForecastRepository.findById(expenseForecast.getId()).get();
         updatedExpenseForecast.label(UPDATED_LABEL).monthlyAmount(UPDATED_MONTHLY_AMOUNT);
+        ExpenseForecastDTO expenseForecastDTO = expenseForecastMapper.toDto(updatedExpenseForecast);
 
         restExpenseForecastMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, updatedExpenseForecast.getId())
+                put(ENTITY_API_URL_ID, expenseForecastDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(updatedExpenseForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(expenseForecastDTO))
             )
             .andExpect(status().isOk());
 
@@ -241,12 +255,15 @@ class ExpenseForecastResourceIT {
         int databaseSizeBeforeUpdate = expenseForecastRepository.findAll().size();
         expenseForecast.setId(UUID.randomUUID().toString());
 
+        // Create the ExpenseForecast
+        ExpenseForecastDTO expenseForecastDTO = expenseForecastMapper.toDto(expenseForecast);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restExpenseForecastMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, expenseForecast.getId())
+                put(ENTITY_API_URL_ID, expenseForecastDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(expenseForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(expenseForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -260,12 +277,15 @@ class ExpenseForecastResourceIT {
         int databaseSizeBeforeUpdate = expenseForecastRepository.findAll().size();
         expenseForecast.setId(UUID.randomUUID().toString());
 
+        // Create the ExpenseForecast
+        ExpenseForecastDTO expenseForecastDTO = expenseForecastMapper.toDto(expenseForecast);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restExpenseForecastMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, UUID.randomUUID().toString())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(expenseForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(expenseForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -279,10 +299,13 @@ class ExpenseForecastResourceIT {
         int databaseSizeBeforeUpdate = expenseForecastRepository.findAll().size();
         expenseForecast.setId(UUID.randomUUID().toString());
 
+        // Create the ExpenseForecast
+        ExpenseForecastDTO expenseForecastDTO = expenseForecastMapper.toDto(expenseForecast);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restExpenseForecastMockMvc
             .perform(
-                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(expenseForecast))
+                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(expenseForecastDTO))
             )
             .andExpect(status().isMethodNotAllowed());
 
@@ -354,12 +377,15 @@ class ExpenseForecastResourceIT {
         int databaseSizeBeforeUpdate = expenseForecastRepository.findAll().size();
         expenseForecast.setId(UUID.randomUUID().toString());
 
+        // Create the ExpenseForecast
+        ExpenseForecastDTO expenseForecastDTO = expenseForecastMapper.toDto(expenseForecast);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restExpenseForecastMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, expenseForecast.getId())
+                patch(ENTITY_API_URL_ID, expenseForecastDTO.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(expenseForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(expenseForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -373,12 +399,15 @@ class ExpenseForecastResourceIT {
         int databaseSizeBeforeUpdate = expenseForecastRepository.findAll().size();
         expenseForecast.setId(UUID.randomUUID().toString());
 
+        // Create the ExpenseForecast
+        ExpenseForecastDTO expenseForecastDTO = expenseForecastMapper.toDto(expenseForecast);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restExpenseForecastMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, UUID.randomUUID().toString())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(expenseForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(expenseForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -392,12 +421,15 @@ class ExpenseForecastResourceIT {
         int databaseSizeBeforeUpdate = expenseForecastRepository.findAll().size();
         expenseForecast.setId(UUID.randomUUID().toString());
 
+        // Create the ExpenseForecast
+        ExpenseForecastDTO expenseForecastDTO = expenseForecastMapper.toDto(expenseForecast);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restExpenseForecastMockMvc
             .perform(
                 patch(ENTITY_API_URL)
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(expenseForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(expenseForecastDTO))
             )
             .andExpect(status().isMethodNotAllowed());
 

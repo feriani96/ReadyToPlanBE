@@ -41,8 +41,6 @@ public class BusinessPlanDTO implements Serializable {
 
     private String generatedPresentation;
 
-    private boolean regeneratePresentation;
-
     public String getId() {
         return id;
     }
@@ -111,16 +109,9 @@ public class BusinessPlanDTO implements Serializable {
         return generatedPresentation;
     }
 
-    public boolean isRegeneratePresentation() { return regeneratePresentation; }
-
     public void setGeneratedPresentation(String generatedPresentation) {
         this.generatedPresentation = generatedPresentation;
     }
-
-    public void setRegeneratePresentation(boolean regeneratePresentation) {
-        this.regeneratePresentation = regeneratePresentation;
-    }
-
 
     @Override
     public boolean equals(Object o) {
@@ -156,7 +147,6 @@ public class BusinessPlanDTO implements Serializable {
             ", anticipatedProjectSize=" + getAnticipatedProjectSize() +
             ", currency='" + getCurrency() + "'" +
             ", generatedPresentation='" + getGeneratedPresentation() + "'" +
-            ", regeneratePresentation=" + isRegeneratePresentation() +
             "}";
     }
 }

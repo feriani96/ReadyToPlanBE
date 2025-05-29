@@ -10,6 +10,9 @@ import com.readytoplanbe.myapp.IntegrationTest;
 import com.readytoplanbe.myapp.domain.RevenueForecast;
 import com.readytoplanbe.myapp.domain.enumeration.Month;
 import com.readytoplanbe.myapp.repository.RevenueForecastRepository;
+import com.readytoplanbe.myapp.service.RevenueForecastService;
+import com.readytoplanbe.myapp.service.dto.RevenueForecastDTO;
+import com.readytoplanbe.myapp.service.mapper.RevenueForecastMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -58,6 +61,12 @@ class RevenueForecastResourceIT {
     private RevenueForecastRepository revenueForecastRepositoryMock;
 
     @Autowired
+    private RevenueForecastMapper revenueForecastMapper;
+
+    @Mock
+    private RevenueForecastService revenueForecastServiceMock;
+
+    @Autowired
     private MockMvc restRevenueForecastMockMvc;
 
     private RevenueForecast revenueForecast;
@@ -102,9 +111,10 @@ class RevenueForecastResourceIT {
     void createRevenueForecast() throws Exception {
         int databaseSizeBeforeCreate = revenueForecastRepository.findAll().size();
         // Create the RevenueForecast
+        RevenueForecastDTO revenueForecastDTO = revenueForecastMapper.toDto(revenueForecast);
         restRevenueForecastMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(revenueForecast))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(revenueForecastDTO))
             )
             .andExpect(status().isCreated());
 
@@ -122,13 +132,14 @@ class RevenueForecastResourceIT {
     void createRevenueForecastWithExistingId() throws Exception {
         // Create the RevenueForecast with an existing ID
         revenueForecast.setId("existing_id");
+        RevenueForecastDTO revenueForecastDTO = revenueForecastMapper.toDto(revenueForecast);
 
         int databaseSizeBeforeCreate = revenueForecastRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restRevenueForecastMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(revenueForecast))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(revenueForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -144,10 +155,11 @@ class RevenueForecastResourceIT {
         revenueForecast.setMonth(null);
 
         // Create the RevenueForecast, which fails.
+        RevenueForecastDTO revenueForecastDTO = revenueForecastMapper.toDto(revenueForecast);
 
         restRevenueForecastMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(revenueForecast))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(revenueForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -162,10 +174,11 @@ class RevenueForecastResourceIT {
         revenueForecast.setYear(null);
 
         // Create the RevenueForecast, which fails.
+        RevenueForecastDTO revenueForecastDTO = revenueForecastMapper.toDto(revenueForecast);
 
         restRevenueForecastMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(revenueForecast))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(revenueForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -180,10 +193,11 @@ class RevenueForecastResourceIT {
         revenueForecast.setUnitsSold(null);
 
         // Create the RevenueForecast, which fails.
+        RevenueForecastDTO revenueForecastDTO = revenueForecastMapper.toDto(revenueForecast);
 
         restRevenueForecastMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(revenueForecast))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(revenueForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -198,10 +212,11 @@ class RevenueForecastResourceIT {
         revenueForecast.setTotalRevenue(null);
 
         // Create the RevenueForecast, which fails.
+        RevenueForecastDTO revenueForecastDTO = revenueForecastMapper.toDto(revenueForecast);
 
         restRevenueForecastMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(revenueForecast))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(revenueForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -228,16 +243,16 @@ class RevenueForecastResourceIT {
 
     @SuppressWarnings({ "unchecked" })
     void getAllRevenueForecastsWithEagerRelationshipsIsEnabled() throws Exception {
-        when(revenueForecastRepositoryMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+        when(revenueForecastServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
         restRevenueForecastMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
 
-        verify(revenueForecastRepositoryMock, times(1)).findAllWithEagerRelationships(any());
+        verify(revenueForecastServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @SuppressWarnings({ "unchecked" })
     void getAllRevenueForecastsWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(revenueForecastRepositoryMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+        when(revenueForecastServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
         restRevenueForecastMockMvc.perform(get(ENTITY_API_URL + "?eagerload=false")).andExpect(status().isOk());
         verify(revenueForecastRepositoryMock, times(1)).findAll(any(Pageable.class));
@@ -276,12 +291,13 @@ class RevenueForecastResourceIT {
         // Update the revenueForecast
         RevenueForecast updatedRevenueForecast = revenueForecastRepository.findById(revenueForecast.getId()).get();
         updatedRevenueForecast.month(UPDATED_MONTH).year(UPDATED_YEAR).unitsSold(UPDATED_UNITS_SOLD).totalRevenue(UPDATED_TOTAL_REVENUE);
+        RevenueForecastDTO revenueForecastDTO = revenueForecastMapper.toDto(updatedRevenueForecast);
 
         restRevenueForecastMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, updatedRevenueForecast.getId())
+                put(ENTITY_API_URL_ID, revenueForecastDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(updatedRevenueForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(revenueForecastDTO))
             )
             .andExpect(status().isOk());
 
@@ -300,12 +316,15 @@ class RevenueForecastResourceIT {
         int databaseSizeBeforeUpdate = revenueForecastRepository.findAll().size();
         revenueForecast.setId(UUID.randomUUID().toString());
 
+        // Create the RevenueForecast
+        RevenueForecastDTO revenueForecastDTO = revenueForecastMapper.toDto(revenueForecast);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restRevenueForecastMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, revenueForecast.getId())
+                put(ENTITY_API_URL_ID, revenueForecastDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(revenueForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(revenueForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -319,12 +338,15 @@ class RevenueForecastResourceIT {
         int databaseSizeBeforeUpdate = revenueForecastRepository.findAll().size();
         revenueForecast.setId(UUID.randomUUID().toString());
 
+        // Create the RevenueForecast
+        RevenueForecastDTO revenueForecastDTO = revenueForecastMapper.toDto(revenueForecast);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restRevenueForecastMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, UUID.randomUUID().toString())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(revenueForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(revenueForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -338,10 +360,13 @@ class RevenueForecastResourceIT {
         int databaseSizeBeforeUpdate = revenueForecastRepository.findAll().size();
         revenueForecast.setId(UUID.randomUUID().toString());
 
+        // Create the RevenueForecast
+        RevenueForecastDTO revenueForecastDTO = revenueForecastMapper.toDto(revenueForecast);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restRevenueForecastMockMvc
             .perform(
-                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(revenueForecast))
+                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(revenueForecastDTO))
             )
             .andExpect(status().isMethodNotAllowed());
 
@@ -421,12 +446,15 @@ class RevenueForecastResourceIT {
         int databaseSizeBeforeUpdate = revenueForecastRepository.findAll().size();
         revenueForecast.setId(UUID.randomUUID().toString());
 
+        // Create the RevenueForecast
+        RevenueForecastDTO revenueForecastDTO = revenueForecastMapper.toDto(revenueForecast);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restRevenueForecastMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, revenueForecast.getId())
+                patch(ENTITY_API_URL_ID, revenueForecastDTO.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(revenueForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(revenueForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -440,12 +468,15 @@ class RevenueForecastResourceIT {
         int databaseSizeBeforeUpdate = revenueForecastRepository.findAll().size();
         revenueForecast.setId(UUID.randomUUID().toString());
 
+        // Create the RevenueForecast
+        RevenueForecastDTO revenueForecastDTO = revenueForecastMapper.toDto(revenueForecast);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restRevenueForecastMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, UUID.randomUUID().toString())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(revenueForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(revenueForecastDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -459,12 +490,15 @@ class RevenueForecastResourceIT {
         int databaseSizeBeforeUpdate = revenueForecastRepository.findAll().size();
         revenueForecast.setId(UUID.randomUUID().toString());
 
+        // Create the RevenueForecast
+        RevenueForecastDTO revenueForecastDTO = revenueForecastMapper.toDto(revenueForecast);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restRevenueForecastMockMvc
             .perform(
                 patch(ENTITY_API_URL)
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(revenueForecast))
+                    .content(TestUtil.convertObjectToJsonBytes(revenueForecastDTO))
             )
             .andExpect(status().isMethodNotAllowed());
 

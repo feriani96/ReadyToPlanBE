@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.readytoplanbe.myapp.IntegrationTest;
 import com.readytoplanbe.myapp.domain.ManualBusinessPlan;
 import com.readytoplanbe.myapp.repository.ManualBusinessPlanRepository;
+import com.readytoplanbe.myapp.service.dto.ManualBusinessPlanDTO;
+import com.readytoplanbe.myapp.service.mapper.ManualBusinessPlanMapper;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -45,6 +47,9 @@ class ManualBusinessPlanResourceIT {
 
     @Autowired
     private ManualBusinessPlanRepository manualBusinessPlanRepository;
+
+    @Autowired
+    private ManualBusinessPlanMapper manualBusinessPlanMapper;
 
     @Autowired
     private MockMvc restManualBusinessPlanMockMvc;
@@ -91,9 +96,12 @@ class ManualBusinessPlanResourceIT {
     void createManualBusinessPlan() throws Exception {
         int databaseSizeBeforeCreate = manualBusinessPlanRepository.findAll().size();
         // Create the ManualBusinessPlan
+        ManualBusinessPlanDTO manualBusinessPlanDTO = manualBusinessPlanMapper.toDto(manualBusinessPlan);
         restManualBusinessPlanMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(manualBusinessPlan))
+                post(ENTITY_API_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlanDTO))
             )
             .andExpect(status().isCreated());
 
@@ -111,13 +119,16 @@ class ManualBusinessPlanResourceIT {
     void createManualBusinessPlanWithExistingId() throws Exception {
         // Create the ManualBusinessPlan with an existing ID
         manualBusinessPlan.setId("existing_id");
+        ManualBusinessPlanDTO manualBusinessPlanDTO = manualBusinessPlanMapper.toDto(manualBusinessPlan);
 
         int databaseSizeBeforeCreate = manualBusinessPlanRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restManualBusinessPlanMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(manualBusinessPlan))
+                post(ENTITY_API_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlanDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -133,10 +144,13 @@ class ManualBusinessPlanResourceIT {
         manualBusinessPlan.setName(null);
 
         // Create the ManualBusinessPlan, which fails.
+        ManualBusinessPlanDTO manualBusinessPlanDTO = manualBusinessPlanMapper.toDto(manualBusinessPlan);
 
         restManualBusinessPlanMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(manualBusinessPlan))
+                post(ENTITY_API_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlanDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -151,10 +165,13 @@ class ManualBusinessPlanResourceIT {
         manualBusinessPlan.setDescription(null);
 
         // Create the ManualBusinessPlan, which fails.
+        ManualBusinessPlanDTO manualBusinessPlanDTO = manualBusinessPlanMapper.toDto(manualBusinessPlan);
 
         restManualBusinessPlanMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(manualBusinessPlan))
+                post(ENTITY_API_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlanDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -169,10 +186,13 @@ class ManualBusinessPlanResourceIT {
         manualBusinessPlan.setCreationDate(null);
 
         // Create the ManualBusinessPlan, which fails.
+        ManualBusinessPlanDTO manualBusinessPlanDTO = manualBusinessPlanMapper.toDto(manualBusinessPlan);
 
         restManualBusinessPlanMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(manualBusinessPlan))
+                post(ENTITY_API_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlanDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -187,10 +207,13 @@ class ManualBusinessPlanResourceIT {
         manualBusinessPlan.setEntrepreneurName(null);
 
         // Create the ManualBusinessPlan, which fails.
+        ManualBusinessPlanDTO manualBusinessPlanDTO = manualBusinessPlanMapper.toDto(manualBusinessPlan);
 
         restManualBusinessPlanMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(manualBusinessPlan))
+                post(ENTITY_API_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlanDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -252,12 +275,13 @@ class ManualBusinessPlanResourceIT {
             .description(UPDATED_DESCRIPTION)
             .creationDate(UPDATED_CREATION_DATE)
             .entrepreneurName(UPDATED_ENTREPRENEUR_NAME);
+        ManualBusinessPlanDTO manualBusinessPlanDTO = manualBusinessPlanMapper.toDto(updatedManualBusinessPlan);
 
         restManualBusinessPlanMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, updatedManualBusinessPlan.getId())
+                put(ENTITY_API_URL_ID, manualBusinessPlanDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(updatedManualBusinessPlan))
+                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlanDTO))
             )
             .andExpect(status().isOk());
 
@@ -276,12 +300,15 @@ class ManualBusinessPlanResourceIT {
         int databaseSizeBeforeUpdate = manualBusinessPlanRepository.findAll().size();
         manualBusinessPlan.setId(UUID.randomUUID().toString());
 
+        // Create the ManualBusinessPlan
+        ManualBusinessPlanDTO manualBusinessPlanDTO = manualBusinessPlanMapper.toDto(manualBusinessPlan);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restManualBusinessPlanMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, manualBusinessPlan.getId())
+                put(ENTITY_API_URL_ID, manualBusinessPlanDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlan))
+                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlanDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -295,12 +322,15 @@ class ManualBusinessPlanResourceIT {
         int databaseSizeBeforeUpdate = manualBusinessPlanRepository.findAll().size();
         manualBusinessPlan.setId(UUID.randomUUID().toString());
 
+        // Create the ManualBusinessPlan
+        ManualBusinessPlanDTO manualBusinessPlanDTO = manualBusinessPlanMapper.toDto(manualBusinessPlan);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restManualBusinessPlanMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, UUID.randomUUID().toString())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlan))
+                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlanDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -314,10 +344,15 @@ class ManualBusinessPlanResourceIT {
         int databaseSizeBeforeUpdate = manualBusinessPlanRepository.findAll().size();
         manualBusinessPlan.setId(UUID.randomUUID().toString());
 
+        // Create the ManualBusinessPlan
+        ManualBusinessPlanDTO manualBusinessPlanDTO = manualBusinessPlanMapper.toDto(manualBusinessPlan);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restManualBusinessPlanMockMvc
             .perform(
-                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(manualBusinessPlan))
+                put(ENTITY_API_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlanDTO))
             )
             .andExpect(status().isMethodNotAllowed());
 
@@ -397,12 +432,15 @@ class ManualBusinessPlanResourceIT {
         int databaseSizeBeforeUpdate = manualBusinessPlanRepository.findAll().size();
         manualBusinessPlan.setId(UUID.randomUUID().toString());
 
+        // Create the ManualBusinessPlan
+        ManualBusinessPlanDTO manualBusinessPlanDTO = manualBusinessPlanMapper.toDto(manualBusinessPlan);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restManualBusinessPlanMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, manualBusinessPlan.getId())
+                patch(ENTITY_API_URL_ID, manualBusinessPlanDTO.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlan))
+                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlanDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -416,12 +454,15 @@ class ManualBusinessPlanResourceIT {
         int databaseSizeBeforeUpdate = manualBusinessPlanRepository.findAll().size();
         manualBusinessPlan.setId(UUID.randomUUID().toString());
 
+        // Create the ManualBusinessPlan
+        ManualBusinessPlanDTO manualBusinessPlanDTO = manualBusinessPlanMapper.toDto(manualBusinessPlan);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restManualBusinessPlanMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, UUID.randomUUID().toString())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlan))
+                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlanDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -435,12 +476,15 @@ class ManualBusinessPlanResourceIT {
         int databaseSizeBeforeUpdate = manualBusinessPlanRepository.findAll().size();
         manualBusinessPlan.setId(UUID.randomUUID().toString());
 
+        // Create the ManualBusinessPlan
+        ManualBusinessPlanDTO manualBusinessPlanDTO = manualBusinessPlanMapper.toDto(manualBusinessPlan);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restManualBusinessPlanMockMvc
             .perform(
                 patch(ENTITY_API_URL)
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlan))
+                    .content(TestUtil.convertObjectToJsonBytes(manualBusinessPlanDTO))
             )
             .andExpect(status().isMethodNotAllowed());
 
