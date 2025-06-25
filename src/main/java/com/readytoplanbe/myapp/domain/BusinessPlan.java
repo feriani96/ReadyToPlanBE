@@ -55,6 +55,21 @@ public class BusinessPlan implements Serializable {
     @Field("generated_presentation")
     private String generatedPresentation;
 
+    // Nouveau champ pour stocker la présentation éditée manuellement
+    @Field("edited_presentation")
+    private String editedPresentation;
+
+    // Flag pour indiquer si la présentation a été modifiée manuellement
+    @Field("is_edited")
+    private boolean isEdited = false;
+
+    @Field("presentation_content")
+    private String presentationContent;
+
+    @Field("cover_image_url")
+    private String coverImageUrl;
+
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public String getId() {
@@ -174,6 +189,55 @@ public class BusinessPlan implements Serializable {
         this.generatedPresentation = generatedPresentation;
     }
 
+    public String getEditedPresentation() {
+        return this.editedPresentation;
+    }
+
+    public BusinessPlan editedPresentation(String editedPresentation) {
+        this.setEditedPresentation(editedPresentation);
+        return this;
+    }
+
+    public void setEditedPresentation(String editedPresentation) {
+        this.editedPresentation = editedPresentation;
+    }
+
+    public boolean isEdited() {
+        return this.isEdited;
+    }
+
+    public BusinessPlan isEdited(boolean isEdited) {
+        this.setEdited(isEdited);
+        return this;
+    }
+
+    public void setEdited(boolean isEdited) {
+        this.isEdited = isEdited;
+    }
+
+
+    public String getPresentationContent() {
+        return this.presentationContent;
+    }
+
+    public BusinessPlan presentationContent(String presentationContent) {
+        this.setPresentationContent(presentationContent);
+        return this;
+    }
+
+    public void setPresentationContent(String presentationContent) {
+        this.presentationContent = presentationContent;
+    }
+
+
+    public String getCoverImageUrl() {
+        return coverImageUrl;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -206,6 +270,7 @@ public class BusinessPlan implements Serializable {
             ", anticipatedProjectSize=" + getAnticipatedProjectSize() +
             ", currency='" + getCurrency() + "'" +
             ", generatedPresentation='" + getGeneratedPresentation() + "'" +
+            ", presentationContent='" + getPresentationContent() + "'" +
             "}";
     }
 }

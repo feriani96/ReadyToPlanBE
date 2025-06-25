@@ -14,6 +14,7 @@ public class ApplicationProperties {
     // jhipster-needle-application-properties-property-getter
     // jhipster-needle-application-properties-property-class
 
+
 }
 
 
