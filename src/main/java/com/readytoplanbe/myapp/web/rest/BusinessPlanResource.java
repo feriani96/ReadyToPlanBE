@@ -1,9 +1,11 @@
 package com.readytoplanbe.myapp.web.rest;
 
+import com.readytoplanbe.myapp.domain.Slide;
 import com.readytoplanbe.myapp.repository.BusinessPlanRepository;
 import com.readytoplanbe.myapp.service.BusinessPlanService;
 import com.readytoplanbe.myapp.service.dto.BusinessPlanDTO;
 import com.readytoplanbe.myapp.service.dto.BusinessPlanInputDTO;
+import com.readytoplanbe.myapp.service.dto.BusinessPlanWithImageDTO;
 import com.readytoplanbe.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,9 +23,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+
+import com.readytoplanbe.myapp.web.rest.vm.SlideUpdateRequest;
+
 
 /**
  * REST controller for managing {@link com.readytoplanbe.myapp.domain.BusinessPlan}.
@@ -56,16 +62,12 @@ public class BusinessPlanResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/business-plans")
-    public ResponseEntity<BusinessPlanDTO> createBusinessPlan(@Valid @RequestBody BusinessPlanDTO businessPlanDTO)
-        throws URISyntaxException {
+    public ResponseEntity<BusinessPlanDTO> createBusinessPlan(@RequestBody BusinessPlanDTO businessPlanDTO) throws URISyntaxException {
         log.debug("REST request to save BusinessPlan : {}", businessPlanDTO);
-        if (businessPlanDTO.getId() != null) {
-            throw new BadRequestAlertException("A new businessPlan cannot already have an ID", ENTITY_NAME, "idexists");
-        }
+
         BusinessPlanDTO result = businessPlanService.save(businessPlanDTO);
         return ResponseEntity
             .created(new URI("/api/business-plans/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId()))
             .body(result);
     }
 
@@ -168,15 +170,59 @@ public class BusinessPlanResource {
 
     @PostMapping("/business-plans/generate")
     public ResponseEntity<String> generateBusinessPlan(@Valid @RequestBody BusinessPlanDTO businessPlanDTO) {
-        log.debug("REST request to generate BusinessPlan presentation for : {}", businessPlanDTO);
-
         BusinessPlanInputDTO input = new BusinessPlanInputDTO(businessPlanDTO);
         String generatedPresentation = businessPlanService.generatePresentation(input);
-
-        // Tu peux retourner directement la présentation générée
         return ResponseEntity.ok(generatedPresentation);
     }
 
+    @PostMapping("/business-plans/{id}/regenerate")
+    public ResponseEntity<BusinessPlanDTO> regeneratePresentation(@PathVariable String id) {
+        log.debug("REST request to regenerate presentation for BusinessPlan : {}", id);
+        BusinessPlanDTO businessPlanDTO = businessPlanService.findOne(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+
+        BusinessPlanDTO updated = businessPlanService.update(businessPlanDTO);
+        return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/business-plans/{companyName}/presentation")
+    public ResponseEntity<List<Slide>> getPresentation(@PathVariable String companyName) {
+        log.debug("Enter: getPresentation() with argument[s] = [{}]", companyName);
+        List<Slide> slides = businessPlanService.getPresentationSlides(companyName);
+        return ResponseEntity.ok(slides);
+    }
+
+    @GetMapping("/business-plans/{companyName}/presentation/text")
+    public ResponseEntity<String> getPresentationText(@PathVariable String companyName) {
+        log.debug("REST request to get presentation text for company: {}", companyName);
+        String presentation = businessPlanService.getPresentation(companyName);
+        return ResponseEntity.ok(presentation);
+    }
+
+
+
+    /**
+     * {@code PATCH /business-plans/{id}/presentation/slide/{slideIndex}} : Update the content of a specific slide in the generated presentation.
+     *
+     * @param id the id of the business plan.
+     * @param slideIndex the index of the slide to update.
+     * @param slideUpdateRequest the request body containing the new content.
+     * @return the updated BusinessPlanDTO.
+     */
+    @PatchMapping("/business-plans/{id}/presentation/slide/{slideIndex}")
+    public ResponseEntity<BusinessPlanDTO> updateGeneratedPresentation(
+        @PathVariable String id,
+        @PathVariable int slideIndex,
+        @RequestBody SlideUpdateRequest slideUpdateRequest
+    ) {
+        log.debug("REST request to update slide {} of generatedPresentation for BusinessPlan : {}", slideIndex, id);
+
+        Optional<BusinessPlanDTO> updatedOptional = businessPlanService.updateGeneratedPresentation(id, slideIndex, slideUpdateRequest.getNewContent());
+
+        return updatedOptional
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
     /**
      * {@code DELETE  /business-plans/:id} : delete the "id" businessPlan.
