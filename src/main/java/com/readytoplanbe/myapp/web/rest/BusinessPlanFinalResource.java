@@ -1,0 +1,206 @@
+package com.readytoplanbe.myapp.web.rest;
+
+import com.readytoplanbe.myapp.domain.BusinessPlanFinal;
+import com.readytoplanbe.myapp.repository.BusinessPlanFinalRepository;
+import com.readytoplanbe.myapp.service.BusinessPlanFinalService;
+import com.readytoplanbe.myapp.service.dto.BusinessPlanFinalDTO;
+import com.readytoplanbe.myapp.web.rest.errors.BadRequestAlertException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.ResponseUtil;
+
+/**
+ * REST controller for managing {@link com.readytoplanbe.myapp.domain.BusinessPlanFinal}.
+ */
+@RestController
+@RequestMapping("/api")
+public class BusinessPlanFinalResource {
+
+    private final Logger log = LoggerFactory.getLogger(BusinessPlanFinalResource.class);
+
+    private static final String ENTITY_NAME = "businessPlanFinal";
+
+    @Value("${jhipster.clientApp.name}")
+    private String applicationName;
+
+    private final BusinessPlanFinalService businessPlanFinalService;
+
+    private final BusinessPlanFinalRepository businessPlanFinalRepository;
+
+    public BusinessPlanFinalResource(
+        BusinessPlanFinalService businessPlanFinalService,
+        BusinessPlanFinalRepository businessPlanFinalRepository
+    ) {
+        this.businessPlanFinalService = businessPlanFinalService;
+        this.businessPlanFinalRepository = businessPlanFinalRepository;
+    }
+
+    /**
+     * {@code POST  /business-plan-finals} : Create a new businessPlanFinal.
+     *
+     * @param businessPlanFinal the businessPlanFinal to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new businessPlanFinal, or with status {@code 400 (Bad Request)} if the businessPlanFinal has already an ID.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PostMapping("/business-plan-finals")
+    public ResponseEntity<BusinessPlanFinal> createBusinessPlanFinal(@Valid @RequestBody BusinessPlanFinal businessPlanFinal)
+        throws URISyntaxException {
+        log.debug("REST request to save BusinessPlanFinal : {}", businessPlanFinal);
+        if (businessPlanFinal.getId() != null) {
+            throw new BadRequestAlertException("A new businessPlanFinal cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        BusinessPlanFinal result = businessPlanFinalService.save(businessPlanFinal);
+        return ResponseEntity
+            .created(new URI("/api/business-plan-finals/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId()))
+            .body(result);
+    }
+    @GetMapping("/business-plan-final/ai-only/{companyId}")
+    public ResponseEntity<BusinessPlanFinalDTO> getAIOnlyBusinessPlan(@PathVariable String companyId) {
+        try {
+            BusinessPlanFinalDTO dto = businessPlanFinalService.generateAIBusinessPlan(companyId);
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            log.error("Erreur lors de la génération du plan IA pour l'entreprise {}", companyId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    @GetMapping("/business-plan-finals/by-company/{companyId}")
+    public ResponseEntity<List<BusinessPlanFinalDTO>> getAllBusinessPlansByCompany(@PathVariable String companyId) {
+        List<BusinessPlanFinalDTO> result = businessPlanFinalService.findAllByCompany(companyId);
+        return ResponseEntity.ok(result);
+    }
+    @GetMapping("/business-plan-final")
+    public ResponseEntity<List<BusinessPlanFinalDTO>> getAllBusinessPlans() {
+        List<BusinessPlanFinalDTO> plans = businessPlanFinalService.findAll();
+        return ResponseEntity.ok(plans);
+    }
+
+/*
+    @GetMapping("/business-plan-final/generate-by-company/{companyId}")
+    public ResponseEntity<BusinessPlanFinal> generateBusinessPlanFinalByCompany(@PathVariable String companyId) {
+        try {
+            Optional<BusinessPlanFinal> existingPlan = businessPlanFinalRepository.findByCompany_Id(companyId);
+
+            if (existingPlan.isPresent()) {
+                return ResponseEntity.ok(existingPlan.get());
+            }
+
+            BusinessPlanFinal generatedPlan = businessPlanFinalService.generatePlanFromCompany(companyId);
+            return ResponseEntity.ok(generatedPlan);
+        } catch (Exception e) {
+            log.error("Erreur lors de la génération du BusinessPlanFinal pour companyId={}", companyId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }*/
+
+    /**
+     * {@code PUT  /business-plan-finals/:id} : Updates an existing businessPlanFinal.
+     *
+     * @param id the id of the businessPlanFinal to save.
+     * @param businessPlanFinal the businessPlanFinal to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated businessPlanFinal,
+     * or with status {@code 400 (Bad Request)} if the businessPlanFinal is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the businessPlanFinal couldn't be updated.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PutMapping("/business-plan-finals/{id}")
+    public ResponseEntity<BusinessPlanFinal> updateBusinessPlanFinal(
+        @PathVariable(value = "id", required = false) final String id,
+        @Valid @RequestBody BusinessPlanFinal businessPlanFinal
+    ) throws URISyntaxException {
+        log.debug("REST request to update BusinessPlanFinal : {}, {}", id, businessPlanFinal);
+        if (businessPlanFinal.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, businessPlanFinal.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!businessPlanFinalRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+
+        BusinessPlanFinal result = businessPlanFinalService.update(businessPlanFinal);
+        return ResponseEntity
+            .ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, businessPlanFinal.getId()))
+            .body(result);
+    }
+
+    /**
+     * {@code PATCH  /business-plan-finals/:id} : Partial updates given fields of an existing businessPlanFinal, field will ignore if it is null
+     *
+     * @param id the id of the businessPlanFinal to save.
+     * @param businessPlanFinal the businessPlanFinal to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated businessPlanFinal,
+     * or with status {@code 400 (Bad Request)} if the businessPlanFinal is not valid,
+     * or with status {@code 404 (Not Found)} if the businessPlanFinal is not found,
+     * or with status {@code 500 (Internal Server Error)} if the businessPlanFinal couldn't be updated.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PatchMapping(value = "/business-plan-finals/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    public ResponseEntity<BusinessPlanFinal> partialUpdateBusinessPlanFinal(
+        @PathVariable(value = "id", required = false) final String id,
+        @NotNull @RequestBody BusinessPlanFinal businessPlanFinal
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update BusinessPlanFinal partially : {}, {}", id, businessPlanFinal);
+        if (businessPlanFinal.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, businessPlanFinal.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!businessPlanFinalRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+
+        Optional<BusinessPlanFinal> result = businessPlanFinalService.partialUpdate(businessPlanFinal);
+
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, businessPlanFinal.getId())
+        );
+    }
+
+
+
+    /**
+     * {@code GET  /business-plan-finals/:id} : get the "id" businessPlanFinal.
+     *
+     * @param id the id of the businessPlanFinal to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the businessPlanFinal, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("/business-plan-finals/{id}")
+    public ResponseEntity<BusinessPlanFinal> getBusinessPlanFinal(@PathVariable String id) {
+        log.debug("REST request to get BusinessPlanFinal : {}", id);
+        Optional<BusinessPlanFinal> businessPlanFinal = businessPlanFinalService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(businessPlanFinal);
+    }
+
+    /**
+     * {@code DELETE  /business-plan-finals/:id} : delete the "id" businessPlanFinal.
+     *
+     * @param id the id of the businessPlanFinal to delete.
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("/business-plan-finals/{id}")
+    public ResponseEntity<Void> deleteBusinessPlanFinal(@PathVariable String id) {
+        log.debug("REST request to delete BusinessPlanFinal : {}", id);
+        businessPlanFinalService.delete(id);
+        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id)).build();
+    }
+}

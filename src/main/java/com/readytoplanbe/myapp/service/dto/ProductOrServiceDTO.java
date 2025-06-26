@@ -29,8 +29,15 @@ public class ProductOrServiceDTO implements Serializable {
     @NotNull
     @Min(value = 1)
     private Integer durationInMonths;
+    private String companyId;
 
-    private ManualBusinessPlanDTO manualBusinessPlan;
+    public String getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
+    }
 
     public String getId() {
         return id;
@@ -80,14 +87,6 @@ public class ProductOrServiceDTO implements Serializable {
         this.durationInMonths = durationInMonths;
     }
 
-    public ManualBusinessPlanDTO getManualBusinessPlan() {
-        return manualBusinessPlan;
-    }
-
-    public void setManualBusinessPlan(ManualBusinessPlanDTO manualBusinessPlan) {
-        this.manualBusinessPlan = manualBusinessPlan;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -119,7 +118,6 @@ public class ProductOrServiceDTO implements Serializable {
             ", unitPrice=" + getUnitPrice() +
             ", estimatedMonthlySales=" + getEstimatedMonthlySales() +
             ", durationInMonths=" + getDurationInMonths() +
-            ", manualBusinessPlan=" + getManualBusinessPlan() +
             "}";
     }
 }

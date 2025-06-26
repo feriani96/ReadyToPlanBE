@@ -5,7 +5,6 @@ import com.readytoplanbe.myapp.repository.BusinessPlanRepository;
 import com.readytoplanbe.myapp.service.BusinessPlanService;
 import com.readytoplanbe.myapp.service.dto.BusinessPlanDTO;
 import com.readytoplanbe.myapp.service.dto.BusinessPlanInputDTO;
-import com.readytoplanbe.myapp.service.dto.BusinessPlanWithImageDTO;
 import com.readytoplanbe.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;

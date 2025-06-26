@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import javax.validation.constraints.*;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -27,10 +26,6 @@ public class FinancialForecast implements Serializable {
     @Min(value = 1)
     @Field("duration_in_months")
     private Integer durationInMonths;
-
-    @DBRef
-    @Field("manualBusinessPlan")
-    private ManualBusinessPlan manualBusinessPlan;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -71,19 +66,6 @@ public class FinancialForecast implements Serializable {
 
     public void setDurationInMonths(Integer durationInMonths) {
         this.durationInMonths = durationInMonths;
-    }
-
-    public ManualBusinessPlan getManualBusinessPlan() {
-        return this.manualBusinessPlan;
-    }
-
-    public void setManualBusinessPlan(ManualBusinessPlan manualBusinessPlan) {
-        this.manualBusinessPlan = manualBusinessPlan;
-    }
-
-    public FinancialForecast manualBusinessPlan(ManualBusinessPlan manualBusinessPlan) {
-        this.setManualBusinessPlan(manualBusinessPlan);
-        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
