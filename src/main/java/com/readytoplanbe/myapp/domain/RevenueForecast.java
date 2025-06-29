@@ -1,6 +1,5 @@
 package com.readytoplanbe.myapp.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.readytoplanbe.myapp.domain.enumeration.Month;
 import java.io.Serializable;
 import javax.validation.constraints.*;
@@ -43,12 +42,10 @@ public class RevenueForecast implements Serializable {
 
     @DBRef
     @Field("productOrService")
-    @JsonIgnoreProperties(value = { "manualBusinessPlan" }, allowSetters = true)
     private ProductOrService productOrService;
 
     @DBRef
     @Field("financialForecast")
-    @JsonIgnoreProperties(value = { "manualBusinessPlan" }, allowSetters = true)
     private FinancialForecast financialForecast;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

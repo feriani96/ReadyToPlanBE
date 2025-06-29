@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -146,21 +145,14 @@ public class FinancialForecastResource {
      * {@code GET  /financial-forecasts} : get all the financialForecasts.
      *
      * @param pageable the pagination information.
-     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of financialForecasts in body.
      */
     @GetMapping("/financial-forecasts")
     public ResponseEntity<List<FinancialForecastDTO>> getAllFinancialForecasts(
-        @org.springdoc.api.annotations.ParameterObject Pageable pageable,
-        @RequestParam(required = false, defaultValue = "false") boolean eagerload
+        @org.springdoc.api.annotations.ParameterObject Pageable pageable
     ) {
         log.debug("REST request to get a page of FinancialForecasts");
-        Page<FinancialForecastDTO> page;
-        if (eagerload) {
-            page = financialForecastService.findAllWithEagerRelationships(pageable);
-        } else {
-            page = financialForecastService.findAll(pageable);
-        }
+        Page<FinancialForecastDTO> page = financialForecastService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

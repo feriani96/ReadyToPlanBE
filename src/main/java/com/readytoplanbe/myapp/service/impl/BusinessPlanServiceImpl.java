@@ -24,7 +24,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.springframework.core.io.Resource;
 
 
 import java.io.File;
