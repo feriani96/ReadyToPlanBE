@@ -1,9 +1,12 @@
 package com.readytoplanbe.myapp.web.rest;
 
 import com.readytoplanbe.myapp.domain.BusinessPlanFinal;
+import com.readytoplanbe.myapp.domain.Company;
 import com.readytoplanbe.myapp.repository.BusinessPlanFinalRepository;
+import com.readytoplanbe.myapp.repository.CompanyRepository;
 import com.readytoplanbe.myapp.service.BusinessPlanFinalService;
 import com.readytoplanbe.myapp.service.dto.BusinessPlanFinalDTO;
+import com.readytoplanbe.myapp.service.mapper.BusinessPlanFinalMapper;
 import com.readytoplanbe.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,6 +17,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,16 +38,20 @@ public class BusinessPlanFinalResource {
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
+    @Autowired
+    private BusinessPlanFinalMapper businessPlanFinalMapper;
 
     private final BusinessPlanFinalService businessPlanFinalService;
-
+    private final CompanyRepository companyRepository;
     private final BusinessPlanFinalRepository businessPlanFinalRepository;
 
     public BusinessPlanFinalResource(
-        BusinessPlanFinalService businessPlanFinalService,
-        BusinessPlanFinalRepository businessPlanFinalRepository
+        BusinessPlanFinalMapper businessPlanFinalMapper, BusinessPlanFinalService businessPlanFinalService,
+        CompanyRepository companyRepository, BusinessPlanFinalRepository businessPlanFinalRepository
     ) {
+        this.businessPlanFinalMapper = businessPlanFinalMapper;
         this.businessPlanFinalService = businessPlanFinalService;
+        this.companyRepository = companyRepository;
         this.businessPlanFinalRepository = businessPlanFinalRepository;
     }
 
@@ -66,6 +74,14 @@ public class BusinessPlanFinalResource {
             .created(new URI("/api/business-plan-finals/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId()))
             .body(result);
+    }
+    @PostMapping("/generate/{companyId}")
+    public BusinessPlanFinalDTO generateFinalPlan(@PathVariable String companyId, @RequestBody BusinessPlanFinalDTO dto) {
+        Company company = companyRepository.findById(companyId).orElseThrow();
+        BusinessPlanFinal entity = businessPlanFinalMapper.toEntity(dto);
+        entity.setCompany(company);
+        BusinessPlanFinal result = businessPlanFinalService.generateBusinessPlan(company, entity);
+        return businessPlanFinalMapper.toDto(result);
     }
     @GetMapping("/business-plan-final/ai-only/{companyId}")
     public ResponseEntity<BusinessPlanFinalDTO> getAIOnlyBusinessPlan(@PathVariable String companyId) {
@@ -106,39 +122,25 @@ public class BusinessPlanFinalResource {
         }
     }*/
 
-    /**
-     * {@code PUT  /business-plan-finals/:id} : Updates an existing businessPlanFinal.
-     *
-     * @param id the id of the businessPlanFinal to save.
-     * @param businessPlanFinal the businessPlanFinal to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated businessPlanFinal,
-     * or with status {@code 400 (Bad Request)} if the businessPlanFinal is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the businessPlanFinal couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
+
     @PutMapping("/business-plan-finals/{id}")
     public ResponseEntity<BusinessPlanFinal> updateBusinessPlanFinal(
-        @PathVariable(value = "id", required = false) final String id,
-        @Valid @RequestBody BusinessPlanFinal businessPlanFinal
-    ) throws URISyntaxException {
-        log.debug("REST request to update BusinessPlanFinal : {}, {}", id, businessPlanFinal);
+        @PathVariable String id,
+        @RequestBody BusinessPlanFinal businessPlanFinal
+    ) {
+        log.debug("REST request to update BusinessPlanFinal : {}", businessPlanFinal);
+
         if (businessPlanFinal.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, businessPlanFinal.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        if (!businessPlanFinalRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        if (!businessPlanFinal.getId().equals(id)) {
+            throw new BadRequestAlertException("ID mismatch", ENTITY_NAME, "idmismatch");
         }
 
         BusinessPlanFinal result = businessPlanFinalService.update(businessPlanFinal);
-        return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, businessPlanFinal.getId()))
-            .body(result);
+        return ResponseEntity.ok().body(result);
     }
+
 
     /**
      * {@code PATCH  /business-plan-finals/:id} : Partial updates given fields of an existing businessPlanFinal, field will ignore if it is null

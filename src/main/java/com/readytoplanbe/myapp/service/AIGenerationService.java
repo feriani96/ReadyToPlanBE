@@ -95,5 +95,16 @@ public class AIGenerationService {
             throw new RuntimeException("Erreur IA : " + e.getMessage(), e);
         }
     }
+    public String generateText(String prompt) {
+        try {
+            String json = callGemini(prompt).block();
+            if (json == null) {
+                throw new RuntimeException("Réponse vide");
+            }
+            return extractText(json);
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de génération du texte IA", e);
+        }
+    }
 
 }

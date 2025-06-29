@@ -5,9 +5,7 @@ import com.readytoplanbe.myapp.domain.enumeration.EntityType;
 import com.readytoplanbe.myapp.repository.*;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.readytoplanbe.myapp.service.dto.AIResponseDTO;
@@ -93,6 +91,74 @@ public class BusinessPlanFinalService {
 
         return dto;
     }
+    public BusinessPlanFinal generateBusinessPlan(Company company, BusinessPlanFinal businessPlanFinal) {
+        // Récupérer les réponses IA liées à l’entreprise
+        List<AIGeneratedResponse> responses = aiGeneratedResponseRepository.findByEntityIdAndEntityType(company.getId(), EntityType.COMPANY);
+
+        // Regrouper le contenu par type
+        Map<String, String> contentByType = responses.stream()
+            .collect(Collectors.toMap(
+                r -> r.getEntityType().name().toLowerCase(),
+                AIGeneratedResponse::getAiResponse,
+                (v1, v2) -> v1 + "\n" + v2
+            ));
+
+        // Construire le prompt
+        String prompt = buildPromptFromModel(contentByType, company.getEnterpriseName());
+
+        // Générer le texte avec Gemini
+        String result = aiGenerationService.generateText(prompt);
+
+        // Mettre à jour l’objet BusinessPlanFinal
+        businessPlanFinal.setFinalContent(result);
+        businessPlanFinal.setCreationDate(Instant.now());
+
+        // ** Titre = nom de l’entreprise **
+        businessPlanFinal.setTitle(company.getEnterpriseName());
+
+        // Sauvegarder et retourner
+        return businessPlanFinalRepository.save(businessPlanFinal);
+    }
+
+
+    private String buildPromptFromModel(Map<String, String> sections, String companyName) {
+        return "Tu es un expert en création de business plan professionnel. Génère un business plan structuré pour l'entreprise \"" + companyName + "\" selon ce plan :\n\n"
+            + "1. Synthèse\n"
+            + sections.getOrDefault("summary", "") + "\n\n"
+
+            + "2. Description de l’entreprise\n"
+            + sections.getOrDefault("COMPANY", "") + "\n\n"
+
+            + "3. L’opportunité\n"
+            + sections.getOrDefault("PRODUCT", "") + "\n\n"
+
+            + "4. Analyse du secteur d’activité\n"
+            + sections.getOrDefault("marketing", "") + "\n\n"
+
+            + "5. Étude et définition du marché cible\n"
+            + sections.getOrDefault("MARKETING", "") + "\n\n"
+
+            + "6. Équipe de management\n"
+            + sections.getOrDefault("TEAM", "") + "\n\n"
+
+            + "7. Plan des opérations\n"
+            + "(À compléter à partir du contexte de l’entreprise)\n\n"
+
+            + "8. Stratégie marketing\n"
+            + sections.getOrDefault("MARKETING", "") + "\n\n"
+
+            + "9. Plan et échéancier de mise en œuvre\n"
+            + "(À générer selon le secteur)\n\n"
+
+            + "10. Plan de financement\n"
+            + "(À générer en fonction des investissements et prévisions)\n\n"
+
+            + "11. Conclusion\n"
+            + "Résume les points clés et incite à l’investissement.\n\n"
+
+            + "Génère un document fluide, clair et professionnel.";
+    }
+
     public List<BusinessPlanFinalDTO> findAllByCompany(String companyId) {
         return businessPlanFinalRepository.findAllByCompany_Id(companyId)
             .stream()
@@ -113,31 +179,38 @@ public class BusinessPlanFinalService {
                 BusinessPlanFinalDTO dto = new BusinessPlanFinalDTO();
                 dto.setTitle(plan.getTitle());
                 dto.setCreationDate(plan.getCreationDate());
-                dto.setCompanyId(plan.getCompany().getId());
+                dto.setFinalContent(plan.getFinalContent());
+                dto.setId(plan.getId());
 
-                String companyId = plan.getCompany().getId();
+                if (plan.getCompany() != null) {
+                    String companyId = plan.getCompany().getId();
+                    dto.setCompanyId(companyId);
 
-                // récupérer tous les IDs d’entités liées à cette company
-                List<String> allEntityIds = new ArrayList<>();
-                allEntityIds.addAll(productRepository.findAllByCompanyId(companyId).stream().map(ProductOrService::getId).collect(Collectors.toList()));
-                allEntityIds.addAll(teamRepository.findAllByCompanyId(companyId).stream().map(Team::getId).collect(Collectors.toList()));
-                allEntityIds.addAll(marketingRepository.findAllByCompanyId(companyId).stream().map(Marketing::getId).collect(Collectors.toList()));
-                allEntityIds.add(companyId); // pour inclure la réponse IA liée à Company elle-même
+                    // récupérer tous les IDs d’entités liées à cette company
+                    List<String> allEntityIds = new ArrayList<>();
+                    allEntityIds.addAll(productRepository.findAllByCompanyId(companyId).stream().map(ProductOrService::getId).collect(Collectors.toList()));
+                    allEntityIds.addAll(teamRepository.findAllByCompanyId(companyId).stream().map(Team::getId).collect(Collectors.toList()));
+                    allEntityIds.addAll(marketingRepository.findAllByCompanyId(companyId).stream().map(Marketing::getId).collect(Collectors.toList()));
 
-                // récupérer toutes les réponses IA liées
-                List<AIGeneratedResponse> aiList = aiGeneratedResponseRepository.findAllByEntityIdIn(allEntityIds);
+                    allEntityIds.add(companyId); // inclure la company elle-même
 
-                List<AIResponseDTO> aiDtos = aiList.stream()
-                    .map(ai -> new AIResponseDTO(ai.getEntityType().name(), ai.getAiResponse()))
-                    .collect(Collectors.toList());
+                    // récupérer toutes les réponses IA liées
+                    List<AIGeneratedResponse> aiList = aiGeneratedResponseRepository.findAllByEntityIdIn(allEntityIds);
 
-                dto.setAiResponses(aiDtos);
+                    List<AIResponseDTO> aiDtos = aiList.stream()
+                        .map(ai -> new AIResponseDTO(ai.getEntityType().name(), ai.getAiResponse()))
+                        .collect(Collectors.toList());
+
+                    dto.setAiResponses(aiDtos);
+                } else {
+                    dto.setCompanyId(null);
+                    dto.setAiResponses(Collections.emptyList());
+                }
 
                 return dto;
             })
             .collect(Collectors.toList());
     }
-
 
 
 

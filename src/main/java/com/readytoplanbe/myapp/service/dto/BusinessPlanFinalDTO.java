@@ -4,10 +4,28 @@ import java.time.Instant;
 import java.util.List;
 
 public class BusinessPlanFinalDTO {
+    private String id;
     private String title;
     private Instant creationDate;
     private List<AIResponseDTO> aiResponses;
     private  String companyId;
+    private String finalContent;
+
+    public String getFinalContent() {
+        return finalContent;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setFinalContent(String finalContent) {
+        this.finalContent = finalContent;
+    }
 
     public String getCompanyId() {
         return companyId;
@@ -45,10 +63,12 @@ public class BusinessPlanFinalDTO {
     @Override
     public String toString() {
         return "BusinessPlanFinalDTO{" +
-            "title='" + title + '\'' +
+            "id='" + id + '\'' +
+            ", title='" + title + '\'' +
             ", creationDate=" + creationDate +
             ", aiResponses=" + aiResponses +
             ", companyId='" + companyId + '\'' +
+            ", finalContent='" + finalContent + '\'' +
             '}';
     }
 }

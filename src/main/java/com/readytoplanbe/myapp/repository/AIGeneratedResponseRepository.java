@@ -21,4 +21,6 @@ public interface AIGeneratedResponseRepository extends MongoRepository<AIGenerat
 
     List<AIGeneratedResponse> findAllByEntityIdIn(List<String> entityIds);
 
+    List<AIGeneratedResponse> findByEntityIdAndEntityType(String entityId, EntityType entityType);
+
 }

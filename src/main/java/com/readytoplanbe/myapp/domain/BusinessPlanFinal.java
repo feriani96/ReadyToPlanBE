@@ -45,6 +45,16 @@ public class BusinessPlanFinal implements Serializable {
     @DBRef
     private Set<Marketing> marketings = new HashSet<>();
 
+    @Field("final_content")
+    private String finalContent;
+
+    public String getFinalContent() {
+        return finalContent;
+    }
+
+    public void setFinalContent(String finalContent) {
+        this.finalContent = finalContent;
+    }
 
     public BusinessPlanFinal companyId(String companyId) {
         this.company = new Company();
@@ -181,17 +191,19 @@ public class BusinessPlanFinal implements Serializable {
     }
 
     // prettier-ignore
+
     @Override
     public String toString() {
         return "BusinessPlanFinal{" +
-            "id=" + getId() +
-            ", title='" + getTitle() + "'" +
-            ", description='" + getDescription() + "'" +
-            ", creationDate='" + getCreationDate() + "'" +
-            ", companyId='" + getCompany() + "'" +
-            ", productsIds='" + getProducts() + "'" +
-            ", teamsIds='" + getTeams() + "'" +
-            ", marketingsIds='" + getMarketings() + "'" +
-            "}";
+            "id='" + id + '\'' +
+            ", title='" + title + '\'' +
+            ", description='" + description + '\'' +
+            ", creationDate=" + creationDate +
+            ", company=" + company +
+            ", products=" + products +
+            ", teams=" + teams +
+            ", marketings=" + marketings +
+            ", finalContent='" + finalContent + '\'' +
+            '}';
     }
 }
