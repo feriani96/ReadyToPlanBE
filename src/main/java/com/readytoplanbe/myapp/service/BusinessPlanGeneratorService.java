@@ -43,31 +43,21 @@ public class BusinessPlanGeneratorService {
             promptTemplate = "You are an expert business consultant. Generate a detailed professional business plan presentation with these strict rules:\n\n" +
                 "STRUCTURE RULES:\n" +
                 "1. Use exactly '===SLIDE===' on a separate line to separate slides\n" +
-                "2. First slide must be '# [CompanyName] Business Plan Presentation' followed by '## Table of Contents' with ACTUAL section titles\n" +
-                "3. Each main section starts with '# [SectionNumber]. [SectionTitle]' on a new slide\n" +
+                "2. First slide must be '[CompanyName] Business Plan Presentation' followed by '## Table of Contents' with ACTUAL section titles\n" +
+                "3. Each main section starts with '[SectionNumber]. [SectionTitle]' on a new slide\n" +
                 "4. Table of Contents must EXACTLY match these section titles\n" +
                 "5. For slides containing tables, add '[TABLE]' immediately after the section title\n" +
                 "6. DO NOT include any other technical markup labels\n" +
                 "7. Content should begin immediately after the title without title repetition\n" +
                 "8. Use bullet points (-) for lists, **bold** for emphasis\n" +
-                "9. ALWAYS include tables for these specific sections (mark with [TABLE]):\n" +
-                "   - Organizational & Marketing Tasks [TABLE]\n" +
-                "   - Financial Projections [TABLE]\n" +
-                "   - Product Impact Analysis [TABLE]\n" +
-                "   - Project Phases & Impacts [TABLE]\n" +
-                "10. Tables must be formatted EXACTLY like this example:\n" +
-                "```\n" +
-                "| Header 1       | Header 2       | Header 3       |\n" +
-                "|----------------|----------------|----------------|\n" +
-                "| **Cell 1**     | Cell 2         | Cell 3         |\n" +
-                "| Cell 4         | **Cell 5**     | Cell 6         |\n" +
-                "```\n" +
+
+                "9. STRICT TABLE FORMATTING RULES:\n" +
                 "   - First row must be header row with bold text\n" +
                 "   - Second row must be separator row with '----' between cells\n" +
                 "   - Use **bold** for important values\n" +
                 "   - Tables must have clear horizontal and vertical lines\n" +
-                "   - Never merge cells or use complex formatting\n" +
-                "11. Include financial charts and tables for projections\n" +
+                "   - Never merge cells or use complex formatting\n\n" +
+
                 "COMPANY INFORMATION:\n" +
                 "➤ Company Name: %s\n" +
                 "➤ Description: %s\n" +
@@ -87,15 +77,55 @@ public class BusinessPlanGeneratorService {
                 "6. Competitive Landscape\n" +
                 "7. Organization & Management\n" +
                 "8. Service/Product Line\n" +
-                "9. Product Impact Analysis [TABLE]\n" +
+
+                "9. Product Impact Analysis - Must include:\n" +
+                "| **Main Stakeholder** | **Product Benefits** |\n" +
+                "|----------------------|----------------------|\n" +
+                "| Customers            | [specific benefits]  |\n" +
+                "| Employees            | [specific benefits]  |\n" +
+                "| Suppliers            | [specific benefits]  |\n" +
+                "| Investors            | [specific benefits]  |\n" +
+                "| Local Communities    | [specific benefits]  |\n" +
+                "| Regulatory Bodies    | [specific benefits]  |\n\n" +
+
                 "10. Key Performance Components\n" +
                 "11. Marketing & Sales Strategy\n" +
-                "12. Organizational & Marketing Tasks [TABLE]\n" +
-                "13. Project Phases & Impacts [TABLE]\n" +
+
+                "12. Organizational & Marketing Tasks - Must include TWO TABLES:\n\n" +
+                "TABLE 1: General Planning & Organization\n" +
+                "| **Checklist Item**       | **Status** | **Priority** | **Area** | **Stage** |\n" +
+                "|---------------------------|------------|--------------|----------|-----------|\n" +
+                "| [specific task]          | [status]   | [priority]   | [area]   | [stage]   |\n\n" +
+
+                "TABLE 2: Marketing Tasks\n" +
+                "| **Checklist Item**       | **Status** | **Priority** | **Area** | **Stage** |\n" +
+                "|---------------------------|------------|--------------|----------|-----------|\n" +
+                "| [specific task]          | [status]   | [priority]   | [area]   | [stage]   |\n\n" +
+
+                "13. Project Phases & Impacts [TABLE] - Must include these exact phases:\n" +
+                "| **Phase**                           | **Description**                                      | **Timeline** |\n" +
+                "|-------------------------------------|------------------------------------------------------|--------------|\n" +
+                "| 1. Fundamental Establishment       | [specific to company]                                | [timeline]   |\n" +
+                "| 2. Product Improvement & Market Expansion | [specific to company]                         | [timeline]   |\n" +
+                "| 3. New Revenue Streams             | [specific to company]                                | [timeline]   |\n" +
+                "| 4. Strategic Innovation            | [specific to company]                                | [timeline]   |\n\n" +
+
                 "14. Market Timeline Overview\n" +
                 "15. Funding Requirements\n" +
-                "16. Financial Projections [TABLE]\n" +
-                "17. Financial Dashboard [TABLE]\n" +
+
+                "16. Financial Projections - Must include:\n" +
+                "| **Year** | **Revenue** | **Expenses** | **Profit** | **Growth Rate** | **Investment Needed** |\n" +
+                "|----------|-------------|--------------|------------|-----------------|-----------------------|\n" +
+                "| 2024     | [value]     | [value]      | [value]    | [value]         | [value]               |\n" +
+                "| 2025     | [value]     | [value]      | [value]    | [value]         | [value]               |\n\n" +
+
+                "17. Financial Dashboard - Must include:\n" +
+                "| **Metric**               | **Current** | **Target (1Y)** | **Target (3Y)** |\n" +
+                "|---------------------------|-------------|------------------|------------------|\n" +
+                "| Monthly Recurring Revenue | [value]     | [value]          | [value]          |\n" +
+                "| Customer Acquisition Cost | [value]     | [value]          | [value]          |\n" +
+                "| EBITDA Margin            | [value]     | [value]          | [value]          |\n\n" +
+
                 "18. Simplified Financing Plan\n" +
                 "19. Risk Analysis\n" +
                 "20. Appendix\n\n" +
@@ -104,40 +134,31 @@ public class BusinessPlanGeneratorService {
                 "1. Include specific details from the company information provided\n" +
                 "2. Create tables and charts where appropriate (format as markdown tables)\n" +
                 "3. Each section should have 3-5 key points with detailed explanations\n" +
-                "4. Financial sections must include numeric projections based on the anticipated project size (%s %s)\n" +
-                "5. Product Impact Analysis must include a stakeholder table\n" +
-                "6. Financial Dashboard should summarize key financial metrics\n" +
-                "7. Project Phases should include timeline visualization\n" +
-                "8. Make all content specific to %s";
+                "4. All tables must maintain their exact column structure as specified\n" +
+                "5. Content within tables must be adapted to the specific business (%s)\n" +
+                "6. Financial projections must be based on the anticipated project size (%s %s)\n" +
+                "7. All phase descriptions must be specific to the company's business model\n" +
+                "8. Stakeholder benefits must be realistic and tailored to the product/service";
         } else {
             promptTemplate = "Vous êtes un expert en création d'entreprise. Générez un contenu professionnel détaillé de plan d'affaires avec ces règles strictes :\n\n" +
                 "RÈGLES DE STRUCTURE :\n" +
                 "1. Utilisez exactement '===SLIDE===' entre les sections\n" +
-                "2. Première slide : '# Présentation du Plan d'Affaires [NomEntreprise]' avec '## Table des Matières'\n" +
-                "3. Chaque section commence par '# [NuméroSection]. [TitreSection]' sur nouvelle slide\n" +
+                "2. Première slide : 'Présentation du Plan d'Affaires [NomEntreprise]' avec '## Table des Matières'\n" +
+                "3. Chaque section commence par '[NuméroSection]. [TitreSection]' sur nouvelle slide\n" +
                 "4. La Table des Matières doit CORRESPONDRE exactement aux titres\n" +
                 "5. Pour les slides contenant des tableaux, ajoutez '[TABLE]' immédiatement après le titre\n" +
                 "6. NE PAS inclure d'autres balises techniques\n" +
                 "7. Contenu doit commencer immédiatement après le titre\n" +
                 "8. Utilisez des puces (-) pour les listes et des tableaux quand approprié\n" +
-                "9. TOUJOURS inclure des tableaux pour ces sections spécifiques (marquées avec [TABLE]):\n" +
-                "   - Tâches Organisationnelles & Marketing [TABLE]\n" +
-                "   - Projections Financières [TABLE]\n" +
-                "   - Analyse d'Impact des Produits [TABLE]\n" +
-                "   - Phases du Projet & Impacts [TABLE]\n" +
-                "10. Les tableaux doivent être formatés EXACTEMENT comme cet exemple :\n" +
-                "```\n" +
-                "| En-tête 1      | En-tête 2      | En-tête 3      |\n" +
-                "|----------------|----------------|----------------|\n" +
-                "| **Cellule 1**  | Cellule 2      | Cellule 3      |\n" +
-                "| Cellule 4      | **Cellule 5**  | Cellule 6      |\n" +
-                "```\n" +
+
+                "9. RÈGLES STRICTES DE FORMATAGE DES TABLEAUX :\n" +
                 "   - La première ligne doit être l'en-tête en gras\n" +
                 "   - La deuxième ligne doit être une séparation avec '----'\n" +
                 "   - Utilisez **gras** pour les valeurs importantes\n" +
                 "   - Les tableaux doivent avoir des lignes claires\n" +
-                "   - Ne fusionnez pas les cellules\n" +
-                "11. Générer au moins 20 slides avec contenu détaillé\n\n" +
+                "   - Ne fusionnez pas les cellules\n\n" +
+
+                "10. Générer au moins 20 slides avec contenu détaillé\n\n" +
                 "INFORMATIONS ENTREPRISE :\n" +
                 "➤ Nom Entreprise : %s\n" +
                 "➤ Description : %s\n" +
@@ -145,7 +166,7 @@ public class BusinessPlanGeneratorService {
                 "➤ Pays : %s\n" +
                 "➤ Langues : %s\n" +
                 "➤ Taille Projet : %s %s\n\n" +
-                "EXIGENCES DE CONTENU :\n";
+                "EXIGENCES SPÉCIFIQUES DES TABLEAUX :\n";
 
             sectionsInstruction = "# Présentation du Plan d'Affaires %s\n\n" +
                 "## Table des Matières\n\n" +
@@ -157,15 +178,55 @@ public class BusinessPlanGeneratorService {
                 "6. Environnement Concurrentiel\n" +
                 "7. Organisation & Management\n" +
                 "8. Ligne de Produits/Services\n" +
-                "9. Analyse d'Impact des Produits [TABLE]\n" +
+
+                "9. Analyse d'Impact des Produits - Doit inclure :\n" +
+                "| **Partie Prenante Principale** | **Avantages du Produit** |\n" +
+                "|--------------------------------|--------------------------|\n" +
+                "| Clients                        | [avantages spécifiques]  |\n" +
+                "| Employés                       | [avantages spécifiques]  |\n" +
+                "| Fournisseurs                   | [avantages spécifiques]  |\n" +
+                "| Investisseurs                  | [avantages spécifiques]  |\n" +
+                "| Communautés Locales             | [avantages spécifiques]  |\n" +
+                "| Organismes de Réglementation    | [avantages spécifiques]  |\n\n" +
+
                 "10. Composants Clés de Performance\n" +
                 "11. Stratégie Marketing & Ventes\n" +
-                "12. Tâches Organisationnelles & Marketing [TABLE]\n" +
-                "13. Phases du Projet & Impacts [TABLE]\n" +
+
+                "12. Tâches Organisationnelles & Marketing - Doit inclure DEUX TABLEAUX :\n\n" +
+                "TABLEAU 1 : Planification & Organisation Générale\n" +
+                "| **Élément de Checklist**       | **Statut** | **Priorité** | **Domaine** | **Étape** |\n" +
+                "|---------------------------------|------------|--------------|-------------|-----------|\n" +
+                "| [tâche spécifique]             | [statut]   | [priorité]   | [domaine]   | [étape]   |\n\n" +
+
+                "TABLEAU 2 : Tâches Marketing\n" +
+                "| **Élément de Checklist**       | **Statut** | **Priorité** | **Domaine** | **Étape** |\n" +
+                "|---------------------------------|------------|--------------|-------------|-----------|\n" +
+                "| [tâche spécifique]             | [statut]   | [priorité]   | [domaine]   | [étape]   |\n\n" +
+
+                "13. Phases du Projet & Impacts - Doit inclure ces phases exactes :\n" +
+                "| **Phase**                           | **Description**                                      | **Calendrier** |\n" +
+                "|-------------------------------------|------------------------------------------------------|----------------|\n" +
+                "| 1. Établissement Fondamental       | [spécifique à l'entreprise]                          | [calendrier]   |\n" +
+                "| 2. Amélioration Produits & Expansion Marché | [spécifique à l'entreprise]               | [calendrier]   |\n" +
+                "| 3. Nouvelles Sources de Revenus    | [spécifique à l'entreprise]                          | [calendrier]   |\n" +
+                "| 4. Innovation Stratégique          | [spécifique à l'entreprise]                          | [calendrier]   |\n\n" +
+
                 "14. Calendrier du Marché\n" +
                 "15. Besoins de Financement\n" +
-                "16. Projections Financières [TABLE]\n" +
-                "17. Tableau de Bord Financier [TABLE]\n" +
+
+                "16. Projections Financières - Doit inclure :\n" +
+                "| **Année** | **Revenus** | **Dépenses** | **Profit** | **Taux Croissance** | **Investissement Requis** |\n" +
+                "|-----------|-------------|--------------|------------|---------------------|---------------------------|\n" +
+                "| 2024      | [valeur]    | [valeur]     | [valeur]   | [valeur]            | [valeur]                  |\n" +
+                "| 2025      | [valeur]    | [valeur]     | [valeur]   | [valeur]            | [valeur]                  |\n\n" +
+
+                "17. Tableau de Bord Financier - Doit inclure :\n" +
+                "| **Métrique**               | **Actuel** | **Objectif (1A)** | **Objectif (3A)** |\n" +
+                "|----------------------------|------------|-------------------|-------------------|\n" +
+                "| Revenus Mensuels Récurrents| [valeur]   | [valeur]          | [valeur]          |\n" +
+                "| Coût d'Acquisition Client  | [valeur]   | [valeur]          | [valeur]          |\n" +
+                "| Marge EBITDA              | [valeur]   | [valeur]          | [valeur]          |\n\n" +
+
                 "18. Plan de Financement Simplifié\n" +
                 "19. Analyse des Risques\n" +
                 "20. Annexes\n\n" +
@@ -174,11 +235,11 @@ public class BusinessPlanGeneratorService {
                 "1. Inclure des détails spécifiques de l'entreprise\n" +
                 "2. Créer des tableaux et graphiques quand approprié\n" +
                 "3. Chaque section doit avoir 3-5 points clés avec explications\n" +
-                "4. Sections financières doivent inclure projections basées sur la taille du projet (%s %s)\n" +
-                "5. Analyse d'Impact doit inclure tableau des parties prenantes\n" +
-                "6. Tableau de Bord doit résumer les indicateurs financiers clés\n" +
-                "7. Phases du Projet doivent inclure visualisation temporelle\n" +
-                "8. Rendre tout le contenu spécifique à %s";
+                "4. Tous les tableaux doivent conserver leur structure de colonnes exacte\n" +
+                "5. Le contenu des tableaux doit être adapté à l'entreprise spécifique (%s)\n" +
+                "6. Les projections financières doivent être basées sur la taille du projet (%s %s)\n" +
+                "7. Les descriptions de phases doivent être spécifiques au modèle d'entreprise\n" +
+                "8. Les avantages pour les parties prenantes doivent être réalistes et adaptés";
         }
 
         return String.format(promptTemplate,

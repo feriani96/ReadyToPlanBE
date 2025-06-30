@@ -20,14 +20,4 @@ import java.util.Set;
 public interface ProductOrServiceRepository extends MongoRepository<ProductOrService, String> {
     List<ProductOrService> findAllByCompanyId(String companyId);
     Set<ProductOrService> findAllByCompany_Id(String companyId);
-
-
-    @Query("{}")
-    Page<ProductOrService> findAllWithEagerRelationships(Pageable pageable);
-
-    @Query("{}")
-    List<ProductOrService> findAllWithEagerRelationships();
-
-    @Query("{'id': ?0}")
-    Optional<ProductOrService> findOneWithEagerRelationships(String id);
 }

@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
@@ -32,33 +33,44 @@ public class CompanyService {
         this.aiGenerationService = aiGenerationService;
     }
 
+    @Async
+    public void generateAIDescription(String companyId, EntityType entityType, String prompt) {
+        try {
+            aiGenerationService.generateAndSave(companyId, entityType, prompt);
+        } catch (Exception e) {
+            log.error("Erreur asynchrone lors de la génération AI pour {} {}", entityType, companyId, e);
+        }
+    }
 
     public CompanyDTO save(CompanyDTO companyDTO) {
         log.debug("Request to save ProductOrService : {}", companyDTO);
 
         Company company = companyMapper.toEntity(companyDTO);
-
-
-
         company = companyRepository.save(company);
 
-        String prompt = String.format(
-            "Génère une description professionnelle du company ou service suivant pour un business plan :\n" +
-                "- EnterpriseName : %s\n" +
-                "- Description : %s\n" +
-                "- Amount : %.2f €\n" +
-                "- Country : %s\n" +
-                "Merci de rédiger une réponse claire, synthétique, et professionnelle.",
-            company.getEnterpriseName(),  // %s
-            company.getDescription(),     // %s
-            company.getAmount(),          // %.2f
-            company.getCountry()          // %s
-        );
+        try {
+            String prompt = String.format(
+                "Génère une description professionnelle du company ou service suivant pour un business plan :\n" +
+                    "- EnterpriseName : %s\n" +
+                    "- Description : %s\n" +
+                    "- Amount : %.2f €\n" +
+                    "- Country : %s\n" +
+                    "Merci de rédiger une réponse claire, synthétique, et professionnelle.",
+                company.getEnterpriseName(),
+                company.getDescription(),
+                company.getAmount(),
+                company.getCountry()
+            );
 
-        aiGenerationService.generateAndSave(company.getId(), EntityType.COMPANY, prompt);
+            aiGenerationService.generateAndSave(company.getId(), EntityType.COMPANY, prompt);
+        } catch (Exception e) {
+            log.error("Erreur lors de la génération AI, mais la company est sauvegardée", e);
+            // On continue même si l'AI échoue
+        }
 
         return companyMapper.toDto(company);
     }
+
     /**
      * Update a company.
      *

@@ -36,6 +36,8 @@ public class Company implements Serializable {
     @Field("currency")
     private String currency;
 
+    private String aiPresentation;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public String getId() {
@@ -129,6 +131,19 @@ public class Company implements Serializable {
         this.currency = currency;
     }
 
+    public String getAiPresentation() {
+        return this.aiPresentation;
+    }
+
+    public Company aiPresentation(String aiPresentation) {
+        this.setAiPresentation(aiPresentation);
+        return this;
+    }
+
+    public void setAiPresentation(String aiPresentation) {
+        this.aiPresentation = aiPresentation;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -159,6 +174,7 @@ public class Company implements Serializable {
             ", amount=" + getAmount() +
             ", country='" + getCountry() + "'" +
             ", currency='" + getCurrency() + "'" +
+            ", aiPresentation='" + getAiPresentation() + "'" +
             "}";
     }
 }

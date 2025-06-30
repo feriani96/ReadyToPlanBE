@@ -247,23 +247,6 @@ class ProductOrServiceResourceIT {
             .andExpect(jsonPath("$.[*].durationInMonths").value(hasItem(DEFAULT_DURATION_IN_MONTHS)));
     }
 
-    @SuppressWarnings({ "unchecked" })
-    void getAllProductOrServicesWithEagerRelationshipsIsEnabled() throws Exception {
-        when(productOrServiceServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restProductOrServiceMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(productOrServiceServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllProductOrServicesWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(productOrServiceServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restProductOrServiceMockMvc.perform(get(ENTITY_API_URL + "?eagerload=false")).andExpect(status().isOk());
-        verify(productOrServiceRepositoryMock, times(1)).findAll(any(Pageable.class));
-    }
-
     @Test
     void getProductOrService() throws Exception {
         // Initialize the database

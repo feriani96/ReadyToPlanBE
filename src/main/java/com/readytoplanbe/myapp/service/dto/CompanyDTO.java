@@ -24,6 +24,8 @@ public class CompanyDTO implements Serializable {
 
     private String currency;
 
+    private String aiPresentation;
+
     public String getId() {
         return id;
     }
@@ -80,6 +82,14 @@ public class CompanyDTO implements Serializable {
         this.currency = currency;
     }
 
+    public String getAiPresentation() {
+        return aiPresentation;
+    }
+
+    public void setAiPresentation(String aiPresentation) {
+        this.aiPresentation = aiPresentation;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -112,6 +122,7 @@ public class CompanyDTO implements Serializable {
             ", amount=" + getAmount() +
             ", country='" + getCountry() + "'" +
             ", currency='" + getCurrency() + "'" +
+            ", aiPresentation='" + getAiPresentation() + "'" +
             "}";
     }
 }

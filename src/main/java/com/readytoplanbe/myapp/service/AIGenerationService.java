@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.readytoplanbe.myapp.domain.AIGeneratedResponse;
 import com.readytoplanbe.myapp.domain.enumeration.EntityType;
 import com.readytoplanbe.myapp.repository.AIGeneratedResponseRepository;
+import com.readytoplanbe.myapp.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -21,15 +22,21 @@ public class AIGenerationService {
     private final WebClient webClient;
     private final AIGeneratedResponseRepository responseRepository;
 
+    private final CompanyRepository companyRepository;
+
     @Value("${gemini.api.key}")
     private String apiKey;
 
-    public AIGenerationService(AIGeneratedResponseRepository responseRepository) {
+    public AIGenerationService(
+        AIGeneratedResponseRepository responseRepository,
+        CompanyRepository companyRepository
+    ) {
         this.webClient = WebClient.builder()
             .baseUrl("https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent")
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build();
         this.responseRepository = responseRepository;
+        this.companyRepository = companyRepository;
     }
 
     public Mono<String> callGemini(String prompt) {
@@ -81,20 +88,30 @@ public class AIGenerationService {
             String result = extractText(json);
             System.out.println("✅ Réponse IA : " + result);
 
+            // 1. Sauvegarder dans la table AIGeneratedResponse (comme déjà)
             AIGeneratedResponse aiResponse = new AIGeneratedResponse();
             aiResponse.setEntityId(entityId);
             aiResponse.setEntityType(entityType);
             aiResponse.setAiResponse(result);
-            aiResponse.setPrompt(prompt); // Ajout essentiel
-
+            aiResponse.setPrompt(prompt);
             responseRepository.save(aiResponse);
-            System.out.println("💾 Réponse IA sauvegardée");
+            System.out.println("💾 Réponse IA sauvegardée dans AIGeneratedResponse");
+
+            // 2. Sauvegarder dans le champ aiPresentation de l'entité Company
+            if (entityType == EntityType.COMPANY) {
+                companyRepository.findById(entityId).ifPresent(company -> {
+                    company.setAiPresentation(result);
+                    companyRepository.save(company);
+                    System.out.println("📝 aiPresentation sauvegardé dans Company");
+                });
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Erreur IA : " + e.getMessage(), e);
         }
     }
+
     public String generateText(String prompt) {
         try {
             String json = callGemini(prompt).block();
@@ -106,5 +123,7 @@ public class AIGenerationService {
             throw new RuntimeException("Erreur lors de génération du texte IA", e);
         }
     }
+
+
 
 }
