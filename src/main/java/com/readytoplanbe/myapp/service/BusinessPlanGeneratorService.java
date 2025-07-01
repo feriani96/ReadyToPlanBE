@@ -116,8 +116,9 @@ public class BusinessPlanGeneratorService {
                 "16. Financial Projections - Must include:\n" +
                 "| **Year** | **Revenue** | **Expenses** | **Profit** | **Growth Rate** | **Investment Needed** |\n" +
                 "|----------|-------------|--------------|------------|-----------------|-----------------------|\n" +
-                "| 2024     | [value]     | [value]      | [value]    | [value]         | [value]               |\n" +
-                "| 2025     | [value]     | [value]      | [value]    | [value]         | [value]               |\n\n" +
+                "| Year1     | [value]     | [value]      | [value]    | [value]         | [value]               |\n" +
+                "| Year2     | [value]     | [value]      | [value]    | [value]         | [value]               |\n\n" +
+                "| Year3     | [value]     | [value]      | [value]    | [value]         | [value]               |\n\n" +
 
                 "17. Financial Dashboard - Must include:\n" +
                 "| **Metric**               | **Current** | **Target (1Y)** | **Target (3Y)** |\n" +

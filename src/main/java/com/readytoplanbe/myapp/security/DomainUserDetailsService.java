@@ -51,12 +51,18 @@ public class DomainUserDetailsService implements UserDetailsService {
         if (!user.isActivated()) {
             throw new UserNotActivatedException("User " + lowercaseLogin + " was not activated");
         }
+
+        // Correction du mapping des authorities
         List<GrantedAuthority> grantedAuthorities = user
             .getAuthorities()
             .stream()
-            .map(Authority::getName)
-            .map(SimpleGrantedAuthority::new)
+            .map(authority -> new SimpleGrantedAuthority(authority.getName().toString())) // Conversion explicite
             .collect(Collectors.toList());
-        return new org.springframework.security.core.userdetails.User(user.getLogin(), user.getPassword(), grantedAuthorities);
+
+        return new org.springframework.security.core.userdetails.User(
+            user.getLogin(),
+            user.getPassword(),
+            grantedAuthorities
+        );
     }
 }
