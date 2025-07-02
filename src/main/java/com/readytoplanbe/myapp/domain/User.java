@@ -14,6 +14,7 @@ import javax.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
@@ -75,6 +76,7 @@ public class User extends AbstractAuditingEntity<String> implements Serializable
     private Instant resetDate = null;
 
     @JsonIgnore
+    @DBRef
     private Set<Authority> authorities = new HashSet<>();
 
     public String getId() {
