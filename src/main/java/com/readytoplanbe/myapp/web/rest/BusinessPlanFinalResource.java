@@ -1,25 +1,39 @@
 package com.readytoplanbe.myapp.web.rest;
 
+import com.readytoplanbe.myapp.domain.BusinessPlan;
 import com.readytoplanbe.myapp.domain.BusinessPlanFinal;
 import com.readytoplanbe.myapp.domain.Company;
+import com.readytoplanbe.myapp.domain.enumeration.ExportFormat;
 import com.readytoplanbe.myapp.repository.BusinessPlanFinalRepository;
 import com.readytoplanbe.myapp.repository.CompanyRepository;
 import com.readytoplanbe.myapp.service.BusinessPlanFinalService;
 import com.readytoplanbe.myapp.service.dto.BusinessPlanFinalDTO;
 import com.readytoplanbe.myapp.service.mapper.BusinessPlanFinalMapper;
 import com.readytoplanbe.myapp.web.rest.errors.BadRequestAlertException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
@@ -104,23 +118,38 @@ public class BusinessPlanFinalResource {
         return ResponseEntity.ok(plans);
     }
 
-/*
-    @GetMapping("/business-plan-final/generate-by-company/{companyId}")
-    public ResponseEntity<BusinessPlanFinal> generateBusinessPlanFinalByCompany(@PathVariable String companyId) {
+    @GetMapping("/business-plan-finals/download/pdf/{businessPlanId}")
+    public ResponseEntity<Resource> downloadPdf(@PathVariable String businessPlanId) {
         try {
-            Optional<BusinessPlanFinal> existingPlan = businessPlanFinalRepository.findByCompany_Id(companyId);
-
-            if (existingPlan.isPresent()) {
-                return ResponseEntity.ok(existingPlan.get());
+            // Récupère le BusinessPlanFinal
+            Optional<BusinessPlanFinal> planOpt = businessPlanFinalRepository.findById(businessPlanId);
+            if (planOpt.isEmpty()) {
+                throw new EntityNotFoundException("BusinessPlanFinal not found");
             }
 
-            BusinessPlanFinal generatedPlan = businessPlanFinalService.generatePlanFromCompany(companyId);
-            return ResponseEntity.ok(generatedPlan);
+            BusinessPlanFinal plan = planOpt.get();
+
+            // Récupère la société associée
+            Company company = plan.getCompany();
+            if (company == null) {
+                throw new EntityNotFoundException("Company not found in BusinessPlanFinal");
+            }
+
+            // Appelle le service d'exportation avec le plan et la société
+            ByteArrayOutputStream pdfBytes = businessPlanFinalService.generatePdf(plan, company); // Tu dois adapter cette méthode
+            ByteArrayResource resource = new ByteArrayResource(pdfBytes.toByteArray());
+
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=business-plan-" + company.getEnterpriseName() + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(resource);
+
         } catch (Exception e) {
-            log.error("Erreur lors de la génération du BusinessPlanFinal pour companyId={}", companyId, e);
+            log.error("Erreur lors de la génération du PDF", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-    }*/
+    }
+
 
 
     @PutMapping("/business-plan-finals/{id}")
@@ -202,7 +231,11 @@ public class BusinessPlanFinalResource {
     @DeleteMapping("/business-plan-finals/{id}")
     public ResponseEntity<Void> deleteBusinessPlanFinal(@PathVariable String id) {
         log.debug("REST request to delete BusinessPlanFinal : {}", id);
-        businessPlanFinalService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id)).build();
+        try {
+            businessPlanFinalService.delete(id);
+            return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id)).build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

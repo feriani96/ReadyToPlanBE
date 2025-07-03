@@ -1,18 +1,31 @@
 package com.readytoplanbe.myapp.service;
 
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
 import com.readytoplanbe.myapp.domain.*;
 import com.readytoplanbe.myapp.domain.enumeration.EntityType;
 import com.readytoplanbe.myapp.repository.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.readytoplanbe.myapp.service.dto.AIResponseDTO;
 import com.readytoplanbe.myapp.service.dto.BusinessPlanFinalDTO;
+import com.readytoplanbe.myapp.web.rest.errors.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+
 
 /**
  * Service Implementation for managing {@link BusinessPlanFinal}.
@@ -120,6 +133,21 @@ public class BusinessPlanFinalService {
         return businessPlanFinalRepository.save(businessPlanFinal);
     }
 
+    public ByteArrayOutputStream generatePdf(BusinessPlanFinal plan, Company company) throws DocumentException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        Document document = new Document();
+        PdfWriter.getInstance(document, outputStream);
+        document.open();
+
+        document.addTitle("Business Plan PDF");
+        document.add(new Paragraph("Nom de l'entreprise : " + company.getEnterpriseName()));
+        document.add(new Paragraph("Titre du Business Plan : " + plan.getTitle()));
+        document.add(new Paragraph("Contenu final : " + plan.getFinalContent()));
+
+        document.close();
+        return outputStream;
+    }
 
     private String buildPromptFromModel(Map<String, String> sections, String companyName) {
         return "Tu es un expert en création de business plan professionnel. Génère un business plan structuré pour l'entreprise \"" + companyName + "\" selon ce plan :\n\n"
@@ -212,7 +240,31 @@ public class BusinessPlanFinalService {
             .collect(Collectors.toList());
     }
 
+    public File generatePdfForCompany(String companyId) throws IOException {
+        BusinessPlanFinal businessPlan = businessPlanFinalRepository.findByCompany_Id(companyId)
+            .orElseThrow(() -> new EntityNotFoundException("Aucun BusinessPlanFinal trouvé pour cette entreprise"));
 
+        String companyName = businessPlan.getCompany().getEnterpriseName();
+        String content = businessPlan.getFinalContent(); // ou selon ton champ réel
+
+        // Chemin temporaire du fichier
+        String fileName = "BusinessPlan-" + companyName + "-" + LocalDate.now() + ".pdf";
+        File pdfFile = new File(System.getProperty("java.io.tmpdir"), fileName);
+
+        try (FileOutputStream fos = new FileOutputStream(pdfFile)) {
+            Document document = new Document();
+            PdfWriter.getInstance(document, fos);
+            document.open();
+            document.add(new Paragraph("Business Plan de l'entreprise: " + companyName));
+            document.add(new Paragraph(" "));
+            document.add(new Paragraph(content));
+            document.close();
+        } catch (DocumentException e) {
+            throw new IOException("Erreur lors de la génération du PDF", e);
+        }
+
+        return pdfFile;
+    }
 
 
 
@@ -330,6 +382,9 @@ public class BusinessPlanFinalService {
      */
     public void delete(String id) {
         log.debug("Request to delete BusinessPlanFinal : {}", id);
+        if (!businessPlanFinalRepository.existsById(id)) {
+            throw new EntityNotFoundException("BusinessPlanFinal not found with id " + id);
+        }
         businessPlanFinalRepository.deleteById(id);
     }
 }
