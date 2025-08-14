@@ -41,8 +41,6 @@ public class BusinessPlanDTO implements Serializable {
 
     private String generatedPresentation;
 
-    private String presentationContent;
-
     public String getId() {
         return id;
     }
@@ -113,12 +111,6 @@ public class BusinessPlanDTO implements Serializable {
 
     public void setGeneratedPresentation(String generatedPresentation) {
         this.generatedPresentation = generatedPresentation;
-    }
-
-    public String getPresentationContent() { return presentationContent; }
-
-    public void setPresentationContent(String presentationContent) {
-        this.presentationContent = presentationContent;
     }
 
     @Override

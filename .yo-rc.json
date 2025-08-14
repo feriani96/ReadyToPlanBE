@@ -26,14 +26,15 @@
       "FinancialForecast",
       "ProductOrService",
       "RevenueForecast",
-      "ExpenseForecast"
+      "ExpenseForecast",
+      "TrainingCourse"
     ],
     "entitySuffix": "",
     "jhiPrefix": "jhi",
     "jhipsterVersion": "7.9.4",
     "jwtSecretKey": "NzI5MmI2NDA5OGQ2YjQ3ZTAxMzY2MzQzYjlhYzE3ZjBiMWMyMzBjOGJhZmNjOTVkMDY5NGY0ZTdlMzZjNTA5YTY1NDgzYjcwMzAyM2FjYTk5MDYzOGY2NmZjYmM4MzhjOTA0ZjEwMmJkZWEyMjM1NzM5ZjJjYmRhZjY4NjdiM2E=",
     "languages": ["en", "fr"],
-    "lastLiquibaseTimestamp": 1747881050000,
+    "lastLiquibaseTimestamp": 1755003912000,
     "messageBroker": false,
     "microfrontend": false,
     "microfrontends": [],

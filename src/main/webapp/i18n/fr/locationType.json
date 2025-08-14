@@ -1,0 +1,10 @@
+{
+  "readyToPlanBeApp": {
+    "LocationType": {
+      "null": "",
+      "SITE": "SITE",
+      "UNIVERSITY": "UNIVERSITY",
+      "CENTER": "CENTER"
+    }
+  }
+}

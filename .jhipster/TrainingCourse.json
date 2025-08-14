@@ -1,0 +1,58 @@
+{
+  "changelogDate": "20250812130512",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "title",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "summary",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "targetAudience",
+      "fieldType": "TargetAudience",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "ETUDIANTS,ENSEIGNANTS,PROFESSIONNELS"
+    },
+    {
+      "fieldName": "instructor",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "studyClass",
+      "fieldType": "StudyClass",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "PRIMAIRE,COLLEGE,LYCEE,LICENCE1,LICENCE2,MASTER1,MASTER2,DOCTORAT,FORMATION"
+    },
+    {
+      "fieldName": "level",
+      "fieldType": "Level",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "BEGINNER,INTERMEDIATE,ADVANCED"
+    },
+    {
+      "fieldName": "locationType",
+      "fieldType": "LocationType",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "SITE,UNIVERSITY,CENTER"
+    },
+    {
+      "fieldName": "duration",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "languages",
+      "fieldType": "Languages",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "ENGLISH,FRENCH"
+    }
+  ],
+  "name": "TrainingCourse",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [],
+  "service": "serviceImpl"
+}

@@ -1,0 +1,146 @@
+<div>
+  <h2 id="page-heading" data-cy="TrainingCourseHeading">
+    <span jhiTranslate="readyToPlanBeApp.trainingCourse.home.title">Training Courses</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
+        <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+        <span jhiTranslate="readyToPlanBeApp.trainingCourse.home.refreshListLabel">Refresh list</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-training-course"
+        [routerLink]="['/training-course/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span jhiTranslate="readyToPlanBeApp.trainingCourse.home.createLabel"> Create a new Training Course </span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error></jhi-alert-error>
+
+  <jhi-alert></jhi-alert>
+
+  <div class="alert alert-warning" id="no-result" *ngIf="trainingCourses?.length === 0">
+    <span jhiTranslate="readyToPlanBeApp.trainingCourse.home.notFound">No Training Courses found</span>
+  </div>
+
+  <div class="table-responsive table-entities" id="entities" *ngIf="trainingCourses && trainingCourses.length > 0">
+    <table class="table table-striped" aria-describedby="page-heading">
+      <thead>
+        <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" (sortChange)="navigateToWithComponentValues()">
+          <th scope="col" jhiSortBy="id">
+            <div class="d-flex">
+              <span jhiTranslate="global.field.id">ID</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
+          <th scope="col" jhiSortBy="title">
+            <div class="d-flex">
+              <span jhiTranslate="readyToPlanBeApp.trainingCourse.title">Title</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
+          <th scope="col" jhiSortBy="summary">
+            <div class="d-flex">
+              <span jhiTranslate="readyToPlanBeApp.trainingCourse.summary">Summary</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
+          <th scope="col" jhiSortBy="targetAudience">
+            <div class="d-flex">
+              <span jhiTranslate="readyToPlanBeApp.trainingCourse.targetAudience">Target Audience</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
+          <th scope="col" jhiSortBy="instructor">
+            <div class="d-flex">
+              <span jhiTranslate="readyToPlanBeApp.trainingCourse.instructor">Instructor</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
+          <th scope="col" jhiSortBy="studyClass">
+            <div class="d-flex">
+              <span jhiTranslate="readyToPlanBeApp.trainingCourse.studyClass">Study Class</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
+          <th scope="col" jhiSortBy="level">
+            <div class="d-flex">
+              <span jhiTranslate="readyToPlanBeApp.trainingCourse.level">Level</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
+          <th scope="col" jhiSortBy="locationType">
+            <div class="d-flex">
+              <span jhiTranslate="readyToPlanBeApp.trainingCourse.locationType">Location Type</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
+          <th scope="col" jhiSortBy="duration">
+            <div class="d-flex">
+              <span jhiTranslate="readyToPlanBeApp.trainingCourse.duration">Duration</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
+          <th scope="col" jhiSortBy="languages">
+            <div class="d-flex">
+              <span jhiTranslate="readyToPlanBeApp.trainingCourse.languages">Languages</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let trainingCourse of trainingCourses; trackBy: trackId" data-cy="entityTable">
+          <td>
+            <a [routerLink]="['/training-course', trainingCourse.id, 'view']">{{ trainingCourse.id }}</a>
+          </td>
+          <td>{{ trainingCourse.title }}</td>
+          <td>{{ trainingCourse.summary }}</td>
+          <td jhiTranslate="{{ 'readyToPlanBeApp.TargetAudience.' + trainingCourse.targetAudience }}">
+            {{ trainingCourse.targetAudience }}
+          </td>
+          <td>{{ trainingCourse.instructor }}</td>
+          <td jhiTranslate="{{ 'readyToPlanBeApp.StudyClass.' + trainingCourse.studyClass }}">{{ trainingCourse.studyClass }}</td>
+          <td jhiTranslate="{{ 'readyToPlanBeApp.Level.' + trainingCourse.level }}">{{ trainingCourse.level }}</td>
+          <td jhiTranslate="{{ 'readyToPlanBeApp.LocationType.' + trainingCourse.locationType }}">{{ trainingCourse.locationType }}</td>
+          <td>{{ trainingCourse.duration }}</td>
+          <td jhiTranslate="{{ 'readyToPlanBeApp.Languages.' + trainingCourse.languages }}">{{ trainingCourse.languages }}</td>
+          <td class="text-end">
+            <div class="btn-group">
+              <button
+                type="submit"
+                [routerLink]="['/training-course', trainingCourse.id, 'view']"
+                class="btn btn-info btn-sm"
+                data-cy="entityDetailsButton"
+              >
+                <fa-icon icon="eye"></fa-icon>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+              </button>
+
+              <button
+                type="submit"
+                [routerLink]="['/training-course', trainingCourse.id, 'edit']"
+                class="btn btn-primary btn-sm"
+                data-cy="entityEditButton"
+              >
+                <fa-icon icon="pencil-alt"></fa-icon>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+              </button>
+
+              <button type="submit" (click)="delete(trainingCourse)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                <fa-icon icon="times"></fa-icon>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

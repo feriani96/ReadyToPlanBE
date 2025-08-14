@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -33,7 +34,7 @@ public class ProductOrServiceResource {
 
     private final Logger log = LoggerFactory.getLogger(ProductOrServiceResource.class);
 
-    private static final String ENTITY_NAME = "PRODUCT";
+    private static final String ENTITY_NAME = "productOrService";
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
@@ -50,28 +51,25 @@ public class ProductOrServiceResource {
         this.productOrServiceRepository = productOrServiceRepository;
     }
 
-
+    /**
+     * {@code POST  /product-or-services} : Create a new productOrService.
+     *
+     * @param productOrServiceDTO the productOrServiceDTO to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new productOrServiceDTO, or with status {@code 400 (Bad Request)} if the productOrService has already an ID.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
     @PostMapping("/product-or-services")
-    public ResponseEntity<ProductOrServiceDTO> createProductOrService(
-        @Valid @RequestBody ProductOrServiceDTO dto,
-        @RequestParam String companyId) throws URISyntaxException {
-
-        log.debug("REST request to save ProductOrService : {}", dto);
-        if (dto.getId() != null) {
+    public ResponseEntity<ProductOrServiceDTO> createProductOrService(@Valid @RequestBody ProductOrServiceDTO productOrServiceDTO)
+        throws URISyntaxException {
+        log.debug("REST request to save ProductOrService : {}", productOrServiceDTO);
+        if (productOrServiceDTO.getId() != null) {
             throw new BadRequestAlertException("A new productOrService cannot already have an ID", ENTITY_NAME, "idexists");
         }
-
-        ProductOrServiceDTO result = productOrServiceService.save(dto, companyId);
-
+        ProductOrServiceDTO result = productOrServiceService.save(productOrServiceDTO);
         return ResponseEntity
             .created(new URI("/api/product-or-services/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId()))
             .body(result);
-    }
-    @GetMapping("/product-or-services/by-company/{companyId}")
-    public List<ProductOrServiceDTO> getProductsByCompany(@PathVariable String companyId) {
-        log.debug("REST request to get all Products for Company : {}", companyId);
-        return productOrServiceService.findByCompanyId(companyId);
     }
 
     /**
@@ -148,14 +146,21 @@ public class ProductOrServiceResource {
      * {@code GET  /product-or-services} : get all the productOrServices.
      *
      * @param pageable the pagination information.
+     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of productOrServices in body.
      */
     @GetMapping("/product-or-services")
     public ResponseEntity<List<ProductOrServiceDTO>> getAllProductOrServices(
-        @org.springdoc.api.annotations.ParameterObject Pageable pageable
+        @org.springdoc.api.annotations.ParameterObject Pageable pageable,
+        @RequestParam(required = false, defaultValue = "false") boolean eagerload
     ) {
         log.debug("REST request to get a page of ProductOrServices");
-        Page<ProductOrServiceDTO> page = productOrServiceService.findAll(pageable);
+        Page<ProductOrServiceDTO> page;
+        if (eagerload) {
+            page = productOrServiceService.findAllWithEagerRelationships(pageable);
+        } else {
+            page = productOrServiceService.findAll(pageable);
+        }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

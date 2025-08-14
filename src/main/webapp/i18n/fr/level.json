@@ -1,0 +1,10 @@
+{
+  "readyToPlanBeApp": {
+    "Level": {
+      "null": "",
+      "BEGINNER": "BEGINNER",
+      "INTERMEDIATE": "INTERMEDIATE",
+      "ADVANCED": "ADVANCED"
+    }
+  }
+}

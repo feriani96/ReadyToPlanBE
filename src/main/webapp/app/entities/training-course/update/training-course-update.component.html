@@ -1,0 +1,175 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2
+        id="jhi-training-course-heading"
+        data-cy="TrainingCourseCreateUpdateHeading"
+        jhiTranslate="readyToPlanBeApp.trainingCourse.home.createOrEditLabel"
+      >
+        Create or edit a Training Course
+      </h2>
+
+      <div>
+        <jhi-alert-error></jhi-alert-error>
+
+        <div class="row mb-3" *ngIf="editForm.controls.id.value !== null">
+          <label class="form-label" jhiTranslate="global.field.id" for="field_id">ID</label>
+          <input type="text" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.trainingCourse.title" for="field_title">Title</label>
+          <input type="text" class="form-control" name="title" id="field_title" data-cy="title" formControlName="title" />
+          <div *ngIf="editForm.get('title')!.invalid && (editForm.get('title')!.dirty || editForm.get('title')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('title')?.errors?.required" jhiTranslate="entity.validation.required">
+              This field is required.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.trainingCourse.summary" for="field_summary">Summary</label>
+          <input type="text" class="form-control" name="summary" id="field_summary" data-cy="summary" formControlName="summary" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.trainingCourse.targetAudience" for="field_targetAudience"
+            >Target Audience</label
+          >
+          <select
+            class="form-control"
+            name="targetAudience"
+            formControlName="targetAudience"
+            id="field_targetAudience"
+            data-cy="targetAudience"
+          >
+            <option [ngValue]="null">{{ 'readyToPlanBeApp.TargetAudience.null' | translate }}</option>
+            <option *ngFor="let targetAudience of targetAudienceValues" [value]="targetAudience">
+              {{ 'readyToPlanBeApp.TargetAudience.' + targetAudience | translate }}
+            </option>
+          </select>
+          <div
+            *ngIf="
+              editForm.get('targetAudience')!.invalid && (editForm.get('targetAudience')!.dirty || editForm.get('targetAudience')!.touched)
+            "
+          >
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('targetAudience')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.trainingCourse.instructor" for="field_instructor">Instructor</label>
+          <input
+            type="text"
+            class="form-control"
+            name="instructor"
+            id="field_instructor"
+            data-cy="instructor"
+            formControlName="instructor"
+          />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.trainingCourse.studyClass" for="field_studyClass">Study Class</label>
+          <select class="form-control" name="studyClass" formControlName="studyClass" id="field_studyClass" data-cy="studyClass">
+            <option [ngValue]="null">{{ 'readyToPlanBeApp.StudyClass.null' | translate }}</option>
+            <option *ngFor="let studyClass of studyClassValues" [value]="studyClass">
+              {{ 'readyToPlanBeApp.StudyClass.' + studyClass | translate }}
+            </option>
+          </select>
+          <div *ngIf="editForm.get('studyClass')!.invalid && (editForm.get('studyClass')!.dirty || editForm.get('studyClass')!.touched)">
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('studyClass')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.trainingCourse.level" for="field_level">Level</label>
+          <select class="form-control" name="level" formControlName="level" id="field_level" data-cy="level">
+            <option [ngValue]="null">{{ 'readyToPlanBeApp.Level.null' | translate }}</option>
+            <option *ngFor="let level of levelValues" [value]="level">{{ 'readyToPlanBeApp.Level.' + level | translate }}</option>
+          </select>
+          <div *ngIf="editForm.get('level')!.invalid && (editForm.get('level')!.dirty || editForm.get('level')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('level')?.errors?.required" jhiTranslate="entity.validation.required">
+              This field is required.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.trainingCourse.locationType" for="field_locationType"
+            >Location Type</label
+          >
+          <select class="form-control" name="locationType" formControlName="locationType" id="field_locationType" data-cy="locationType">
+            <option [ngValue]="null">{{ 'readyToPlanBeApp.LocationType.null' | translate }}</option>
+            <option *ngFor="let locationType of locationTypeValues" [value]="locationType">
+              {{ 'readyToPlanBeApp.LocationType.' + locationType | translate }}
+            </option>
+          </select>
+          <div
+            *ngIf="editForm.get('locationType')!.invalid && (editForm.get('locationType')!.dirty || editForm.get('locationType')!.touched)"
+          >
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('locationType')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.trainingCourse.duration" for="field_duration">Duration</label>
+          <input type="text" class="form-control" name="duration" id="field_duration" data-cy="duration" formControlName="duration" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" jhiTranslate="readyToPlanBeApp.trainingCourse.languages" for="field_languages">Languages</label>
+          <select class="form-control" name="languages" formControlName="languages" id="field_languages" data-cy="languages">
+            <option [ngValue]="null">{{ 'readyToPlanBeApp.Languages.null' | translate }}</option>
+            <option *ngFor="let languages of languagesValues" [value]="languages">
+              {{ 'readyToPlanBeApp.Languages.' + languages | translate }}
+            </option>
+          </select>
+          <div *ngIf="editForm.get('languages')!.invalid && (editForm.get('languages')!.dirty || editForm.get('languages')!.touched)">
+            <small
+              class="form-text text-danger"
+              *ngIf="editForm.get('languages')?.errors?.required"
+              jhiTranslate="entity.validation.required"
+            >
+              This field is required.
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+{
+  "readyToPlanBeApp": {
+    "TargetAudience": {
+      "null": "",
+      "ETUDIANTS": "ETUDIANTS",
+      "ENSEIGNANTS": "ENSEIGNANTS",
+      "PROFESSIONNELS": "PROFESSIONNELS"
+    }
+  }
+}

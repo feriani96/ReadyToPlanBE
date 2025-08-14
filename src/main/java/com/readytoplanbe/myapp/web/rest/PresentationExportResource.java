@@ -21,17 +21,18 @@ public class PresentationExportResource {
     }
 
     @GetMapping("/business-plans/{companyName}/export")
-    public ResponseEntity<org.springframework.core.io.Resource> exportPresentation(
+    public ResponseEntity<byte[]> exportPresentation(
         @PathVariable String companyName,
         @RequestParam(defaultValue = "PDF") ExportFormat format) throws IOException {
 
-        org.springframework.core.io.Resource resource = businessPlanService.exportPresentation(companyName, format);
+        byte[] content = businessPlanService.exportPresentation(companyName, format);
+
+        String filename = "presentation." + format.toString().toLowerCase();
 
         return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + resource.getFilename() + "\"")
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
             .contentType(MediaType.APPLICATION_OCTET_STREAM)
-            .body(resource);
+            .body(content);
     }
 
 }

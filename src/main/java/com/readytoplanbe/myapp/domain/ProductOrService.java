@@ -41,16 +41,14 @@ public class ProductOrService implements Serializable {
     @Min(value = 1)
     @Field("duration_in_months")
     private Integer durationInMonths;
+
     @DBRef
-    private Company company;
+    @Field("manualBusinessPlan")
+    private ManualBusinessPlan manualBusinessPlan;
 
-    public Company getCompany() {
-        return company;
-    }
+    @Field("company_id") // Stocke juste l'ID de la company
+    private String companyId;
 
-    public void setCompany(Company company) {
-        this.company = company;
-    }
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public String getId() {
@@ -129,6 +127,32 @@ public class ProductOrService implements Serializable {
 
     public void setDurationInMonths(Integer durationInMonths) {
         this.durationInMonths = durationInMonths;
+    }
+
+    public ManualBusinessPlan getManualBusinessPlan() {
+        return this.manualBusinessPlan;
+    }
+
+    public void setManualBusinessPlan(ManualBusinessPlan manualBusinessPlan) {
+        this.manualBusinessPlan = manualBusinessPlan;
+    }
+
+    public ProductOrService manualBusinessPlan(ManualBusinessPlan manualBusinessPlan) {
+        this.setManualBusinessPlan(manualBusinessPlan);
+        return this;
+    }
+
+    public String getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
+    }
+
+    public ProductOrService companyId(String companyId) {
+        this.setCompanyId(companyId);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

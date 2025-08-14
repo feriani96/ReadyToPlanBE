@@ -104,25 +104,6 @@ public class BusinessPlanFinalResource {
         return ResponseEntity.ok(plans);
     }
 
-/*
-    @GetMapping("/business-plan-final/generate-by-company/{companyId}")
-    public ResponseEntity<BusinessPlanFinal> generateBusinessPlanFinalByCompany(@PathVariable String companyId) {
-        try {
-            Optional<BusinessPlanFinal> existingPlan = businessPlanFinalRepository.findByCompany_Id(companyId);
-
-            if (existingPlan.isPresent()) {
-                return ResponseEntity.ok(existingPlan.get());
-            }
-
-            BusinessPlanFinal generatedPlan = businessPlanFinalService.generatePlanFromCompany(companyId);
-            return ResponseEntity.ok(generatedPlan);
-        } catch (Exception e) {
-            log.error("Erreur lors de la génération du BusinessPlanFinal pour companyId={}", companyId, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }*/
-
-
     @PutMapping("/business-plan-finals/{id}")
     public ResponseEntity<BusinessPlanFinal> updateBusinessPlanFinal(
         @PathVariable String id,
@@ -205,4 +186,5 @@ public class BusinessPlanFinalResource {
         businessPlanFinalService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id)).build();
     }
+
 }

@@ -19,6 +19,8 @@ public class FinancialForecastDTO implements Serializable {
     @Min(value = 1)
     private Integer durationInMonths;
 
+    private ManualBusinessPlanDTO manualBusinessPlan;
+
     public String getId() {
         return id;
     }
@@ -41,6 +43,14 @@ public class FinancialForecastDTO implements Serializable {
 
     public void setDurationInMonths(Integer durationInMonths) {
         this.durationInMonths = durationInMonths;
+    }
+
+    public ManualBusinessPlanDTO getManualBusinessPlan() {
+        return manualBusinessPlan;
+    }
+
+    public void setManualBusinessPlan(ManualBusinessPlanDTO manualBusinessPlan) {
+        this.manualBusinessPlan = manualBusinessPlan;
     }
 
     @Override
@@ -71,6 +81,7 @@ public class FinancialForecastDTO implements Serializable {
             "id='" + getId() + "'" +
             ", startDate='" + getStartDate() + "'" +
             ", durationInMonths=" + getDurationInMonths() +
+            ", manualBusinessPlan=" + getManualBusinessPlan() +
             "}";
     }
 }

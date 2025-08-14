@@ -1,0 +1,19 @@
+export enum StudyClass {
+  PRIMAIRE = 'PRIMAIRE',
+
+  COLLEGE = 'COLLEGE',
+
+  LYCEE = 'LYCEE',
+
+  LICENCE1 = 'LICENCE1',
+
+  LICENCE2 = 'LICENCE2',
+
+  MASTER1 = 'MASTER1',
+
+  MASTER2 = 'MASTER2',
+
+  DOCTORAT = 'DOCTORAT',
+
+  FORMATION = 'FORMATION',
+}

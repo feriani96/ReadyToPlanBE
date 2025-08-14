@@ -39,6 +39,11 @@ import { RouterModule } from '@angular/router';
         data: { pageTitle: 'readyToPlanBeApp.expenseForecast.home.title' },
         loadChildren: () => import('./expense-forecast/expense-forecast.module').then(m => m.ExpenseForecastModule),
       },
+      {
+        path: 'training-course',
+        data: { pageTitle: 'readyToPlanBeApp.trainingCourse.home.title' },
+        loadChildren: () => import('./training-course/training-course.module').then(m => m.TrainingCourseModule),
+      },
       /* jhipster-needle-add-entity-route - JHipster will add entity modules routes here */
     ]),
   ],

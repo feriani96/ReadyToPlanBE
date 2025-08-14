@@ -1,0 +1,72 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="trainingCourse">
+      <h2 data-cy="trainingCourseDetailsHeading">
+        <span jhiTranslate="readyToPlanBeApp.trainingCourse.detail.title">Training Course</span>
+      </h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="global.field.id">ID</span></dt>
+        <dd>
+          <span>{{ trainingCourse.id }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.trainingCourse.title">Title</span></dt>
+        <dd>
+          <span>{{ trainingCourse.title }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.trainingCourse.summary">Summary</span></dt>
+        <dd>
+          <span>{{ trainingCourse.summary }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.trainingCourse.targetAudience">Target Audience</span></dt>
+        <dd>
+          <span jhiTranslate="{{ 'readyToPlanBeApp.TargetAudience.' + trainingCourse.targetAudience }}">{{
+            trainingCourse.targetAudience
+          }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.trainingCourse.instructor">Instructor</span></dt>
+        <dd>
+          <span>{{ trainingCourse.instructor }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.trainingCourse.studyClass">Study Class</span></dt>
+        <dd>
+          <span jhiTranslate="{{ 'readyToPlanBeApp.StudyClass.' + trainingCourse.studyClass }}">{{ trainingCourse.studyClass }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.trainingCourse.level">Level</span></dt>
+        <dd>
+          <span jhiTranslate="{{ 'readyToPlanBeApp.Level.' + trainingCourse.level }}">{{ trainingCourse.level }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.trainingCourse.locationType">Location Type</span></dt>
+        <dd>
+          <span jhiTranslate="{{ 'readyToPlanBeApp.LocationType.' + trainingCourse.locationType }}">{{ trainingCourse.locationType }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.trainingCourse.duration">Duration</span></dt>
+        <dd>
+          <span>{{ trainingCourse.duration }}</span>
+        </dd>
+        <dt><span jhiTranslate="readyToPlanBeApp.trainingCourse.languages">Languages</span></dt>
+        <dd>
+          <span jhiTranslate="{{ 'readyToPlanBeApp.Languages.' + trainingCourse.languages }}">{{ trainingCourse.languages }}</span>
+        </dd>
+
+        <dt><span jhiTranslate="readyToPlanBeApp.trainingCourse.presentation">Presentation</span></dt>
+        <dd>{{ trainingCourse.presentation }}</dd>
+
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/training-course', trainingCourse.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+      </button>
+    </div>
+  </div>
+</div>

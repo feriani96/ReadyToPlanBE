@@ -1,0 +1,7 @@
+export enum TargetAudience {
+  ETUDIANTS = 'ETUDIANTS',
+
+  ENSEIGNANTS = 'ENSEIGNANTS',
+
+  PROFESSIONNELS = 'PROFESSIONNELS',
+}

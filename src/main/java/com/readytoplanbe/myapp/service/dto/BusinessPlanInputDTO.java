@@ -12,8 +12,6 @@ public class BusinessPlanInputDTO {
     private LocalDate companyStartDate;
     private Country country;
     private Languages languages;
-    private Double anticipatedProjectSize;
-    private Currency currency;
 
     // Partie 1
     private String companyDescriptionDetails;
@@ -80,19 +78,6 @@ public class BusinessPlanInputDTO {
         this.languages = languages;
     }
 
-    public Double getAnticipatedProjectSize() {
-        return anticipatedProjectSize;
-    }
-    public void setAnticipatedProjectSize(Double anticipatedProjectSize) {
-        this.anticipatedProjectSize = anticipatedProjectSize;
-    }
-
-    public Currency getCurrency() {
-        return currency;
-    }
-    public void setCurrency(Currency currency) {
-        this.currency = currency;
-    }
 
     // Partie 1
     public String getCompanyDescriptionDetails() {
@@ -229,8 +214,7 @@ public class BusinessPlanInputDTO {
         this.companyStartDate = businessPlanDTO.getCompanyStartDate();
         this.country = businessPlanDTO.getCountry();
         this.languages = businessPlanDTO.getLanguages();
-        this.anticipatedProjectSize = businessPlanDTO.getAnticipatedProjectSize();
-        this.currency = businessPlanDTO.getCurrency();
+
     }
 
 }

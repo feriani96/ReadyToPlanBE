@@ -1,0 +1,32 @@
+{
+  "readyToPlanBeApp": {
+    "trainingCourse": {
+      "home": {
+        "title": "Training Courses",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Training Course",
+        "createOrEditLabel": "Create or edit a Training Course",
+        "notFound": "No Training Courses found"
+      },
+      "created": "A new Training Course is created with identifier {{ param }}",
+      "updated": "A Training Course is updated with identifier {{ param }}",
+      "deleted": "A Training Course is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Training Course {{ id }}?"
+      },
+      "detail": {
+        "title": "Training Course"
+      },
+      "id": "ID",
+      "title": "Title",
+      "summary": "Summary",
+      "targetAudience": "Target Audience",
+      "instructor": "Instructor",
+      "studyClass": "Study Class",
+      "level": "Level",
+      "locationType": "Location Type",
+      "duration": "Duration",
+      "languages": "Languages"
+    }
+  }
+}

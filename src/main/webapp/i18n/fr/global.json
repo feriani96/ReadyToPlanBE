@@ -14,6 +14,7 @@
         "productOrService": "Product Or Service",
         "revenueForecast": "Revenue Forecast",
         "expenseForecast": "Expense Forecast",
+        "trainingCourse": "Training Course",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {
