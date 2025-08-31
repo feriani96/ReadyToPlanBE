@@ -33,7 +33,6 @@ public class TrainingCourseDTO implements Serializable {
     @NotNull
     private Level level;
 
-    @NotNull
     private LocationType locationType;
 
     private String duration;

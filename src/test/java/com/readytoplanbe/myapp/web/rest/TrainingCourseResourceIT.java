@@ -39,14 +39,14 @@ class TrainingCourseResourceIT {
     private static final String DEFAULT_SUMMARY = "AAAAAAAAAA";
     private static final String UPDATED_SUMMARY = "BBBBBBBBBB";
 
-    private static final TargetAudience DEFAULT_TARGET_AUDIENCE = TargetAudience.ETUDIANTS;
-    private static final TargetAudience UPDATED_TARGET_AUDIENCE = TargetAudience.ENSEIGNANTS;
+    private static final TargetAudience DEFAULT_TARGET_AUDIENCE = TargetAudience.STUDENTS;
+    private static final TargetAudience UPDATED_TARGET_AUDIENCE = TargetAudience.TEACHERS;
 
     private static final String DEFAULT_INSTRUCTOR = "AAAAAAAAAA";
     private static final String UPDATED_INSTRUCTOR = "BBBBBBBBBB";
 
-    private static final StudyClass DEFAULT_STUDY_CLASS = StudyClass.PRIMAIRE;
-    private static final StudyClass UPDATED_STUDY_CLASS = StudyClass.COLLEGE;
+    private static final StudyClass DEFAULT_STUDY_CLASS = StudyClass.PRIMARY;
+    private static final StudyClass UPDATED_STUDY_CLASS = StudyClass.HIGH_SCHOOL;
 
     private static final Level DEFAULT_LEVEL = Level.BEGINNER;
     private static final Level UPDATED_LEVEL = Level.INTERMEDIATE;

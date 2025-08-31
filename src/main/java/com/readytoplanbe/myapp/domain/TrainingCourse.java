@@ -45,7 +45,6 @@ public class TrainingCourse implements Serializable {
     @Field("level")
     private Level level;
 
-    @NotNull
     @Field("location_type")
     private LocationType locationType;
 

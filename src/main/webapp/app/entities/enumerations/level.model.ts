@@ -4,4 +4,5 @@ export enum Level {
   INTERMEDIATE = 'INTERMEDIATE',
 
   ADVANCED = 'ADVANCED',
+
 }
