@@ -84,6 +84,9 @@ gemini:
   api:
     key: AIzaSyAQysYGTMJyllnb8DO-cqKYzlqG6d0OFt0
 
+openai:
+  api-key: ${OPENAI_API_KEY}
+  base-url: https://api.openai.com/v1
 
 deepai:
   api-key: "15c53b0f-eb4e-40af-8bbb-dd7809f10cad"
