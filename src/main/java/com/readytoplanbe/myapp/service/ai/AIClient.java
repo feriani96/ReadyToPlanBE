@@ -28,7 +28,13 @@ public class AIClient {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String escapedPrompt = prompt.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
+        // Échappement correct du prompt
+        String escapedPrompt = prompt.replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t");
+
         String body = "{ \"contents\": [{ \"parts\": [{ \"text\": \"" + escapedPrompt + "\" }] }] }";
 
         HttpEntity<String> entity = new HttpEntity<>(body, headers);
@@ -41,7 +47,16 @@ public class AIClient {
                 JsonNode candidate = root.at("/candidates/0/content/parts/0/text");
 
                 if (!candidate.isMissingNode()) {
-                    return candidate.asText();
+                    String rawResponse = candidate.asText();
+
+                    // Nettoyer la réponse des backticks et markdown
+                    String cleanedResponse = rawResponse
+                        .replaceAll("(?s)```html", "")
+                        .replaceAll("(?s)```", "")
+                        .replaceAll("(?s)HTML:", "")
+                        .trim();
+
+                    return cleanedResponse;
                 } else {
                     StringBuilder sb = new StringBuilder();
                     JsonNode contents = root.at("/candidates/0/content/parts");
@@ -71,10 +86,12 @@ public class AIClient {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         String newPrompt = "Génère des données JSON pour un graphique basé sur la description suivante. " +
-            "Si c'est une chronologie, utilise le format: {\"type\": \"timeline\", \"title\": \"Titre\", \"data\": [{\"year\": 1990, \"event\": \"Description\"}]} " +
-            "Si c'est un graphique en barres, utilise: {\"type\": \"bar\", \"title\": \"Titre\", \"categories\": [\"Cat1\", \"Cat2\"], \"values\": [10, 20]} " +
-            "Si c'est un camembert, utilise: {\"type\": \"pie\", \"title\": \"Titre\", \"labels\": [\"Label1\", \"Label2\"], \"values\": [30, 70]} " +
-            "⚠️ Ne retourne QUE le JSON brut, sans ```json, sans backticks, sans explications. " +
+            "Formats acceptés :\n" +
+            "- Barres: {\"type\": \"bar\", \"title\": \"Titre\", \"categories\": [\"Cat1\", \"Cat2\"], \"values\": [10, 20]}\n" +
+            "- Circulaire: {\"type\": \"pie\", \"title\": \"Titre\", \"labels\": [\"Label1\", \"Label2\"], \"values\": [30, 70]}\n" +
+            "- Chronologie: {\"type\": \"timeline\", \"title\": \"Titre\", \"data\": [{\"year\": 1990, \"event\": \"Description\"}]}\n" +
+            "- Diagramme: {\"type\": \"diagram\", \"title\": \"Titre\", \"content\": \"Description du schéma\"}\n" +
+            "⚠️ IMPORTANT : Retourne UNIQUEMENT le JSON brut, sans ```json, sans backticks, sans explications.\n" +
             "Description: " + prompt;
 
         String escapedPrompt = newPrompt.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
@@ -88,17 +105,36 @@ public class AIClient {
                 JsonNode root = objectMapper.readTree(response.getBody());
                 String raw = root.at("/candidates/0/content/parts/0/text").asText();
 
-                // Nettoyer les éventuels backticks ou balises markdown
+                // Nettoyer la réponse
                 String cleaned = raw.replaceAll("(?s)```json", "")
                     .replaceAll("(?s)```", "")
+                    .replaceAll("(?s)JSON:", "")
+                    .replaceAll("(?s)json:", "")
                     .trim();
 
-                return cleaned;
+                // Valider que c'est du JSON valide
+                try {
+                    objectMapper.readTree(cleaned);
+                    return cleaned;
+                } catch (Exception e) {
+                    // Si ce n'est pas du JSON valide, créer un format par défaut
+                    return createDefaultChartData(prompt);
+                }
             } else {
-                throw new RuntimeException("Erreur API Gemini pour le graphique: " + response.getStatusCode() + " - " + response.getBody());
+                return createDefaultChartData(prompt);
             }
         } catch (HttpClientErrorException e) {
-            throw new RuntimeException("Erreur HTTP Gemini pour le graphique: " + e.getStatusCode() + " - " + e.getResponseBodyAsString(), e);
+            return createDefaultChartData(prompt);
         }
+    }
+
+    private String createDefaultChartData(String prompt) {
+        // Créer des données par défaut en cas d'erreur
+        return "{" +
+            "\"type\": \"bar\"," +
+            "\"title\": \"Graphique par défaut\"," +
+            "\"categories\": [\"Catégorie 1\", \"Catégorie 2\", \"Catégorie 3\"]," +
+            "\"values\": [25, 40, 35]" +
+            "}";
     }
 }

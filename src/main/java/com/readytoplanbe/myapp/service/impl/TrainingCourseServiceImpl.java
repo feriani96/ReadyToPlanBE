@@ -2,7 +2,6 @@ package com.readytoplanbe.myapp.service.impl;
 
 import com.readytoplanbe.myapp.domain.TrainingCourse;
 import com.readytoplanbe.myapp.domain.enumeration.Languages;
-import com.readytoplanbe.myapp.domain.enumeration.Level;
 import com.readytoplanbe.myapp.repository.TrainingCourseRepository;
 import com.readytoplanbe.myapp.service.TrainingCourseService;
 import com.readytoplanbe.myapp.service.ai.AIClient;
@@ -127,18 +126,22 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
                     String chartPrompt = matcher.group(1).trim();
                     try {
                         String chartJsonData = aiClient.generateChartData(chartPrompt);
-                        byte[] chartImageBytes = chartService.createChart(chartJsonData); // Changé ici: createChart au lieu de createBarChart
-                        String base64 = Base64.getEncoder().encodeToString(chartImageBytes);
-                        String imgTag = "<div class='chart'><img src=\"data:image/png;base64," + base64 + "\" style=\"max-width:100%;border-radius:8px;\"/></div>";
-                        matcher.appendReplacement(sb, Matcher.quoteReplacement(imgTag));
+
+                        // Valider les données avant de créer le graphique
+                        if (chartService.isValidChartData(chartJsonData)) {
+                            byte[] chartImageBytes = chartService.createChart(chartJsonData);
+                            String base64 = Base64.getEncoder().encodeToString(chartImageBytes);
+                            String imgTag = "<div class='chart'><img src=\"data:image/png;base64," + base64 + "\" style=\"max-width:100%;border-radius:8px;\"/></div>";
+                            matcher.appendReplacement(sb, Matcher.quoteReplacement(imgTag));
+                        } else {
+                            throw new IllegalArgumentException("Données de graphique invalides");
+                        }
                     } catch (Exception imgEx) {
                         log.error("Erreur génération image pour prompt: {}", chartPrompt, imgEx);
-                        String fallback = "<div class='chart-placeholder'>[Graphique indisponible: " + chartPrompt + "]</div>";
+                        String fallback = "<div class='chart-placeholder'>[Graphique: " +
+                            chartPrompt.substring(0, Math.min(chartPrompt.length(), 50)) + "...]</div>";
                         matcher.appendReplacement(sb, Matcher.quoteReplacement(fallback));
                     }
-                } else {
-                    log.warn("AI returned a malformed chart placeholder without a group. Skipping.");
-                    matcher.appendReplacement(sb, Matcher.quoteReplacement(""));
                 }
             }
             matcher.appendTail(sb);
@@ -158,8 +161,19 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
                     + "body{font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#FFFFFF; color:#333;}"
                     + ".slide{padding:40px;box-sizing:border-box;min-height:400px;} .cover{display:flex;align-items:center;justify-content:center;}"
                     + ".chart{margin-top:20px;text-align:center;} .chart img{max-width:100%;height:auto;border-radius:8px;}"
-                    + "table{border-collapse:collapse;width:100%;font-size:14px;margin-top:20px;border-radius:8px;overflow:hidden;}"
-                    + "th{background:#3498DB;color:#fff;padding:12px;text-align:left;} td{background:#ECF0F1;padding:10px;border-bottom:1px solid #ddd;}"
+
+                    // STYLES RENFORCÉS POUR LES TABLEAUX
+                    + ".table-container {overflow-x: auto; margin: 25px 0; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.08) !important;}"
+                    + ".styled-table {border-collapse: collapse !important; width: 100% !important; font-size: 0.95em !important; min-width: 600px; margin: 1.5rem 0 !important; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important; border-radius: 8px !important; overflow: hidden !important;}"
+                    + ".styled-table thead tr {background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%) !important; color: #ffffff !important; text-align: left !important;}"
+                    + ".styled-table th, .styled-table td {padding: 12px 15px !important; border: 1px solid #ddd !important; text-align: left !important;}"
+                    + ".styled-table th {background: #3498DB !important; color: white !important; font-weight: 600 !important; font-size: 1.05em !important;}"
+                    + ".styled-table td {background: #ECF0F1 !important; color: #333 !important;}"
+                    + ".styled-table tbody tr {border-bottom: 1px solid #ddd !important;}"
+                    + ".styled-table tbody tr:last-child td {border-bottom: none !important;}"
+                    + ".styled-table tbody tr.highlight td {background: #e3f2fd !important; font-weight: 600 !important; color: #1976d2 !important;}"
+                    + ".styled-table tbody tr:hover td {background: #f1f8ff !important;}"
+
                     + ".timeline {margin: 20px 0; position: relative;}"
                     + ".timeline:before {content: ''; position: absolute; left: 20px; top: 0; bottom: 0; width: 4px; background: #3498DB;}"
                     + ".timeline-item {position: relative; margin-bottom: 20px; padding-left: 40px;}"
@@ -180,9 +194,21 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
                 + ".slide{padding:40px;min-height:400px;} "
                 + ".chart{margin-top:20px;text-align:center;} "
                 + ".chart img{max-width:100%;border-radius:8px;} "
-                + "table{border-collapse:collapse;width:100%;font-size:14px;margin-top:20px;} "
-                + "th{background:#3498DB;color:#fff;padding:12px;text-align:left;} "
-                + "td{background:#ECF0F1;padding:10px;border-bottom:1px solid #ddd;} "
+
+                // Styles améliorés pour les tableaux
+                + ".table-container {overflow-x: auto; margin: 25px 0; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);}"
+                + ".styled-table {border-collapse: collapse; width: 100%; font-size: 0.95em; min-width: 600px;}"
+                + ".styled-table thead tr {background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); color: #ffffff; text-align: left;}"
+                + ".styled-table th, .styled-table td {padding: 14px 16px; border-right: 1px solid #e1e5eb;}"
+                + ".styled-table th:last-child, .styled-table td:last-child {border-right: none;}"
+                + ".styled-table th {font-weight: 700; font-size: 1.05em;}"
+                + ".styled-table tbody tr {border-bottom: 1px solid #e1e5eb; transition: background-color 0.2s;}"
+                + ".styled-table tbody tr:nth-of-type(even) {background-color: #f8f9fa;}"
+                + ".styled-table tbody tr:nth-of-type(odd) {background-color: #ffffff;}"
+                + ".styled-table tbody tr:last-of-type {border-bottom: 3px solid #4b6cb7;}"
+                + ".styled-table tbody tr.highlight {background-color: #e3f2fd !important; font-weight: 600; color: #1976d2;}"
+                + ".styled-table tbody tr:hover {background-color: #f1f8ff; cursor: default;}"
+
                 + ".timeline {margin: 20px 0; position: relative;}"
                 + ".timeline:before {content: ''; position: absolute; left: 20px; top: 0; bottom: 0; width: 4px; background: #3498DB;}"
                 + ".timeline-item {position: relative; margin-bottom: 20px; padding-left: 40px;}"
@@ -201,24 +227,42 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
 
         return "Tu es un expert en pédagogie et en design de présentations modernes. " +
             "Ta tâche est de générer une présentation complète et professionnelle du cours suivant en " + language + ". " +
-            "⚠️ Contraintes strictes :" +
-            " - Minimum 15 slides obligatoires." +
-            " - Structure logique : Page de garde, Introduction générale, Historique et évolution, Plan du cours, " +
-            "   Contenu détaillé (plusieurs slides selon le besoin), Avantages et Inconvénients, Applications, Résumé final." +
-            " - Chaque slide doit être dans une balise <section class='slide'>...</section>." +
-            " - La page de garde doit toujours être la première slide avec le titre, le public cible, le niveau, la durée et la classe." +
+            "⚠️ CONTRAINTES STRICTES :" +
+            " - MINIMUM 15 SLIDES avec AU MOINS 4 TABLEAUX DIFFÉRENTS" +
+            " - Structure : Page de garde, Plan, Introduction, Historique, 5+ slides de contenu, Avantages/Inconvénients, Applications, Résumé" +
+            " - Chaque slide dans <section class='slide'>...</section>" +
+            " - Page de garde avec titre, public, niveau, classe, durée" +
             " - Le niveau du cours est " + trainingCourse.getLevel() + ", adapte la profondeur du contenu en conséquence." +
+            " - POUR LES TABLEAUX : UTILISER OBLIGATOIREMENT CE FORMAT EXACT :" +
+            "   <div class='table-container'>" +
+            "     <table class='styled-table'>" +
+            "       <thead><tr><th>Colonne 1</th><th>Colonne 2</th><th>Colonne 3</th></tr></thead>" +
+            "       <tbody>" +
+            "         <tr><td>Donnée 1</td><td>Donnée 2</td><td>Donnée 3</td></tr>" +
+            "         <tr class='highlight'><td>IMPORTANT</td><td>VALEUR</td><td>SPÉCIAL</td></tr>" +
+            "         <tr><td>Donnée 4</td><td>Donnée 5</td><td>Donnée 6</td></tr>" +
+            "       </tbody>" +
+            "     </table>" +
+            "   </div>" +
+            " - Types de tableaux OBLIGATOIRES :" +
+            "   1. Tableau comparatif (avantages/inconvénients)" +
+            "   2. Tableau de spécifications techniques" +
+            "   3. Tableau chronologique" +
+            "   4. Tableau de synthèse" +
             " - Chaque slide de contenu doit comporter au moins deux paragraphes explicatifs." +
-            " - Intègre dans les slides : des tableaux (concepts, exemples, comparatifs), des graphiques (camemberts, histogrammes, barres), et une chronologie adaptée." +
+            " - Intègre dans les slides avec des points explicatifs: des graphiques (camemberts, histogrammes, barres), et une chronologie adaptée." +
             " - Pour les graphiques, insère un placeholder explicite au format : {{GRAPH:type=bar,title=Répartition,...}} " +
             "   que je remplacerai ensuite par une image." +
-            " - Interdis tout code <script> ou markdown." +
-            " - Génère du HTML clair et prêt à être affiché, sans afficher les balises comme texte." +
+            " - Pour graphiques : {{GRAPH:type=bar,title=Titre,categories=[...],values=[...]}}" +
+            " - AUCUN code <script> ou markdown" +
+            " - HTML propre et prêt à afficher" +
+            " - NE PAS utiliser de backticks ``` autour du HTML" +
+            " - Retourner DIRECTEMENT le HTML sans commentaires" +
 
-            "\n\nPage de garde :\n" +
+            "\n\nPage de garde EXEMPLAIRE :\n" +
             "<section class='slide cover'>\n" +
             "  <div class='cover-content'>\n" +
-            "    <h1>" + trainingCourse.getTitle() + "</h1>\n" +
+            "    <h1>" + safe(trainingCourse.getTitle()) + "</h1>\n" +
             "    <div class='meta'>\n" +
             "      <p><strong>Public:</strong> " + safe(trainingCourse.getTargetAudience()) + "</p>\n" +
             "      <p><strong>Niveau:</strong> " + safe(trainingCourse.getLevel()) + "</p>\n" +
@@ -228,8 +272,8 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
             "  </div>\n" +
             "</section>\n\n" +
 
-            "Résumé du cours : " + safe(trainingCourse.getSummary()) + "\n" +
-            "Fin.";
+            "Résumé du cours pour contexte : " + safe(trainingCourse.getSummary()) + "\n" +
+            "Génère une présentation RICHE avec MULTIPLES TABLEAUX DÉTAILLÉS.";
     }
 
     private String safe(Object obj) {

@@ -7,7 +7,7 @@ import org.knowm.xchart.style.Styler;
 import org.knowm.xchart.style.colors.ChartColor;
 import org.springframework.stereotype.Service;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,6 +29,9 @@ public class ChartService {
             case "pie":
             case "camembert":
                 return createPieChart(dataNode);
+            case "diagram":
+            case "schema":
+                return createDiagramChart(dataNode);
             case "bar":
             default:
                 return createBarChart(dataNode);
@@ -74,6 +77,9 @@ public class ChartService {
         });
         chart.getStyler().setChartBackgroundColor(Color.WHITE);
         chart.getStyler().setPlotBackgroundColor(Color.WHITE);
+
+        chart.getStyler().setPlotGridLinesVisible(true);
+        chart.getStyler().setPlotGridLinesColor(new Color(240, 240, 240));
 
         chart.addSeries("Série 1", categories, values.stream().map(Number.class::cast).collect(Collectors.toList()));
 
@@ -176,4 +182,68 @@ public class ChartService {
         BitmapEncoder.saveBitmap(chart, os, BitmapEncoder.BitmapFormat.PNG);
         return os.toByteArray();
     }
+
+    private byte[] createDiagramChart(JsonNode dataNode) throws IOException {
+        String title = dataNode.path("title").asText("Diagramme");
+        String content = dataNode.path("content").asText("Diagramme schématique");
+
+        // Pour les diagrammes, créer un graphique simple avec du texte
+        // ou utiliser un graphique de type barres avec des données par défaut
+        CategoryChart chart = new CategoryChartBuilder()
+            .width(800)
+            .height(600)
+            .title(title)
+            .xAxisTitle("Composants")
+            .yAxisTitle("Valeurs")
+            .build();
+
+        // Données par défaut pour les diagrammes
+        List<String> categories = List.of("Composant A", "Composant B", "Composant C", "Composant D");
+        List<Double> values = List.of(25.0, 40.0, 30.0, 35.0);
+
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
+        chart.getStyler().setChartBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotBackgroundColor(Color.WHITE);
+        chart.getStyler().setSeriesColors(new Color[]{
+            new Color(79, 129, 189),
+            new Color(192, 80, 77),
+            new Color(155, 187, 89),
+            new Color(128, 100, 162)
+        });
+
+        for (int i = 0; i < categories.size(); i++) {
+            String annotation = categories.get(i) + ": " + values.get(i);
+        }
+
+        chart.addSeries("Diagramme", categories, values);
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        BitmapEncoder.saveBitmap(chart, os, BitmapEncoder.BitmapFormat.PNG);
+        return os.toByteArray();
+    }
+
+    // Méthode utilitaire pour valider le format JSON
+    public boolean isValidChartData(String jsonData) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode dataNode = objectMapper.readTree(jsonData);
+
+            String type = dataNode.path("type").asText();
+            switch (type.toLowerCase()) {
+                case "bar":
+                    return dataNode.has("categories") && dataNode.has("values");
+                case "pie":
+                    return (dataNode.has("labels") && dataNode.has("values")) || dataNode.has("data");
+                case "timeline":
+                    return dataNode.has("data");
+                case "diagram":
+                    return dataNode.has("title") && dataNode.has("content");
+                default:
+                    return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
+
