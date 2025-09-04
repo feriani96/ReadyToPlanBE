@@ -7,6 +7,8 @@ import org.knowm.xchart.style.Styler;
 import org.knowm.xchart.style.colors.ChartColor;
 import org.springframework.stereotype.Service;
 
+import org.knowm.xchart.internal.chartpart.Annotation;
+
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -185,21 +187,35 @@ public class ChartService {
 
     private byte[] createDiagramChart(JsonNode dataNode) throws IOException {
         String title = dataNode.path("title").asText("Diagramme");
-        String content = dataNode.path("content").asText("Diagramme schématique");
+        String content = dataNode.path("content").asText("");
+        JsonNode elementsNode = dataNode.path("elements");
 
-        // Pour les diagrammes, créer un graphique simple avec du texte
-        // ou utiliser un graphique de type barres avec des données par défaut
+        List<String> elementNames = new ArrayList<>();
+        if (elementsNode.isArray()) {
+            for (JsonNode element : elementsNode) {
+                elementNames.add(element.path("name").asText());
+            }
+        }
+
+        // Si on a des éléments mais pas de content, créer une description
+        if (content.isEmpty() && !elementNames.isEmpty()) {
+            content = "Diagramme représentant: " + String.join(", ", elementNames);
+        }
+
+        // Créer un graphique de type barres pour visualiser les éléments du diagramme
         CategoryChart chart = new CategoryChartBuilder()
             .width(800)
             .height(600)
             .title(title)
-            .xAxisTitle("Composants")
-            .yAxisTitle("Valeurs")
+            .xAxisTitle("Éléments")
+            .yAxisTitle("Valeurs relatives")
             .build();
 
-        // Données par défaut pour les diagrammes
-        List<String> categories = List.of("Composant A", "Composant B", "Composant C", "Composant D");
-        List<Double> values = List.of(25.0, 40.0, 30.0, 35.0);
+        // Données pour visualiser la structure (valeurs fictives mais cohérentes)
+        List<Double> values = new ArrayList<>();
+        for (int i = 0; i < elementNames.size(); i++) {
+            values.add(100.0 - (i * 15.0)); // Valeurs décroissantes pour visualisation
+        }
 
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
         chart.getStyler().setChartBackgroundColor(Color.WHITE);
@@ -208,19 +224,27 @@ public class ChartService {
             new Color(79, 129, 189),
             new Color(192, 80, 77),
             new Color(155, 187, 89),
-            new Color(128, 100, 162)
+            new Color(128, 100, 162),
+            new Color(75, 172, 198)
         });
 
-        for (int i = 0; i < categories.size(); i++) {
-            String annotation = categories.get(i) + ": " + values.get(i);
+        for (int i = 0; i < elementNames.size(); i++) {
+            AnnotationText annotation = new AnnotationText(
+                elementNames.get(i),  // texte
+                i,                    // position x (index)
+                values.get(i) + 5,    // position y (valeur + offset)
+                false                 // pas de rotation
+            );
+            chart.addAnnotation(annotation);
         }
 
-        chart.addSeries("Diagramme", categories, values);
+        chart.addSeries("Diagramme", elementNames, values);
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         BitmapEncoder.saveBitmap(chart, os, BitmapEncoder.BitmapFormat.PNG);
         return os.toByteArray();
     }
+
 
     // Méthode utilitaire pour valider le format JSON
     public boolean isValidChartData(String jsonData) {
@@ -237,7 +261,7 @@ public class ChartService {
                 case "timeline":
                     return dataNode.has("data");
                 case "diagram":
-                    return dataNode.has("title") && dataNode.has("content");
+                    return dataNode.has("title") && (dataNode.has("content") || dataNode.has("elements"));
                 default:
                     return false;
             }

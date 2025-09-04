@@ -117,6 +117,9 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
         try {
             String rawHtml = aiClient.generatePresentation(prompt);
 
+            // Nettoyer et structurer le HTML
+            String structuredHtml = structurePresentation(rawHtml);
+
             Pattern pattern = Pattern.compile("\\{\\{GRAPH:(.*?)\\}\\}", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(rawHtml);
             StringBuffer sb = new StringBuffer();
@@ -152,6 +155,15 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
             log.error("Erreur lors de l'appel AI pour la présentation", e);
             return "<div><p>Erreur lors de la génération de la présentation.</p></div>";
         }
+    }
+
+    // Nouvelle méthode pour structurer la présentation
+    private String structurePresentation(String html) {
+        String regex = "(?i)<section class='slide'>(.*?)(\\{\\{GRAPH:.*?\\}\\})(.*?)</section>";
+
+        return html.replaceAll(regex,
+            "<section class='slide intro-slide'>$1</section>" +
+                "<section class='slide visual-slide'><h3>Titre du Graphique</h3>$2</section>");
     }
 
     private String injectGlobalStylesIfMissing(String html) {
@@ -228,11 +240,22 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
         return "Tu es un expert en pédagogie et en design de présentations modernes. " +
             "Ta tâche est de générer une présentation complète et professionnelle du cours suivant en " + language + ". " +
             "⚠️ CONTRAINTES STRICTES :" +
-            " - MINIMUM 15 SLIDES avec AU MOINS 4 TABLEAUX DIFFÉRENTS" +
+            " - MINIMUM 18 SLIDES avec AU MOINS 4 TABLEAUX DIFFÉRENTS" +
             " - Structure : Page de garde, Plan, Introduction, Historique, 5+ slides de contenu, Avantages/Inconvénients, Applications, Résumé" +
             " - Chaque slide dans <section class='slide'>...</section>" +
             " - Page de garde avec titre, public, niveau, classe, durée" +
             " - Le niveau du cours est " + trainingCourse.getLevel() + ", adapte la profondeur du contenu en conséquence." +
+
+            " - NOUVELLE STRUCTURE OBLIGATOIRE :" +
+            "   * AVANT CHAQUE GRAPHIQUE, HISTOGRAMME OU TABLEAU :" +
+            "     - Créer un slide d'introduction avec un titre clair" +
+            "     - Ajouter un paragraphe ou des points expliquant ce qui sera présenté" +
+            "     - Ce slide doit préparer le contenu visuel suivant" +
+            "   * LE SLIDE SUIVANT contient uniquement :" +
+            "     - Un titre descriptif" +
+            "     - Le graphique/histogramme/tableau (centré et bien mis en valeur)" +
+            "     - Aucun autre texte pour éviter la surcharge" +
+
             " - POUR LES TABLEAUX : UTILISER OBLIGATOIREMENT CE FORMAT EXACT :" +
             "   <div class='table-container'>" +
             "     <table class='styled-table'>" +
@@ -249,6 +272,7 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
             "   2. Tableau de spécifications techniques" +
             "   3. Tableau chronologique" +
             "   4. Tableau de synthèse" +
+
             " - Chaque slide de contenu doit comporter au moins deux paragraphes explicatifs." +
             " - Intègre dans les slides avec des points explicatifs: des graphiques (camemberts, histogrammes, barres), et une chronologie adaptée." +
             " - Pour les graphiques, insère un placeholder explicite au format : {{GRAPH:type=bar,title=Répartition,...}} " +
@@ -258,6 +282,24 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
             " - HTML propre et prêt à afficher" +
             " - NE PAS utiliser de backticks ``` autour du HTML" +
             " - Retourner DIRECTEMENT le HTML sans commentaires" +
+
+            "\n\nEXEMPLE DE STRUCTURE CORRECTE :" +
+            "<!-- Slide d'introduction avant un élément visuel -->" +
+            "<section class='slide'>" +
+            "  <h2>Titre contextuel</h2>" +
+            "  <p>Description et explication de ce qui sera présenté dans le slide suivant...</p>" +
+            "  <ul>" +
+            "    <li>Point clé 1 à observer</li>" +
+            "    <li>Point clé 2 à retenir</li>" +
+            "    <li>Contexte nécessaire</li>" +
+            "  </ul>" +
+            "</section>" +
+
+            "<!-- Slide avec uniquement l'élément visuel -->" +
+            "<section class='slide'>" +
+            "  <h3>Titre descriptif de l'élément visuel</h3>" +
+            "  {{GRAPH:type=bar,title=Titre significatif,categories=[Cat1,Cat2,Cat3],values=[v1,v2,v3]}}" +
+            "</section>" +
 
             "\n\nPage de garde EXEMPLAIRE :\n" +
             "<section class='slide cover'>\n" +
@@ -272,7 +314,7 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
             "  </div>\n" +
             "</section>\n\n" +
 
-            "Résumé du cours pour contexte : " + safe(trainingCourse.getSummary()) + "\n" +
+            "Conclusion du cours pour contexte : " + safe(trainingCourse.getSummary()) + "\n" +
             "Génère une présentation RICHE avec MULTIPLES TABLEAUX DÉTAILLÉS.";
     }
 

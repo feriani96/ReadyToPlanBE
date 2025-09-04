@@ -179,7 +179,27 @@ public class TrainingCourseResource {
 
     @GetMapping("/training-courses/{id}/presentation")
     public ResponseEntity<String> getPresentation(@PathVariable String id) {
+        // Récupérer le cours
+        Optional<TrainingCourseDTO> trainingCourseOpt = trainingCourseService.findOne(id);
+
+        if (trainingCourseOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        TrainingCourseDTO trainingCourse = trainingCourseOpt.get();
+
+        // ✅ Vérifier si la présentation existe déjà
+        if (trainingCourse.getPresentation() != null && !trainingCourse.getPresentation().isEmpty()) {
+            return ResponseEntity.ok(trainingCourse.getPresentation());
+        }
+
+        // Sinon, la générer une seule fois
         String presentation = trainingCourseServiceImpl.generatePresentation(id);
+
+        trainingCourse.setPresentation(presentation);
+        trainingCourseService.update(trainingCourse); // sauvegarder avec la présentation
+
         return ResponseEntity.ok(presentation);
     }
+
 }

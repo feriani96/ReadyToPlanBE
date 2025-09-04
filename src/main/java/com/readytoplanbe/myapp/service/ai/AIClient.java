@@ -90,7 +90,7 @@ public class AIClient {
             "- Barres: {\"type\": \"bar\", \"title\": \"Titre\", \"categories\": [\"Cat1\", \"Cat2\"], \"values\": [10, 20]}\n" +
             "- Circulaire: {\"type\": \"pie\", \"title\": \"Titre\", \"labels\": [\"Label1\", \"Label2\"], \"values\": [30, 70]}\n" +
             "- Chronologie: {\"type\": \"timeline\", \"title\": \"Titre\", \"data\": [{\"year\": 1990, \"event\": \"Description\"}]}\n" +
-            "- Diagramme: {\"type\": \"diagram\", \"title\": \"Titre\", \"content\": \"Description du schéma\"}\n" +
+            "- Diagramme: {\"type\": \"diagram\", \"title\": \"Titre\", \"elements\": [{\"name\": \"Élément1\"}, {\"name\": \"Élément2\"}]} OU {\"type\": \"diagram\", \"title\": \"Titre\", \"content\": \"Description\"}\n" +
             "⚠️ IMPORTANT : Retourne UNIQUEMENT le JSON brut, sans ```json, sans backticks, sans explications.\n" +
             "Description: " + prompt;
 
