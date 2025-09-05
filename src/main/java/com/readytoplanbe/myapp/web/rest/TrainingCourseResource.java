@@ -202,4 +202,39 @@ public class TrainingCourseResource {
         return ResponseEntity.ok(presentation);
     }
 
+
+    @PostMapping("/training-courses/{id}/regenerate-presentation")
+    public ResponseEntity<String> regeneratePresentation(@PathVariable String id) {
+        Optional<TrainingCourseDTO> trainingCourseOpt = trainingCourseService.findOne(id);
+
+        if (trainingCourseOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        TrainingCourseDTO trainingCourse = trainingCourseOpt.get();
+
+        String newPresentation = trainingCourseServiceImpl.generatePresentation(id);
+
+        return ResponseEntity.ok(newPresentation);
+    }
+
+    @PostMapping("/training-courses/{id}/save-presentation")
+    public ResponseEntity<TrainingCourseDTO> savePresentation(
+        @PathVariable String id,
+        @RequestBody String newPresentation) {
+
+        Optional<TrainingCourseDTO> trainingCourseOpt = trainingCourseService.findOne(id);
+
+        if (trainingCourseOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        TrainingCourseDTO trainingCourse = trainingCourseOpt.get();
+        trainingCourse.setPresentation(newPresentation);
+        TrainingCourseDTO updated = trainingCourseService.update(trainingCourse);
+
+        return ResponseEntity.ok(updated);
+    }
+
+
 }
