@@ -8,10 +8,12 @@ import com.readytoplanbe.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,15 +62,19 @@ public class TrainingCourseResource {
     public ResponseEntity<TrainingCourseDTO> createTrainingCourse(@Valid @RequestBody TrainingCourseDTO trainingCourseDTO)
         throws URISyntaxException {
         log.debug("REST request to save TrainingCourse : {}", trainingCourseDTO);
+
         if (trainingCourseDTO.getId() != null) {
             throw new BadRequestAlertException("A new trainingCourse cannot already have an ID", ENTITY_NAME, "idexists");
         }
+
         TrainingCourseDTO result = trainingCourseService.save(trainingCourseDTO);
         return ResponseEntity
             .created(new URI("/api/training-courses/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId()))
             .body(result);
     }
+
+
 
     /**
      * {@code PUT  /training-courses/:id} : Updates an existing trainingCourse.
@@ -179,7 +185,6 @@ public class TrainingCourseResource {
 
     @GetMapping("/training-courses/{id}/presentation")
     public ResponseEntity<String> getPresentation(@PathVariable String id) {
-        // Récupérer le cours
         Optional<TrainingCourseDTO> trainingCourseOpt = trainingCourseService.findOne(id);
 
         if (trainingCourseOpt.isEmpty()) {
@@ -188,16 +193,14 @@ public class TrainingCourseResource {
 
         TrainingCourseDTO trainingCourse = trainingCourseOpt.get();
 
-        // ✅ Vérifier si la présentation existe déjà
         if (trainingCourse.getPresentation() != null && !trainingCourse.getPresentation().isEmpty()) {
             return ResponseEntity.ok(trainingCourse.getPresentation());
         }
 
-        // Sinon, la générer une seule fois
         String presentation = trainingCourseServiceImpl.generatePresentation(id);
 
         trainingCourse.setPresentation(presentation);
-        trainingCourseService.update(trainingCourse); // sauvegarder avec la présentation
+        trainingCourseService.update(trainingCourse);
 
         return ResponseEntity.ok(presentation);
     }
@@ -234,6 +237,38 @@ public class TrainingCourseResource {
         TrainingCourseDTO updated = trainingCourseService.update(trainingCourse);
 
         return ResponseEntity.ok(updated);
+    }
+
+    @PostMapping("/training-courses/{id}/evaluate")
+    public ResponseEntity<TrainingCourseDTO> evaluateCourse(
+        @PathVariable String id,
+        @RequestParam Integer satisfaction) {
+        TrainingCourseDTO result = trainingCourseService.evaluatePresentation(id, satisfaction);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/training-courses/{id}/public")
+    public ResponseEntity<TrainingCourseDTO> setPublicCourse(
+        @PathVariable String id,
+        @RequestParam Boolean isPublic) {
+        TrainingCourseDTO result = trainingCourseService.setPublicPresentation(id, isPublic);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/training-courses/stats/satisfaction")
+    public ResponseEntity<Map<String, Long>> getSatisfactionStats() {
+        Map<String, Long> stats = trainingCourseService.getSatisfactionStats();
+        return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/training-courses/mine")
+    public List<TrainingCourseDTO> getMyTrainingCourses() {
+        return trainingCourseService.findAllByCurrentUser();
+    }
+
+    @GetMapping("/training-courses/public")
+    public List<TrainingCourseDTO> getPublicTrainingCourses() {
+        return trainingCourseService.findAllPublic();
     }
 
 

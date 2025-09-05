@@ -6,6 +6,7 @@ import com.readytoplanbe.myapp.domain.enumeration.LocationType;
 import com.readytoplanbe.myapp.domain.enumeration.StudyClass;
 import com.readytoplanbe.myapp.domain.enumeration.TargetAudience;
 import java.io.Serializable;
+import java.time.Instant;
 import javax.validation.constraints.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -57,6 +58,22 @@ public class TrainingCourse implements Serializable {
 
     @Field("presentation")
     private String presentation;
+
+    @Field("public_presentation")
+    private Boolean publicPresentation = false;
+
+    @Field("satisfaction")
+    private Integer satisfaction;
+
+    @Field("created_by")
+    private String createdBy;
+
+    @Field("created_by_login")
+    private String createdByLogin;
+
+    @Field("created_date")
+    private Instant createdDate = Instant.now();
+
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -203,6 +220,73 @@ public class TrainingCourse implements Serializable {
         this.presentation = presentation;
     }
 
+    public Boolean getPublicPresentation() {
+        return this.publicPresentation;
+    }
+
+    public TrainingCourse publicPresentation(Boolean publicPresentation) {
+        this.setPublicPresentation(publicPresentation);
+        return this;
+    }
+
+    public void setPublicPresentation(Boolean publicPresentation) {
+        this.publicPresentation = publicPresentation;
+    }
+
+    public Integer getSatisfaction() {
+        return this.satisfaction;
+    }
+
+    public String getCreatedBy() {
+        return this.createdBy;
+    }
+
+    public TrainingCourse createdBy(String createdBy) {
+        this.setCreatedBy(createdBy);
+        return this;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getCreatedByLogin() {
+        return this.createdByLogin;
+    }
+
+    public TrainingCourse createdByLogin(String createdByLogin) {
+        this.setCreatedByLogin(createdByLogin);
+        return this;
+    }
+
+    public void setCreatedByLogin(String createdByLogin) {
+        this.createdByLogin = createdByLogin;
+    }
+
+    public Instant getCreatedDate() {
+        return this.createdDate;
+    }
+
+    public TrainingCourse createdDate(Instant createdDate) {
+        this.setCreatedDate(createdDate);
+        return this;
+    }
+
+    public void setCreatedDate(Instant createdDate) {
+        this.createdDate = createdDate;
+    }
+
+
+    public TrainingCourse satisfaction(Integer satisfaction) {
+        this.setSatisfaction(satisfaction);
+        return this;
+    }
+
+    public void setSatisfaction(Integer satisfaction) {
+        this.satisfaction = satisfaction;
+    }
+
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -236,6 +320,9 @@ public class TrainingCourse implements Serializable {
             ", locationType='" + getLocationType() + "'" +
             ", duration='" + getDuration() + "'" +
             ", languages='" + getLanguages() + "'" +
+            ", createdBy='" + getCreatedBy() + "'" +
+            ", createdByLogin='" + getCreatedByLogin() + "'" +
+            ", createdDate='" + getCreatedDate() + "'" +
             "}";
     }
 }

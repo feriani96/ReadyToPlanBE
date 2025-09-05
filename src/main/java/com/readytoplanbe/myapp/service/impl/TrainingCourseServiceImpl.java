@@ -1,22 +1,26 @@
 package com.readytoplanbe.myapp.service.impl;
 
 import com.readytoplanbe.myapp.domain.TrainingCourse;
+import com.readytoplanbe.myapp.domain.User;
 import com.readytoplanbe.myapp.domain.enumeration.Languages;
 import com.readytoplanbe.myapp.repository.TrainingCourseRepository;
+import com.readytoplanbe.myapp.repository.UserRepository;
+import com.readytoplanbe.myapp.security.SecurityUtils;
 import com.readytoplanbe.myapp.service.TrainingCourseService;
 import com.readytoplanbe.myapp.service.ai.AIClient;
 import com.readytoplanbe.myapp.service.chart.ChartService;
 import com.readytoplanbe.myapp.service.dto.TrainingCourseDTO;
 import com.readytoplanbe.myapp.service.mapper.TrainingCourseMapper;
-import java.util.Base64;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -35,29 +39,63 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
 
     private final ChartService chartService;
 
-    public TrainingCourseServiceImpl(TrainingCourseRepository trainingCourseRepository, TrainingCourseMapper trainingCourseMapper, AIClient aiClient, ChartService chartService) {
+    private final UserRepository userRepository;
+
+
+    public TrainingCourseServiceImpl(
+        TrainingCourseRepository trainingCourseRepository,
+        TrainingCourseMapper trainingCourseMapper,
+        AIClient aiClient,
+        ChartService chartService,
+        UserRepository userRepository) {
         this.trainingCourseRepository = trainingCourseRepository;
         this.trainingCourseMapper = trainingCourseMapper;
         this.aiClient = aiClient;
         this.chartService = chartService;
+        this.userRepository = userRepository;
     }
 
     @Override
     public TrainingCourseDTO save(TrainingCourseDTO trainingCourseDTO) {
         log.debug("Request to save TrainingCourse : {}", trainingCourseDTO);
+
+        Optional<String> currentUserLoginOpt = SecurityUtils.getCurrentUserLogin();
+        log.debug("Current user login from SecurityUtils: {}", currentUserLoginOpt.orElse("NOT_FOUND"));
+
+        if (trainingCourseDTO.getId() == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                throw new IllegalStateException("User must be authenticated to create a TrainingCourse");
+            }
+
+            String currentUserLogin = authentication.getName(); // login réel
+            User currentUser = userRepository.findOneByLogin(currentUserLogin)
+                .orElseThrow(() -> new IllegalStateException("User not found: " + currentUserLogin));
+
+            trainingCourseDTO.setCreatedBy(currentUser.getFirstName() + " " + currentUser.getLastName());
+            trainingCourseDTO.setCreatedByLogin(currentUser.getLogin());
+            trainingCourseDTO.setCreatedDate(Instant.now());
+        }
+
         TrainingCourse trainingCourse = trainingCourseMapper.toEntity(trainingCourseDTO);
         trainingCourse = trainingCourseRepository.save(trainingCourse);
 
+        // Génération de la présentation via AI
         try {
             String presentationHtml = generatePresentation(trainingCourse.getId());
             trainingCourse.setPresentation(presentationHtml);
+
+            // Re-sauvegarde avec la présentation générée
             trainingCourse = trainingCourseRepository.save(trainingCourse);
+            log.debug("Presentation generated and saved for course id: {}", trainingCourse.getId());
         } catch (Exception e) {
             log.error("Erreur lors de la génération de la présentation AI", e);
         }
 
+        // Retourner le DTO
         return trainingCourseMapper.toDto(trainingCourse);
     }
+
 
     @Override
     public TrainingCourseDTO update(TrainingCourseDTO trainingCourseDTO) {
@@ -117,7 +155,6 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
         try {
             String rawHtml = aiClient.generatePresentation(prompt);
 
-            // Nettoyer et structurer le HTML
             String structuredHtml = structurePresentation(rawHtml);
 
             Pattern pattern = Pattern.compile("\\{\\{GRAPH:(.*?)\\}\\}", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
@@ -157,7 +194,6 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
         }
     }
 
-    // Nouvelle méthode pour structurer la présentation
     private String structurePresentation(String html) {
         String regex = "(?i)<section class='slide'>(.*?)(\\{\\{GRAPH:.*?\\}\\})(.*?)</section>";
 
@@ -321,4 +357,63 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
     private String safe(Object obj) {
         return obj == null ? "Non spécifié" : obj.toString();
     }
+
+    public TrainingCourseDTO evaluatePresentation(String courseId, Integer satisfaction) {
+        TrainingCourse course = trainingCourseRepository.findById(courseId)
+            .orElseThrow(() -> new RuntimeException("Course not found"));
+        course.setSatisfaction(satisfaction);
+        trainingCourseRepository.save(course);
+        return trainingCourseMapper.toDto(course);
+    }
+
+    public TrainingCourseDTO setPublicPresentation(String courseId, Boolean isPublic) {
+        TrainingCourse course = trainingCourseRepository.findById(courseId)
+            .orElseThrow(() -> new RuntimeException("Course not found"));
+        course.setPublicPresentation(isPublic);
+        trainingCourseRepository.save(course);
+        return trainingCourseMapper.toDto(course);
+    }
+
+    public Map<String, Long> getSatisfactionStats() {
+        List<TrainingCourse> courses = trainingCourseRepository.findAll();
+
+        long satisfied = courses.stream()
+            .filter(c -> c.getSatisfaction() != null && c.getSatisfaction() == 3)
+            .count();
+
+        long notSatisfied = courses.stream()
+            .filter(c -> c.getSatisfaction() != null && c.getSatisfaction() == 1)
+            .count();
+
+        long total = courses.size();
+        long notRated = total - (satisfied + notSatisfied);
+
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("Satisfied", satisfied);
+        stats.put("NotSatisfied", notSatisfied);
+        stats.put("NotRated", notRated);
+        stats.put("Total", total);
+
+        return stats;
+    }
+
+    @Override
+    public List<TrainingCourseDTO> findAllByCurrentUser() {
+        String currentUserLogin = SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new IllegalStateException("Utilisateur non connecté"));
+
+        return trainingCourseRepository.findByCreatedByLogin(currentUserLogin)
+            .stream()
+            .map(trainingCourseMapper::toDto)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TrainingCourseDTO> findAllPublic() {
+        return trainingCourseRepository.findByPublicPresentationTrue()
+            .stream()
+            .map(trainingCourseMapper::toDto)
+            .collect(Collectors.toList());
+    }
+
 }

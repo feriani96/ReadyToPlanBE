@@ -1,7 +1,9 @@
 package com.readytoplanbe.myapp.service;
 
+import com.readytoplanbe.myapp.domain.TrainingCourse;
 import com.readytoplanbe.myapp.service.dto.TrainingCourseDTO;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -53,4 +55,15 @@ public interface TrainingCourseService {
      * @param id the id of the entity.
      */
     void delete(String id);
+
+    TrainingCourseDTO evaluatePresentation(String courseId, Integer satisfaction);
+
+    TrainingCourseDTO setPublicPresentation(String courseId, Boolean isPublic);
+
+    Map<String, Long> getSatisfactionStats();
+
+    List<TrainingCourseDTO> findAllByCurrentUser();
+
+    List<TrainingCourseDTO> findAllPublic();
 }
+

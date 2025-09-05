@@ -23,8 +23,23 @@ public final class SecurityUtils {
      */
     public static Optional<String> getCurrentUserLogin() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
-        return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
+        if (securityContext == null || securityContext.getAuthentication() == null) {
+            return Optional.empty();
+        }
+
+        Object principal = securityContext.getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            return Optional.of(((UserDetails) principal).getUsername());
+        } else if (principal instanceof String) {
+            return Optional.of((String) principal);
+        } else {
+            // Cas fallback : renvoyer null si type inconnu
+            return Optional.empty();
+        }
     }
+
+
 
     private static String extractPrincipal(Authentication authentication) {
         if (authentication == null) {

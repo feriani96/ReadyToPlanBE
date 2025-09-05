@@ -6,6 +6,7 @@ import com.readytoplanbe.myapp.domain.enumeration.LocationType;
 import com.readytoplanbe.myapp.domain.enumeration.StudyClass;
 import com.readytoplanbe.myapp.domain.enumeration.TargetAudience;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 import javax.validation.constraints.*;
 
@@ -41,6 +42,16 @@ public class TrainingCourseDTO implements Serializable {
     private Languages languages;
 
     private String presentation;
+
+    private Boolean publicPresentation = false;
+
+    private Integer satisfaction;
+
+    private String createdBy;
+    private String createdByLogin;
+    private Instant createdDate;
+
+    private String createdByName;
 
     public String getId() {
         return id;
@@ -125,6 +136,45 @@ public class TrainingCourseDTO implements Serializable {
     public String getPresentation() { return presentation; }
 
     public void setPresentation(String presentation) { this.presentation = presentation; }
+    public Boolean getPublicPresentation() { return publicPresentation; }
+
+    public void setPublicPresentation(Boolean publicPresentation) { this.publicPresentation = publicPresentation; }
+
+    public Integer getSatisfaction() { return satisfaction; }
+
+    public void setSatisfaction(Integer satisfaction) { this.satisfaction = satisfaction; }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getCreatedByLogin() {
+        return createdByLogin;
+    }
+
+    public void setCreatedByLogin(String createdByLogin) {
+        this.createdByLogin = createdByLogin;
+    }
+
+    public Instant getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Instant createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public String getCreatedByName() {
+        return createdByName;
+    }
+
+    public void setCreatedByName(String createdByName) {
+        this.createdByName = createdByName;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -162,6 +212,11 @@ public class TrainingCourseDTO implements Serializable {
             ", duration='" + getDuration() + "'" +
             ", languages='" + getLanguages() + "'" +
             ", presentation='" + getPresentation() +
+            ", publicPresentation ='" + getPublicPresentation () +
+            ", satisfaction='" + getSatisfaction() +
+            ", createdBy='" + getCreatedBy() + "'" +
+            ", createdByLogin='" + getCreatedByLogin() + "'" +
+            ", createdDate='" + getCreatedDate() + "'" +
             "}";
     }
 }
