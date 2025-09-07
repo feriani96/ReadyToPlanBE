@@ -1,6 +1,7 @@
 package com.readytoplanbe.myapp.service;
 
 import com.readytoplanbe.myapp.domain.TrainingCourse;
+import com.readytoplanbe.myapp.domain.User;
 import com.readytoplanbe.myapp.service.dto.TrainingCourseDTO;
 import java.util.List;
 import java.util.Map;
@@ -65,5 +66,10 @@ public interface TrainingCourseService {
     List<TrainingCourseDTO> findAllByCurrentUser();
 
     List<TrainingCourseDTO> findAllPublic();
+
+    List<TrainingCourseDTO> getAllCoursesWithSatisfaction(User currentUser);
+
+    void evaluateCourse(String courseId, User currentUser, Integer satisfaction);
+
 }
 

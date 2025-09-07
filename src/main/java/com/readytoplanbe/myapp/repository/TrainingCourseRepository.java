@@ -1,6 +1,7 @@
 package com.readytoplanbe.myapp.repository;
 
 import com.readytoplanbe.myapp.domain.TrainingCourse;
+import com.readytoplanbe.myapp.domain.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,6 @@ public interface TrainingCourseRepository extends MongoRepository<TrainingCourse
     List<TrainingCourse> findByCreatedByLogin(String login);
 
     List<TrainingCourse> findByPublicPresentationTrue();
+
+    long countByCreatedBy(User user);
 }

@@ -90,7 +90,6 @@ public class UserResource {
 
     private final TrainingCourseRepository trainingCourseRepository;
 
-    // Corrigez le constructeur
     public UserResource(
         UserService userService,
         UserRepository userRepository,
@@ -215,30 +214,19 @@ public class UserResource {
         return ResponseEntity.noContent().headers(HeaderUtil.createAlert(applicationName, "userManagement.deleted", login)).build();
     }
 
-// ← AJOUTEZ CETTE MÉTHODE À LA FIN DE LA CLASSE (avant la dernière accolade)
     /**
      * {@code GET /admin/users/stats} : get user statistics.
      *
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body containing user statistics.
      */
     @GetMapping("/users/stats")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<Map<String, Long>> getUserStats() {
+    public ResponseEntity<Map<String, Long>> getAdminStats() {
         log.debug("REST request to get user statistics");
 
         Map<String, Long> stats = new HashMap<>();
-
-        // Nombre total d'utilisateurs
         stats.put("totalUsers", userRepository.count());
-
-        // Nombre d'utilisateurs activés
         stats.put("activeUsers", userRepository.countByActivated(true));
-
-        // Nombre total de cours créés
         stats.put("coursesCreated", trainingCourseRepository.count());
-
-        // Vous pouvez ajouter d'autres statistiques ici
-        // stats.put("anotherStat", anotherRepository.count());
 
         return ResponseEntity.ok(stats);
     }

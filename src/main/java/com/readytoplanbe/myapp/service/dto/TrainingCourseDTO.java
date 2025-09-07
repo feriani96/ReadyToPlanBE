@@ -45,7 +45,10 @@ public class TrainingCourseDTO implements Serializable {
 
     private Boolean publicPresentation = false;
 
-    private Integer satisfaction;
+    // ✅ nouveaux champs pour satisfaction
+    private Long satisfiedCount = 0L;
+    private Long notSatisfiedCount = 0L;
+    private Integer userSatisfaction;
 
     private String createdBy;
     private String createdByLogin;
@@ -140,9 +143,13 @@ public class TrainingCourseDTO implements Serializable {
 
     public void setPublicPresentation(Boolean publicPresentation) { this.publicPresentation = publicPresentation; }
 
-    public Integer getSatisfaction() { return satisfaction; }
+    public Long getSatisfiedCount() { return satisfiedCount; }
+    public void setSatisfiedCount(Long satisfiedCount) { this.satisfiedCount = satisfiedCount; }
+    public Long getNotSatisfiedCount() { return notSatisfiedCount; }
+    public void setNotSatisfiedCount(Long notSatisfiedCount) { this.notSatisfiedCount = notSatisfiedCount; }
+    public Integer getUserSatisfaction() { return userSatisfaction; }
+    public void setUserSatisfaction(Integer userSatisfaction) { this.userSatisfaction = userSatisfaction; }
 
-    public void setSatisfaction(Integer satisfaction) { this.satisfaction = satisfaction; }
 
     public String getCreatedBy() {
         return createdBy;
@@ -213,7 +220,7 @@ public class TrainingCourseDTO implements Serializable {
             ", languages='" + getLanguages() + "'" +
             ", presentation='" + getPresentation() +
             ", publicPresentation ='" + getPublicPresentation () +
-            ", satisfaction='" + getSatisfaction() +
+            ", userSatisfaction='" + getUserSatisfaction() +
             ", createdBy='" + getCreatedBy() + "'" +
             ", createdByLogin='" + getCreatedByLogin() + "'" +
             ", createdDate='" + getCreatedDate() + "'" +

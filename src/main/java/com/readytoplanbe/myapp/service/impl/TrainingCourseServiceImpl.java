@@ -1,8 +1,10 @@
 package com.readytoplanbe.myapp.service.impl;
 
+import com.readytoplanbe.myapp.domain.CourseEvaluation;
 import com.readytoplanbe.myapp.domain.TrainingCourse;
 import com.readytoplanbe.myapp.domain.User;
 import com.readytoplanbe.myapp.domain.enumeration.Languages;
+import com.readytoplanbe.myapp.repository.CourseEvaluationRepository;
 import com.readytoplanbe.myapp.repository.TrainingCourseRepository;
 import com.readytoplanbe.myapp.repository.UserRepository;
 import com.readytoplanbe.myapp.security.SecurityUtils;
@@ -41,18 +43,22 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
 
     private final UserRepository userRepository;
 
+    private final CourseEvaluationRepository courseEvaluationRepository;
+
 
     public TrainingCourseServiceImpl(
         TrainingCourseRepository trainingCourseRepository,
         TrainingCourseMapper trainingCourseMapper,
         AIClient aiClient,
         ChartService chartService,
-        UserRepository userRepository) {
+        UserRepository userRepository,
+        CourseEvaluationRepository courseEvaluationRepository) {
         this.trainingCourseRepository = trainingCourseRepository;
         this.trainingCourseMapper = trainingCourseMapper;
         this.aiClient = aiClient;
         this.chartService = chartService;
         this.userRepository = userRepository;
+        this.courseEvaluationRepository = courseEvaluationRepository;
     }
 
     @Override
@@ -375,36 +381,34 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
     }
 
     public Map<String, Long> getSatisfactionStats() {
-        List<TrainingCourse> courses = trainingCourseRepository.findAll();
+        long satisfied = courseEvaluationRepository.countBySatisfaction(3);
+        long notSatisfied = courseEvaluationRepository.countBySatisfaction(1);
 
-        long satisfied = courses.stream()
-            .filter(c -> c.getSatisfaction() != null && c.getSatisfaction() == 3)
-            .count();
-
-        long notSatisfied = courses.stream()
-            .filter(c -> c.getSatisfaction() != null && c.getSatisfaction() == 1)
-            .count();
-
-        long total = courses.size();
-        long notRated = total - (satisfied + notSatisfied);
+        long totalCourses = trainingCourseRepository.count(); // total de tous les cours
+        long notRated = totalCourses - (satisfied + notSatisfied);
+        if (notRated < 0) notRated = 0; // sécurité
 
         Map<String, Long> stats = new HashMap<>();
         stats.put("Satisfied", satisfied);
         stats.put("NotSatisfied", notSatisfied);
         stats.put("NotRated", notRated);
-        stats.put("Total", total);
+        stats.put("TotalCourses", totalCourses);
 
         return stats;
     }
+
 
     @Override
     public List<TrainingCourseDTO> findAllByCurrentUser() {
         String currentUserLogin = SecurityUtils.getCurrentUserLogin()
             .orElseThrow(() -> new IllegalStateException("Utilisateur non connecté"));
 
+        User currentUser = userRepository.findOneByLogin(currentUserLogin)
+            .orElseThrow(() -> new IllegalStateException("Utilisateur introuvable: " + currentUserLogin));
+
         return trainingCourseRepository.findByCreatedByLogin(currentUserLogin)
             .stream()
-            .map(trainingCourseMapper::toDto)
+            .map(course -> toDto(course, currentUser)) // ✅ au lieu du mapper simple
             .collect(Collectors.toList());
     }
 
@@ -415,5 +419,56 @@ public class TrainingCourseServiceImpl implements TrainingCourseService {
             .map(trainingCourseMapper::toDto)
             .collect(Collectors.toList());
     }
+
+    @Override
+    public List<TrainingCourseDTO> getAllCoursesWithSatisfaction(User currentUser) {
+        return trainingCourseRepository.findAll()
+            .stream()
+            .map(course -> toDto(course, currentUser))
+            .collect(Collectors.toList());
+    }
+
+    public TrainingCourseDTO toDto(TrainingCourse course, User currentUser) {
+        TrainingCourseDTO dto = trainingCourseMapper.toDto(course); // utilise ton mapper existant pour les champs standards
+        long satisfied = courseEvaluationRepository.countByTrainingCourseAndSatisfaction(course, 3);
+        long notSatisfied = courseEvaluationRepository.countByTrainingCourseAndSatisfaction(course, 1);
+
+        dto.setSatisfiedCount(satisfied);
+        dto.setNotSatisfiedCount(notSatisfied);
+        if (currentUser != null) {
+            Optional<CourseEvaluation> maybe = courseEvaluationRepository.findByTrainingCourseAndUser(course, currentUser);
+            maybe.ifPresent(ev -> dto.setUserSatisfaction(ev.getSatisfaction()));
+        } else {
+            dto.setUserSatisfaction(null);
+        }
+
+        return dto;
+    }
+
+    @Override
+    public void evaluateCourse(String courseId, User currentUser, Integer satisfaction) {
+        if (currentUser == null) {
+            throw new IllegalStateException("User must be authenticated to evaluate");
+        }
+
+        TrainingCourse course = trainingCourseRepository.findById(courseId)
+            .orElseThrow(() -> new RuntimeException("Course not found"));
+        Optional<CourseEvaluation> existing = courseEvaluationRepository.findByTrainingCourseAndUser(course, currentUser);
+
+        CourseEvaluation evaluation = existing.orElseGet(() -> {
+            CourseEvaluation newEval = new CourseEvaluation();
+            newEval.setTrainingCourse(course);
+            newEval.setUser(currentUser);
+            return newEval;
+        });
+        if (evaluation.getId() != null && Objects.equals(evaluation.getSatisfaction(), satisfaction)) {
+            // annuler le vote (toggle off)
+            courseEvaluationRepository.delete(evaluation);
+            return;
+        }
+        evaluation.setSatisfaction(satisfaction);
+        courseEvaluationRepository.save(evaluation);
+    }
+
 
 }

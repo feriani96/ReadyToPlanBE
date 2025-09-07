@@ -1,16 +1,18 @@
 package com.readytoplanbe.myapp.web.rest;
 
+import com.readytoplanbe.myapp.domain.User;
 import com.readytoplanbe.myapp.repository.TrainingCourseRepository;
+import com.readytoplanbe.myapp.repository.UserRepository;
+import com.readytoplanbe.myapp.security.SecurityUtils;
+import com.readytoplanbe.myapp.service.FavoriteService;
 import com.readytoplanbe.myapp.service.TrainingCourseService;
 import com.readytoplanbe.myapp.service.dto.TrainingCourseDTO;
 import com.readytoplanbe.myapp.service.impl.TrainingCourseServiceImpl;
 import com.readytoplanbe.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -21,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
+
 
 /**
  * REST controller for managing {@link com.readytoplanbe.myapp.domain.TrainingCourse}.
@@ -42,12 +45,21 @@ public class TrainingCourseResource {
 
     private final TrainingCourseServiceImpl trainingCourseServiceImpl;
 
+    private final UserRepository userRepository;
 
+    private final FavoriteService favoriteService;
 
-    public TrainingCourseResource(TrainingCourseService trainingCourseService, TrainingCourseRepository trainingCourseRepository, TrainingCourseServiceImpl trainingCourseServiceImpl) {
+    public TrainingCourseResource(
+        TrainingCourseService trainingCourseService,
+        TrainingCourseRepository trainingCourseRepository,
+        TrainingCourseServiceImpl trainingCourseServiceImpl,
+        UserRepository userRepository,
+        FavoriteService favoriteService) {
         this.trainingCourseService = trainingCourseService;
         this.trainingCourseRepository = trainingCourseRepository;
         this.trainingCourseServiceImpl = trainingCourseServiceImpl;
+        this.userRepository = userRepository;
+        this.favoriteService = favoriteService;
 
     }
 
@@ -73,8 +85,6 @@ public class TrainingCourseResource {
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId()))
             .body(result);
     }
-
-
 
     /**
      * {@code PUT  /training-courses/:id} : Updates an existing trainingCourse.
@@ -240,12 +250,21 @@ public class TrainingCourseResource {
     }
 
     @PostMapping("/training-courses/{id}/evaluate")
-    public ResponseEntity<TrainingCourseDTO> evaluateCourse(
+    public ResponseEntity<Void> evaluateCourse(
         @PathVariable String id,
         @RequestParam Integer satisfaction) {
-        TrainingCourseDTO result = trainingCourseService.evaluatePresentation(id, satisfaction);
-        return ResponseEntity.ok(result);
+
+        String login = SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new IllegalStateException("Utilisateur non connecté"));
+
+        User currentUser = userRepository.findOneByLogin(login)
+            .orElseThrow(() -> new IllegalStateException("Utilisateur introuvable"));
+
+        trainingCourseService.evaluateCourse(id, currentUser, satisfaction);
+
+        return ResponseEntity.ok().build();
     }
+
 
     @PostMapping("/training-courses/{id}/public")
     public ResponseEntity<TrainingCourseDTO> setPublicCourse(
@@ -269,6 +288,46 @@ public class TrainingCourseResource {
     @GetMapping("/training-courses/public")
     public List<TrainingCourseDTO> getPublicTrainingCourses() {
         return trainingCourseService.findAllPublic();
+    }
+
+    @GetMapping("/users/stats")
+    public ResponseEntity<Map<String, Long>> getUserStats() {
+        log.debug("REST request to get user statistics");
+
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("totalUsers", userRepository.count());
+        stats.put("activeUsers", userRepository.countByActivated(true));
+        stats.put("coursesCreated", trainingCourseRepository.count());
+
+        return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/training-courses/favorites")
+    public List<String> getFavorites() {
+        String userLogin = SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new IllegalStateException("Utilisateur non connecté"));
+        return favoriteService.getFavoritesForUser(userLogin);
+    }
+
+    @PostMapping("/training-courses/{id}/favorite")
+    public ResponseEntity<Boolean> toggleFavorite(@PathVariable String id) {
+        String userLogin = SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new IllegalStateException("Utilisateur non connecté"));
+        boolean isFavorite = favoriteService.toggleFavorite(userLogin, id);
+        return ResponseEntity.ok(isFavorite);
+    }
+
+    @GetMapping("/training-courses/public/with-satisfaction")
+    public List<TrainingCourseDTO> getAllPublicCourses() {
+        String login = SecurityUtils.getCurrentUserLogin().orElse(null);
+        User currentUser = null;
+        if (login != null) {
+            currentUser = userRepository.findOneByLogin(login).orElse(null);
+        }
+        return trainingCourseService.getAllCoursesWithSatisfaction(currentUser)
+            .stream()
+            .filter(TrainingCourseDTO::getPublicPresentation)
+            .collect(Collectors.toList());
     }
 
 
