@@ -8,6 +8,7 @@ import com.readytoplanbe.myapp.service.FavoriteService;
 import com.readytoplanbe.myapp.service.TrainingCourseService;
 import com.readytoplanbe.myapp.service.dto.TrainingCourseDTO;
 import com.readytoplanbe.myapp.service.impl.TrainingCourseServiceImpl;
+import com.readytoplanbe.myapp.service.mapper.TrainingCourseMapper;
 import com.readytoplanbe.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -49,17 +50,20 @@ public class TrainingCourseResource {
 
     private final FavoriteService favoriteService;
 
+    private final TrainingCourseMapper trainingCourseMapper;
     public TrainingCourseResource(
         TrainingCourseService trainingCourseService,
         TrainingCourseRepository trainingCourseRepository,
         TrainingCourseServiceImpl trainingCourseServiceImpl,
         UserRepository userRepository,
-        FavoriteService favoriteService) {
+        FavoriteService favoriteService,
+        TrainingCourseMapper trainingCourseMapper) {
         this.trainingCourseService = trainingCourseService;
         this.trainingCourseRepository = trainingCourseRepository;
         this.trainingCourseServiceImpl = trainingCourseServiceImpl;
         this.userRepository = userRepository;
         this.favoriteService = favoriteService;
+        this.trainingCourseMapper = trainingCourseMapper;
 
     }
 
@@ -328,6 +332,69 @@ public class TrainingCourseResource {
             .stream()
             .filter(TrainingCourseDTO::getPublicPresentation)
             .collect(Collectors.toList());
+    }
+
+
+    @PostMapping("/training-courses/without-presentation")
+    public ResponseEntity<TrainingCourseDTO> createTrainingCourseWithoutPresentation(
+        @Valid @RequestBody TrainingCourseDTO trainingCourseDTO) throws URISyntaxException {
+
+        log.debug("REST request to save TrainingCourse without presentation : {}", trainingCourseDTO);
+
+        if (trainingCourseDTO.getId() != null) {
+            throw new BadRequestAlertException("A new trainingCourse cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+
+        TrainingCourseDTO result = trainingCourseService.saveWithoutPresentation(trainingCourseDTO);
+        return ResponseEntity
+            .created(new URI("/api/training-courses/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId()))
+            .body(result);
+    }
+
+
+    @PostMapping("/training-courses/{id}/regenerate-plan")
+    public ResponseEntity<String> regenerateCoursePlan(@PathVariable String id) {
+        Optional<TrainingCourseDTO> trainingCourseOpt = trainingCourseService.findOne(id);
+
+        if (trainingCourseOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        TrainingCourseDTO trainingCourse = trainingCourseOpt.get();
+        String newPlan = trainingCourseServiceImpl.generateCoursePlan(trainingCourseMapper.toEntity(trainingCourse));
+
+        return ResponseEntity.ok(newPlan);
+    }
+
+    @PostMapping("/training-courses/{id}/save-plan")
+    public ResponseEntity<TrainingCourseDTO> saveCoursePlan(
+        @PathVariable String id,
+        @RequestBody String newPlan) {
+
+        Optional<TrainingCourseDTO> trainingCourseOpt = trainingCourseService.findOne(id);
+
+        if (trainingCourseOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        TrainingCourseDTO trainingCourse = trainingCourseOpt.get();
+        trainingCourse.setCoursePlan(newPlan);
+        TrainingCourseDTO updated = trainingCourseService.update(trainingCourse);
+
+        return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/training-courses/{id}/plan")
+    public ResponseEntity<String> getCoursePlan(@PathVariable String id) {
+        Optional<TrainingCourseDTO> trainingCourseOpt = trainingCourseService.findOne(id);
+
+        if (trainingCourseOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        TrainingCourseDTO trainingCourse = trainingCourseOpt.get();
+        return ResponseEntity.ok(trainingCourse.getCoursePlan());
     }
 
 

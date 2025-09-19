@@ -43,9 +43,10 @@ public class TrainingCourseDTO implements Serializable {
 
     private String presentation;
 
+    private String coursePlan;
+
     private Boolean publicPresentation = false;
 
-    // ✅ nouveaux champs pour satisfaction
     private Long satisfiedCount = 0L;
     private Long notSatisfiedCount = 0L;
     private Integer userSatisfaction;
@@ -139,6 +140,10 @@ public class TrainingCourseDTO implements Serializable {
     public String getPresentation() { return presentation; }
 
     public void setPresentation(String presentation) { this.presentation = presentation; }
+
+    public String getCoursePlan() { return coursePlan; }
+
+    public void setCoursePlan(String coursePlan) { this.coursePlan = coursePlan; }
     public Boolean getPublicPresentation() { return publicPresentation; }
 
     public void setPublicPresentation(Boolean publicPresentation) { this.publicPresentation = publicPresentation; }
@@ -219,6 +224,7 @@ public class TrainingCourseDTO implements Serializable {
             ", duration='" + getDuration() + "'" +
             ", languages='" + getLanguages() + "'" +
             ", presentation='" + getPresentation() +
+            ", coursePlan='" + getCoursePlan() +
             ", publicPresentation ='" + getPublicPresentation () +
             ", userSatisfaction='" + getUserSatisfaction() +
             ", createdBy='" + getCreatedBy() + "'" +

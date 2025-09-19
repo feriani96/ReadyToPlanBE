@@ -59,6 +59,9 @@ public class TrainingCourse implements Serializable {
     @Field("presentation")
     private String presentation;
 
+    @Field("coursePlan")
+    private String coursePlan;
+
     @Field("public_presentation")
     private Boolean publicPresentation = false;
 
@@ -218,6 +221,19 @@ public class TrainingCourse implements Serializable {
 
     public void setPresentation(String presentation) {
         this.presentation = presentation;
+    }
+
+    public String getCoursePlan() {
+        return this.coursePlan;
+    }
+
+    public TrainingCourse coursePlan(String coursePlan) {
+        this.setCoursePlan(coursePlan);
+        return this;
+    }
+
+    public void setCoursePlan(String coursePlan) {
+        this.coursePlan = coursePlan;
     }
 
     public Boolean getPublicPresentation() {

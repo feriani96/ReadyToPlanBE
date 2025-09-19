@@ -71,5 +71,7 @@ public interface TrainingCourseService {
 
     void evaluateCourse(String courseId, User currentUser, Integer satisfaction);
 
+    TrainingCourseDTO saveWithoutPresentation(TrainingCourseDTO trainingCourseDTO);
+
 }
 
